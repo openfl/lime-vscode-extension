@@ -192,6 +192,11 @@ class Main {
 				description: "",
 			},
 			{
+				target: "neko",
+				label: "Neko",
+				description: "",
+			},
+			{
 				target: "emscripten",
 				label: "Emscripten",
 				description: "",
@@ -280,20 +285,61 @@ class Main {
 		var targetFlags = getTargetFlags ();
 		var commandLine = StringTools.trim ("lime display " + getTarget () + (buildConfigFlags != "" ? " " + buildConfigFlags : "") + (targetFlags != "" ? " " + targetFlags : ""));
 		
+		commandLine = StringTools.replace (commandLine, "-verbose", "");
+		
 		//trace ("Running display command: " + commandLine);
 		
 		try {
 			
-			var result:Buffer = ChildProcess.execSync (commandLine, { cwd: workspace.rootPath });
-			var args = result.toString ().split ("\n");
-			//trace (args);
-			displayArguments = args;
-			
-			if (haxeServerReady) {
+			ChildProcess.exec (commandLine, { cwd: workspace.rootPath }, function (err, stdout:Buffer, stderror) {
 				
-				haxeServerAPI.updateDisplayArguments (args);
+				try {
+					
+					var lines = stdout.toString ().split ("\n");
+					var args = [];
+					
+					for (line in lines) {
+						
+						line = StringTools.trim (line);
+						if (line != "") args.push (line);
+						
+					}
+					
+					if (displayArguments.length == args.length) {
+						
+						var equal = true;
+						
+						for (i in 0...args.length) {
+							
+							if (displayArguments[i] != args[i]) {
+								
+								equal = false;
+								break;
+								
+							}
+							
+						}
+						
+						if (equal) return;
+						
+					}
+					
+					displayArguments = args;
+					
+					if (haxeServerReady) {
+						
+						haxeServerAPI.updateDisplayArguments (args);
+						
+					}
+					
+				} catch (e:Dynamic) {
+					
+					trace ("Error running display command: " + commandLine);
+					trace (e);
+					
+				}
 				
-			}
+			});
 			
 		} catch (e:Dynamic) {
 			

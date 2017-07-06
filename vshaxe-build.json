@@ -1,0 +1,46 @@
+{
+    "inherit": "vshaxe-node",
+    "mainTarget": "all",
+    "targets": [
+        {
+            "name": "all",
+            "composite": true,
+            "targetDependencies": [
+                "test"
+            ]
+        },
+        {
+            "name": "test",
+            "composite": true,
+            "targetDependencies": [
+                "vscode-lime"
+            ],
+            "isTestCommand": true,
+            "args": {
+                "debug": true
+            }
+        },
+        {
+            "name": "vscode-lime",
+            "installCommands": [
+                ["npm", "install"]
+            ],
+            "args": {
+                "classPaths": [
+                    "vscode-extern/src",
+                    "src"
+                ],
+                "defines": [
+                    "hxnodejs-no-version-warning",
+                    "JSTACK_MAIN=vscode_lime.Main.main"
+                ],
+                "output": {
+                    "target": "js",
+                    "path": "bin/client.js"
+                },
+                "packageName": "vscode_lime.Main"
+            },
+            "isBuildCommand": true
+        }
+    ]
+}

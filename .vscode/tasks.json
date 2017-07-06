@@ -1,0 +1,97 @@
+// This file is generated with vshaxe-build - DO NOT EDIT MANUALLY!
+{
+    "suppressTaskName": true,
+    "version": "2.0.0",
+    "command": "haxelib",
+    "tasks": [
+        {
+            "args": [
+                "run",
+                "vshaxe-build",
+                "-t",
+                "all"
+            ],
+            "taskName": "all",
+            "problemMatcher": "$haxe"
+        },
+        {
+            "args": [
+                "run",
+                "vshaxe-build",
+                "-t",
+                "test",
+                "--debug"
+            ],
+            "isTestCommand": true,
+            "taskName": "test - TEST",
+            "problemMatcher": "$haxe"
+        },
+        {
+            "args": [
+                "run",
+                "vshaxe-build",
+                "-t",
+                "vscode-lime"
+            ],
+            "taskName": "vscode-lime",
+            "problemMatcher": "$haxe"
+        },
+        {
+            "args": [
+                "run",
+                "vshaxe-build",
+                "-t",
+                "all",
+                "--debug"
+            ],
+            "taskName": "all (debug)",
+            "problemMatcher": "$haxe"
+        },
+        {
+            "args": [
+                "run",
+                "vshaxe-build",
+                "-t",
+                "vscode-lime",
+                "--debug"
+            ],
+            "taskName": "vscode-lime (debug) - BUILD",
+            "isBuildCommand": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "args": [
+                "run",
+                "vshaxe-build",
+                "--target",
+                "all",
+                "--mode",
+                "install"
+            ],
+            "taskName": "{install-all}",
+            "problemMatcher": "$haxe"
+        },
+        {
+            "args": [
+                "run",
+                "vshaxe-build",
+                "--target",
+                "all",
+                "--display"
+            ],
+            "taskName": "{generate-complete-hxml}",
+            "problemMatcher": "$haxe"
+        },
+        {
+            "args": [
+                "run",
+                "vshaxe-build",
+                "--target",
+                "all",
+                "--gen-tasks"
+            ],
+            "taskName": "{generate-vscode-tasks}",
+            "problemMatcher": "$haxe"
+        }
+    ]
+}

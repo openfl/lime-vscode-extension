@@ -1,0 +1,9 @@
+/bin/*
+/node_modules
+/*.vsix
+*.n
+vscode.ico
+.haxelib/
+build/run.js
+*.log
+.DS_Store

@@ -1,0 +1,3 @@
+[submodule "vscode-extern"]
+	path = vscode-extern
+	url = https://github.com/vshaxe/vscode-extern

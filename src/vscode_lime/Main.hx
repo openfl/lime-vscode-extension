@@ -66,15 +66,21 @@ class Main {
 		var vshaxe = extensions.getExtension("nadako.vshaxe");
 		haxeServerAPI = vshaxe.exports;
 
-		if (untyped !haxeServerAPI) trace ("Haxe server API not available?");
-
-		if (haxeServerAPI.isReady) {
+		if (untyped !haxeServerAPI) {
 			
-			haxeServerAPI_onReady ();
+			trace ("Warning: Haxe server API not available (probably using an incompatible vshaxe version)");
 			
 		} else {
 			
-			haxeServerAPI.onReady = haxeServerAPI_onReady;
+			if (haxeServerAPI.isReady) {
+				
+				haxeServerAPI_onReady ();
+				
+			} else {
+				
+				haxeServerAPI.onReady = haxeServerAPI_onReady;
+				
+			}
 			
 		}
 		
@@ -130,6 +136,10 @@ class Main {
 	
 	
 	private function initialize ():Void {
+		
+		// TODO: Check for workspace.getConfiguration ("lime").get ("projectFile");
+		// TODO: Use Lime to check if directory is a Lime project if not found
+		// TODO: Populate target items and build configurations from Lime
 		
 		targetItems = [
 			{
@@ -428,6 +438,7 @@ class Main {
 		var flags = getTargetFlags ();
 		window.showInputBox ({ prompt: "Additional Command-Line Arguments", value: flags + " ", valueSelection: [ flags.length + 1, flags.length + 1 ] }).then (function (value:String) {
 			
+			if (untyped !value) value = "";
 			setTargetFlags (StringTools.trim (value));
 			
 		});

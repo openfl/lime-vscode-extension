@@ -1,4 +1,4 @@
-package vscode_lime;
+package lime.extension;
 
 
 import js.node.Buffer;
@@ -210,11 +210,14 @@ class Main {
 	}
 	
 	
-	@:keep @:expose("activate") public static function main (context:ExtensionContext) {
+	@:keep @:expose("activate") public static function activate (context:ExtensionContext) {
 		
 		new Main (context);
 		
 	}
+	
+	
+	static function main () {}
 	
 	
 	public function provideTasks (?token:CancellationToken):ProviderResult<Array<Task>> {

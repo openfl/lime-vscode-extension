@@ -1,0 +1,8 @@
+-cp vscode-extern/src
+-cp src
+-D hxnodejs-no-version-warning
+-D analyzer-optimize
+-lib hxnodejs
+-js bin/lime-vscode.js
+-dce full
+-main lime.extension.Main

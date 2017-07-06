@@ -2,7 +2,7 @@
     "editor.insertSpaces": false,
     "files.trimTrailingWhitespace": false,
     "haxe.displayConfigurations": [
-        ["complete.hxml"]
+        ["build.hxml"]
     ],
     "haxe.diagnosticsPathFilter": "${workspaceRoot}/(?!syntaxes/cases)",
     "codedox": {

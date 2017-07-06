@@ -1,5 +1,5 @@
 {
-    "name": "vscode-lime",
+    "name": "lime-vscode-extension",
     "version": "1.0.0",
     "publisher": "openfl",
     "engines": {
@@ -23,78 +23,28 @@
     "dependencies": {
         "vscode-languageclient": "^3.3.0"
     },
-    "bugs": "https://github.com/openfl/vscode-lime/issues",
-    "homepage": "https://github.com/openfl/vscode-lime/blob/master/README.md",
+    "bugs": "https://github.com/openfl/lime-vscode-extension/issues",
+    "homepage": "https://github.com/openfl/lime-vscode-extension/blob/master/README.md",
     "repository": {
         "type": "git",
-        "url": "https://github.com/openfl/vscode-lime.git"
+        "url": "https://github.com/openfl/lime-vscode-extension.git"
     },
     "scripts": {
-        "vscode:prepublish": "haxelib run vshaxe-build -t vshaxe -t language-server-tests -t tm-language"
+        "vscode:prepublish": "haxe build.hxml"
     },
-    "main": "bin/client.js",
+    "main": "bin/lime-vscode.js",
     "activationEvents": [
         "onLanguage:haxe",
-        "onCommand:haxe.restartLanguageServer",
-        "onCommand:haxe.initProject",
-        "onCommand:haxe.selectDisplayConfiguration",
-        "onCommand:haxe.runGlobalDiagnostics",
-        "onCommand:haxe.toggleCodeLens",
-        "onCommand:haxe.dependencies.refresh",
-        "onCommand:haxe.dependencies.collapseAll",
-        "onView:haxe.dependencies"
+        "workspaceContains:project.xml",
+        "workspaceContains:project.lime",
+        "workspaceContains:project.hxp"
     ],
     "contributes": {
         "configuration": {
             "title": "Lime configuration",
             "properties": {
             }
-        },
-        "commands": [
-            {
-                "title": "Restart Language Server",
-                "command": "haxe.restartLanguageServer",
-                "category": "Haxe"
-            },
-            {
-                "title": "Initialize VS Code Project...",
-                "command": "haxe.initProject",
-                "category": "Haxe"
-            },
-            {
-                "title": "Select Display Configuration...",
-                "command": "haxe.selectDisplayConfiguration",
-                "category": "Haxe"
-            },
-            {
-                "title": "Run Global Diagnostics Check",
-                "command": "haxe.runGlobalDiagnostics",
-                "category": "Haxe"
-            },
-            {
-                "title": "Toggle Code Lens",
-                "command": "haxe.toggleCodeLens",
-                "category": "Haxe"
-            },
-            {
-                "title": "Refresh Dependencies",
-                "command": "haxe.dependencies.refresh",
-                "category": "Haxe",
-                "icon": {
-                    "light": "resources/light/refresh.svg",
-                    "dark": "resources/dark/refresh.svg"
-                }
-            },
-            {
-                "title": "Collapse All Dependencies",
-                "command": "haxe.dependencies.collapseAll",
-                "category": "Haxe",
-                "icon": {
-                    "light": "resources/light/collapseAll.svg",
-                    "dark": "resources/dark/collapseAll.svg"
-                }
-            }
-        ]
+        }
     },
     "extensionDependencies": [
         "nadako.vshaxe"

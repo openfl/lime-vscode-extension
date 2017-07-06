@@ -117,13 +117,15 @@ class Main {
 		//var task = new Task (definition, description, "Lime", new ProcessExecution ("lime", args, { cwd: workspace.rootPath }));
 		var task = new Task (definition, description, "Lime", new ShellExecution ("lime " + args.join (" "), { cwd: workspace.rootPath }));
 		
+		//task.presentationOptions = { panel: TaskPanelKind.Shared };
+		
 		if (group != null) {
 			
 			task.group = group;
 			
 		}
 		
-		task.problemMatchers = [ "haxe" ];
+		task.problemMatchers = [ "$haxe" ];
 		
 		return task;
 		

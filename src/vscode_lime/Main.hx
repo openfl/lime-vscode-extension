@@ -85,38 +85,14 @@ class Main {
 	
 	private function createTask (description:String, command:String, ?group:TaskGroup) {
 		
-		var definition:TaskDefinition = {
+		var definition:TaskDefinition = cast {
 			
-			type: "lime"
-			
-		}
-		
-		var args = [ command ];
-		
-		// TODO: Smarter logic
-		if (command.indexOf (" ") == -1) {
-			
-			args.push (getTarget ());
+			type: "lime",
+			command: command
 			
 		}
 		
-		var buildConfigFlags = getBuildConfigFlags ();
-		if (buildConfigFlags != "") {
-			
-			args = args.concat (buildConfigFlags.split (" "));
-			
-		}
-		
-		var targetFlags = getTargetFlags ();
-		if (targetFlags != "") {
-			
-			args = args.concat (targetFlags.split (" "));
-			
-		}
-		
-		//var task = new Task (definition, description, "Lime", new ProcessExecution ("lime", args, { cwd: workspace.rootPath }));
-		var task = new Task (definition, description, "Lime", new ShellExecution ("lime " + args.join (" "), { cwd: workspace.rootPath }));
-		
+		var task = new Task (definition, description, "Lime");
 		//task.presentationOptions = { panel: TaskPanelKind.Shared };
 		
 		if (group != null) {
@@ -233,22 +209,58 @@ class Main {
 	
 	public function provideTasks (?token:CancellationToken):ProviderResult<Array<Task>> {
 		
-		return [
+		var tasks = [
 			//createTask ("Test", "test", TaskGroup.Test),
 			createTask ("Test", "test", untyped __js__('new vscode.TaskGroup ("test", "Test")')),
 			createTask ("Build", "build", TaskGroup.Build),
-			createTask ("Run", "run", untyped __js__('new vscode.TaskGroup ("run", "Run")')),
+			//createTask ("Run", "run"),
 			createTask ("Clean", "clean", TaskGroup.Clean),
 			createTask ("Rebuild", "rebuild", TaskGroup.Rebuild),
-			createTask ("Rebuild Tools", "rebuild tools", untyped __js__('new vscode.TaskGroup ("rebuild-tools", "Rebuild Tools")'))
+			//createTask ("Rebuild Tools", "rebuild tools")
 		];
+		
+		// resolveTask doesn't seem to be called by VSCode as expected
+		
+		for (task in tasks) {
+			
+			resolveTask (task);
+			
+		}
+		
+		return tasks;
 		
 	}
 	
 	
 	public function resolveTask (task:Task, ?token:CancellationToken):ProviderResult<Task> {
 		
-		return null;
+		var definition:Dynamic = task.definition;
+		var command = definition.command;
+		var args:Array<String> = [ command ];
+		
+		// TODO: Smarter logic
+		if (command.indexOf (" ") == -1) {
+			
+			args.push (getTarget ());
+			
+		}
+		
+		var buildConfigFlags = getBuildConfigFlags ();
+		if (buildConfigFlags != "") {
+			
+			args = args.concat (buildConfigFlags.split (" "));
+			
+		}
+		
+		var targetFlags = getTargetFlags ();
+		if (targetFlags != "") {
+			
+			args = args.concat (targetFlags.split (" "));
+			
+		}
+		
+		task.execution = new ShellExecution ("lime " + args.join (" "), { cwd: workspace.rootPath });
+		return task;
 		
 	}
 	

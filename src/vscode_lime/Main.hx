@@ -20,6 +20,7 @@ class Main {
 	private var selectBuildConfigItem:StatusBarItem;
 	private var selectTargetItem:StatusBarItem;
 	private var targetItems:Array<TargetItem>;
+	private var taskDisposable:Disposable;
 	
 	
 	public function new (context:ExtensionContext) {
@@ -58,6 +59,8 @@ class Main {
 		context.subscriptions.push (workspace.onDidChangeConfiguration (workspace_onDidChangeConfiguration));
 		context.subscriptions.push (window.onDidChangeActiveTextEditor (window_onDidChangeActiveTextEditor));
 		
+		workspace.registerTaskProvider ("lime", this);
+		
 		// TODO: Improve server API
 		
 		var vshaxe = extensions.getExtension("nadako.vshaxe");
@@ -76,6 +79,53 @@ class Main {
 		}
 		
 		updateStatusBarItems ();
+		
+	}
+	
+	
+	private function createTask (description:String, command:String, ?group:TaskGroup) {
+		
+		var definition:TaskDefinition = {
+			
+			type: "lime"
+			
+		}
+		
+		var args = [ command ];
+		
+		// TODO: Smarter logic
+		if (command.indexOf (" ") == -1) {
+			
+			args.push (getTarget ());
+			
+		}
+		
+		var buildConfigFlags = getBuildConfigFlags ();
+		if (buildConfigFlags != "") {
+			
+			args = args.concat (buildConfigFlags.split (" "));
+			
+		}
+		
+		var targetFlags = getTargetFlags ();
+		if (targetFlags != "") {
+			
+			args = args.concat (targetFlags.split (" "));
+			
+		}
+		
+		//var task = new Task (definition, description, "Lime", new ProcessExecution ("lime", args, { cwd: workspace.rootPath }));
+		var task = new Task (definition, description, "Lime", new ShellExecution ("lime " + args.join (" "), { cwd: workspace.rootPath }));
+		
+		if (group != null) {
+			
+			task.group = group;
+			
+		}
+		
+		task.problemMatchers = [ "haxe" ];
+		
+		return task;
 		
 	}
 	
@@ -170,6 +220,28 @@ class Main {
 	@:keep @:expose("activate") public static function main (context:ExtensionContext) {
 		
 		new Main (context);
+		
+	}
+	
+	
+	public function provideTasks (?token:CancellationToken):ProviderResult<Array<Task>> {
+		
+		return [
+			//createTask ("Test", "test", TaskGroup.Test),
+			createTask ("Test", "test", untyped __js__('new vscode.TaskGroup ("test", "Test")')),
+			createTask ("Build", "build", TaskGroup.Build),
+			createTask ("Run", "run", untyped __js__('new vscode.TaskGroup ("run", "Run")')),
+			createTask ("Clean", "clean", TaskGroup.Clean),
+			createTask ("Rebuild", "rebuild", TaskGroup.Rebuild),
+			createTask ("Rebuild Tools", "rebuild tools", untyped __js__('new vscode.TaskGroup ("rebuild-tools", "Rebuild Tools")'))
+		];
+		
+	}
+	
+	
+	public function resolveTask (task:Task, ?token:CancellationToken):ProviderResult<Task> {
+		
+		return null;
 		
 	}
 	

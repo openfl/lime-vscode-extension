@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "publisher": "openfl",
     "engines": {
-        "vscode": "^1.13.0",
+        "vscode": "^1.14.0",
         "nadako.vshaxe": "^1.8.0"
     },
     "displayName": "Lime",
@@ -98,5 +98,6 @@
     },
     "extensionDependencies": [
         "nadako.vshaxe"
-    ]
+    ],
+    "enableProposedApi": true
 }

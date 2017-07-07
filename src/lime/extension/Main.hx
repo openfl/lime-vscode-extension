@@ -267,7 +267,6 @@ class Main {
 		
 		if (getTarget () != "html5") {
 			
-			trace (getTarget());
 			tasks.push (createTask ("Rebuild", "rebuild tools", TaskGroup.Rebuild));
 			
 		}

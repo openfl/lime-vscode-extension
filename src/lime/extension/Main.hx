@@ -98,7 +98,11 @@ class Main {
 			
 		}
 		
-		var task = new Task (definition, description, "Lime");
+		//var task = new Task (definition, description, "Lime");
+		
+		var commandLine = getCommandLine (command);
+		var task = new Task (definition, commandLine.substr (5), "lime");
+		task.execution = new ShellExecution (commandLine, { cwd: workspace.rootPath });
 		//task.presentationOptions = { panel: TaskPanelKind.Shared };
 		
 		if (group != null) {
@@ -108,7 +112,6 @@ class Main {
 		}
 		
 		task.problemMatchers = [ "$haxe" ];
-		
 		return task;
 		
 	}
@@ -117,6 +120,36 @@ class Main {
 	public function getBuildConfigFlags ():String {
 		
 		return context.workspaceState.get ("lime.buildConfigFlags", "");
+		
+	}
+	
+	
+	private function getCommandLine (command:String):String {
+		
+		var commandLine = "lime " + command;
+		
+		// TODO: Smarter logic
+		if (command.indexOf (" ") == -1) {
+			
+			commandLine += " " + getTarget ();
+			
+		}
+		
+		var buildConfigFlags = getBuildConfigFlags ();
+		if (buildConfigFlags != "") {
+			
+			commandLine += " " + buildConfigFlags;
+			
+		}
+		
+		var targetFlags = StringTools.trim (getTargetFlags ());
+		if (targetFlags != "") {
+			
+			commandLine += " " + targetFlags;
+			
+		}
+		
+		return commandLine;
 		
 	}
 	
@@ -223,20 +256,19 @@ class Main {
 	public function provideTasks (?token:CancellationToken):ProviderResult<Array<Task>> {
 		
 		var tasks = [
+			createTask ("Clean", "clean", TaskGroup.Clean),
+			createTask ("Update", "update"),
+			createTask ("Build", "build", TaskGroup.Build),
+			createTask ("Run", "run"),
 			//createTask ("Test", "test", TaskGroup.Test),
 			createTask ("Test", "test", untyped __js__('new vscode.TaskGroup ("test", "Test")')),
-			createTask ("Build", "build", TaskGroup.Build),
-			//createTask ("Run", "run"),
-			createTask ("Clean", "clean", TaskGroup.Clean),
-			createTask ("Rebuild", "rebuild", TaskGroup.Rebuild),
-			//createTask ("Rebuild Tools", "rebuild tools")
+			createTask ("Rebuild", "rebuild", TaskGroup.Rebuild)
 		];
 		
-		// resolveTask doesn't seem to be called by VSCode as expected
-		
-		for (task in tasks) {
+		if (getTarget () != "html5") {
 			
-			resolveTask (task);
+			trace (getTarget());
+			tasks.push (createTask ("Rebuild", "rebuild tools", TaskGroup.Rebuild));
 			
 		}
 		
@@ -249,30 +281,7 @@ class Main {
 		
 		var definition:Dynamic = task.definition;
 		var command = definition.command;
-		var args:Array<String> = [ command ];
-		
-		// TODO: Smarter logic
-		if (command.indexOf (" ") == -1) {
-			
-			args.push (getTarget ());
-			
-		}
-		
-		var buildConfigFlags = getBuildConfigFlags ();
-		if (buildConfigFlags != "") {
-			
-			args = args.concat (buildConfigFlags.split (" "));
-			
-		}
-		
-		var targetFlags = getTargetFlags ();
-		if (targetFlags != "") {
-			
-			args = args.concat (targetFlags.split (" "));
-			
-		}
-		
-		task.execution = new ShellExecution ("lime " + args.join (" "), { cwd: workspace.rootPath });
+		task.execution = new ShellExecution (getCommandLine (command), { cwd: workspace.rootPath });
 		return task;
 		
 	}

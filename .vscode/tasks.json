@@ -7,18 +7,19 @@
         {
             "args": [
                 "build.hxml",
-            ],
-            "taskName": "build",
-            "problemMatcher": "$haxe",
-        },
-        {
-            "args": [
-                "build.hxml",
                 "-debug",
                 "-D", "JSTACK_MAIN=lime.vscode.Main.main",
                 "-D", "js-unflatten"
             ],
             "taskName": "build (debug)",
+            "problemMatcher": "$haxe",
+            "isBuildCommand": true
+        },
+        {
+            "args": [
+                "build.hxml",
+            ],
+            "taskName": "build (release)",
             "problemMatcher": "$haxe",
             "isBuildCommand": true
         },

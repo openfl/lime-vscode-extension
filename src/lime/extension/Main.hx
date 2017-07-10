@@ -3,6 +3,7 @@ package lime.extension;
 
 import js.node.Buffer;
 import js.node.ChildProcess;
+import vshaxe.api.VshaxeAPI;
 import Vscode.*;
 import vscode.*;
 
@@ -12,10 +13,9 @@ class Main {
 	
 	private var buildConfigItems:Array<BuildConfigItem>;
 	private var context:ExtensionContext;
-	private var displayArguments:Array<String> = [];
+	private var displayArgumentProvider:LimeDisplayArgumentProvider;
 	private var editTargetFlagsItem:StatusBarItem;
-	private var haxeLanguageServer:Dynamic;
-	private var lastLanguage:String;
+	//private var lastLanguage:String;
 	private var selectBuildConfigItem:StatusBarItem;
 	private var selectTargetItem:StatusBarItem;
 	private var targetItems:Array<TargetItem>;
@@ -60,26 +60,23 @@ class Main {
 		
 		workspace.registerTaskProvider ("lime", this);
 		
-		// TODO: Improve server API
+		displayArgumentProvider = new LimeDisplayArgumentProvider ();
 		
 		var vshaxe:Dynamic = extensions.getExtension("nadako.vshaxe");
+		var api:VshaxeAPI = vshaxe.exports;
 		
-		if (untyped !vshaxe.exports) {
+		if (untyped !api) {
 			
 			trace ("Warning: Haxe language server not available (using an incompatible vshaxe version)");
 			
 		} else {
 			
-			vshaxe.exports.onReady ().then (function (api) {
-				
-				haxeLanguageServer = api;
-				updateDisplayArguments ();
-				
-			});
+			api.registerDisplayArgumentProvider ("lime", displayArgumentProvider);
 			
 		}
 		
 		updateStatusBarItems ();
+		updateDisplayArguments ();
 		
 	}
 	
@@ -323,44 +320,7 @@ class Main {
 				
 				try {
 					
-					var lines = stdout.toString ().split ("\n");
-					var args = [];
-					
-					for (line in lines) {
-						
-						line = StringTools.trim (line);
-						//if (line != "") args.push (line);
-						// TODO: Handle macro lines better
-						if (line != "") args = args.concat (line.split (" "));
-						
-					}
-					
-					if (displayArguments.length == args.length) {
-						
-						var equal = true;
-						
-						for (i in 0...args.length) {
-							
-							if (displayArguments[i] != args[i]) {
-								
-								equal = false;
-								break;
-								
-							}
-							
-						}
-						
-						if (equal) return;
-						
-					}
-					
-					displayArguments = args;
-					
-					if (haxeLanguageServer != null) {
-						
-						haxeLanguageServer.updateDisplayArguments (args);
-						
-					}
+					displayArgumentProvider.update (stdout.toString ());
 					
 				} catch (e:Dynamic) {
 					
@@ -421,12 +381,12 @@ class Main {
 			
 			editTargetFlagsItem.text = "$(list-unordered)";
 			editTargetFlagsItem.show ();
-			lastLanguage = "haxe";
+			//lastLanguage = "haxe";
 			return;
 			
 		}
 		
-		lastLanguage = null;
+		//lastLanguage = null;
 		selectTargetItem.hide ();
 		selectBuildConfigItem.hide ();
 		editTargetFlagsItem.hide ();

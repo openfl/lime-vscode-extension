@@ -334,7 +334,9 @@ class Main {
 					for (line in lines) {
 						
 						line = StringTools.trim (line);
-						if (line != "") args.push (line);
+						//if (line != "") args.push (line);
+						// TODO: Handle macro lines better
+						if (line != "") args = args.concat (line.split (" "));
 						
 					}
 					

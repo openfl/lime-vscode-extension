@@ -14,8 +14,7 @@ class Main {
 	private var context:ExtensionContext;
 	private var displayArguments:Array<String> = [];
 	private var editTargetFlagsItem:StatusBarItem;
-	private var haxeServerAPI:Dynamic;
-	private var haxeServerReady:Bool;
+	private var haxeLanguageServer:Dynamic;
 	private var lastLanguage:String;
 	private var selectBuildConfigItem:StatusBarItem;
 	private var selectTargetItem:StatusBarItem;
@@ -63,24 +62,20 @@ class Main {
 		
 		// TODO: Improve server API
 		
-		var vshaxe = extensions.getExtension("nadako.vshaxe");
-		haxeServerAPI = vshaxe.exports;
-
-		if (untyped !haxeServerAPI) {
+		var vshaxe:Dynamic = extensions.getExtension("nadako.vshaxe");
+		
+		if (untyped !vshaxe.exports) {
 			
-			trace ("Warning: Haxe server API not available (probably using an incompatible vshaxe version)");
+			trace ("Warning: Haxe language server not available (using an incompatible vshaxe version)");
 			
 		} else {
 			
-			if (haxeServerAPI.isReady) {
+			vshaxe.exports.onReady ().then (function (api) {
 				
-				haxeServerAPI_onReady ();
+				haxeLanguageServer = api;
+				updateDisplayArguments ();
 				
-			} else {
-				
-				haxeServerAPI.onReady = haxeServerAPI_onReady;
-				
-			}
+			});
 			
 		}
 		
@@ -361,9 +356,9 @@ class Main {
 					
 					displayArguments = args;
 					
-					if (haxeServerReady) {
+					if (haxeLanguageServer != null) {
 						
-						haxeServerAPI.updateDisplayArguments (args);
+						haxeLanguageServer.updateDisplayArguments (args);
 						
 					}
 					
@@ -455,14 +450,6 @@ class Main {
 			setTargetFlags (StringTools.trim (value));
 			
 		});
-		
-	}
-	
-	
-	private function haxeServerAPI_onReady ():Void {
-		
-		haxeServerReady = true;
-		updateDisplayArguments ();
 		
 	}
 	

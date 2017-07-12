@@ -3,6 +3,7 @@ package lime.extension;
 
 import js.node.Buffer;
 import js.node.ChildProcess;
+import sys.FileSystem;
 import vshaxe.api.VshaxeAPI;
 import Vscode.*;
 import vscode.*;
@@ -15,6 +16,8 @@ class Main {
 	private var context:ExtensionContext;
 	private var displayArgumentProvider:LimeDisplayArgumentProvider;
 	private var editTargetFlagsItem:StatusBarItem;
+	private var enabled:Bool;
+	private var initialized:Bool;
 	//private var lastLanguage:String;
 	private var selectBuildConfigItem:StatusBarItem;
 	private var selectTargetItem:StatusBarItem;
@@ -26,10 +29,49 @@ class Main {
 		
 		this.context = context;
 		
-		//trace ("Hello from Lime extension");
+		refresh ();
 		
-		initialize ();
-		construct ();
+	}
+	
+	
+	private function checkEnabled ():Void {
+		
+		enabled = false;
+		
+		try {
+			
+			if (getProjectFile () != "") {
+				
+				enabled = true;
+				
+			}
+			
+			if (!enabled) {
+				
+				var rootPath = workspace.rootPath;
+				
+				if (rootPath != null) {
+					
+					// TODO: support custom project file references
+					
+					var files = [ "project.xml", "project.hxp", "project.lime" ];
+					
+					for (file in files) {
+						
+						if (FileSystem.exists (rootPath + "/" + file)) {
+							
+							enabled = true;
+							break;
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		}
 		
 	}
 	
@@ -75,9 +117,6 @@ class Main {
 			
 		}
 		
-		updateStatusBarItems ();
-		updateDisplayArguments ();
-		
 	}
 	
 	
@@ -120,10 +159,12 @@ class Main {
 		
 		var commandLine = "lime " + command;
 		
-		// TODO: Smarter logic
+		// TODO: Smarter logic (skips rebuild tools)
 		if (command.indexOf (" ") == -1) {
 			
-			commandLine += " " + getTarget ();
+			var projectFile = getProjectFile ();
+			
+			commandLine += " " + (projectFile != "" ? projectFile + " " : "") + getTarget ();
 			
 		}
 		
@@ -142,6 +183,25 @@ class Main {
 		}
 		
 		return commandLine;
+		
+	}
+	
+	
+	public function getProjectFile ():String {
+		
+		var config = workspace.getConfiguration ("lime");
+		
+		if (config.has ("projectFile")) {
+			
+			var projectFile = Std.string (config.get ("projectFile"));
+			if (projectFile == "null") projectFile = "";
+			return projectFile;
+			
+		} else {
+			
+			return "";
+			
+		}
 		
 	}
 	
@@ -232,12 +292,21 @@ class Main {
 			}
 		];
 		
+		initialized = true;
+		
 	}
 	
 	
 	@:keep @:expose("activate") public static function activate (context:ExtensionContext) {
 		
 		new Main (context);
+		
+	}
+	
+	
+	@:keep @:expose("deactivate") public static function deactivate () {
+		
+		
 		
 	}
 	
@@ -264,6 +333,32 @@ class Main {
 		}
 		
 		return tasks;
+		
+	}
+	
+	
+	private function refresh ():Void {
+		
+		checkEnabled ();
+		
+		if (enabled) {
+			
+			if (!initialized) {
+				
+				initialize ();
+				construct ();
+				
+			}
+			
+			updateDisplayArguments ();
+			
+		}
+		
+		if (initialized) {
+			
+			updateStatusBarItems ();
+			
+		}
 		
 	}
 	
@@ -306,9 +401,12 @@ class Main {
 	
 	private function updateDisplayArguments ():Void {
 		
+		if (!enabled) return;
+		
+		var projectFile = getProjectFile ();
 		var buildConfigFlags = getBuildConfigFlags ();
 		var targetFlags = getTargetFlags ();
-		var commandLine = StringTools.trim ("lime display " + getTarget () + (buildConfigFlags != "" ? " " + buildConfigFlags : "") + (targetFlags != "" ? " " + targetFlags : ""));
+		var commandLine = StringTools.trim ("lime display " + (projectFile != "" ? projectFile + " " : "") + getTarget () + (buildConfigFlags != "" ? " " + buildConfigFlags : "") + (targetFlags != "" ? " " + targetFlags : ""));
 		
 		commandLine = StringTools.replace (commandLine, "-verbose", "");
 		
@@ -347,7 +445,7 @@ class Main {
 		//var isDocument = hasEditor && languages.match({language: 'haxe', scheme: 'file'}, window.activeTextEditor.document) > 0;
 		//var isRelatedPanel = hasEditor && (window.activeTextEditor.document:Dynamic).scheme != "file" && lastLanguage == "haxe";
 		
-		if (true /*&& (isDocument || isRelatedPanel)*/) {
+		if (enabled) {
 			
 			var target = getTarget ();
 			
@@ -448,14 +546,14 @@ class Main {
 	
 	private function window_onDidChangeActiveTextEditor (_):Void {
 		
-		updateStatusBarItems ();
+		//updateStatusBarItems ();
 		
 	}
 	
 	
 	private function workspace_onDidChangeConfiguration (_):Void {
 		
-		updateStatusBarItems ();
+		refresh ();
 		
 	}
 	

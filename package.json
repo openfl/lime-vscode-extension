@@ -34,15 +34,17 @@
     },
     "main": "bin/lime-vscode.js",
     "activationEvents": [
-        "onLanguage:haxe",
-        "workspaceContains:project.xml",
-        "workspaceContains:project.lime",
-        "workspaceContains:project.hxp"
+        "*"
     ],
     "contributes": {
         "configuration": {
             "title": "Lime configuration",
             "properties": {
+                "lime.projectFile": {
+                    "description": "Custom path to Lime project file",
+                    "type": "string",
+                    "default": null
+                }
             }
         },
         "commands": [

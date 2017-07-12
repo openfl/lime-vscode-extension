@@ -1,6 +1,6 @@
 {
     "name": "lime-vscode-extension",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "publisher": "openfl",
     "engines": {
         "vscode": "^1.14.0",
@@ -15,8 +15,7 @@
         "theme": "dark",
         "color": "#333333"
     },
-    "badges": [
-    ],
+    "badges": [],
     "icon": "images/icon-128.png",
     "author": "Joshua Granick",
     "license": "MIT",

@@ -29,6 +29,9 @@ class Main {
 		
 		this.context = context;
 		
+		context.subscriptions.push (workspace.onDidChangeConfiguration (workspace_onDidChangeConfiguration));
+		//context.subscriptions.push (window.onDidChangeActiveTextEditor (window_onDidChangeActiveTextEditor));
+		
 		refresh ();
 		
 	}
@@ -96,9 +99,6 @@ class Main {
 		context.subscriptions.push (commands.registerCommand ("lime.selectTarget", selectTargetItem_onCommand));
 		context.subscriptions.push (commands.registerCommand ("lime.selectBuildConfig", selectBuildConfigItem_onCommand));
 		context.subscriptions.push (commands.registerCommand ("lime.editTargetFlags", editTargetFlagsItem_onCommand));
-		
-		context.subscriptions.push (workspace.onDidChangeConfiguration (workspace_onDidChangeConfiguration));
-		context.subscriptions.push (window.onDidChangeActiveTextEditor (window_onDidChangeActiveTextEditor));
 		
 		workspace.registerTaskProvider ("lime", this);
 		

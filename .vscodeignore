@@ -17,3 +17,4 @@ images/Main.hx
 .haxelib/**/*
 vshaxe-build.json
 debug.log
+*.vsix

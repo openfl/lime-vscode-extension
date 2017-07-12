@@ -7,22 +7,19 @@
         "nadako.vshaxe": "^1.8.0"
     },
     "displayName": "Lime",
-    "description": "Lime and OpenFL project support",
+    "description": "Adds support for Lime and OpenFL projects in Visual Studio Code",
     "categories": [
         "Other"
     ],
     "galleryBanner": {
         "theme": "dark",
-        "color": "#A84B38"
+        "color": "#333333"
     },
     "badges": [
     ],
-    "icon": "",
+    "icon": "images/icon-128.png",
     "author": "Joshua Granick",
     "license": "MIT",
-    "dependencies": {
-        "vscode-languageclient": "^3.3.0"
-    },
     "bugs": "https://github.com/openfl/lime-vscode-extension/issues",
     "homepage": "https://github.com/openfl/lime-vscode-extension/blob/master/README.md",
     "repository": {

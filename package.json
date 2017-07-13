@@ -1,6 +1,6 @@
 {
     "name": "lime-vscode-extension",
-    "version": "1.0.1",
+    "version": "1.0.4",
     "publisher": "openfl",
     "engines": {
         "vscode": "^1.14.0",
@@ -20,10 +20,10 @@
     "author": "Joshua Granick",
     "license": "MIT",
     "bugs": "https://github.com/openfl/lime-vscode-extension/issues",
-    "homepage": "https://github.com/openfl/lime-vscode-extension/blob/master/README.md",
+    "homepage": "http://www.openfl.org",
     "repository": {
         "type": "git",
-        "url": "https://github.com/openfl/lime-vscode-extension.git"
+        "url": "https://github.com/openfl/lime-vscode-extension"
     },
     "scripts": {
         "vscode:prepublish": "haxe build.hxml"

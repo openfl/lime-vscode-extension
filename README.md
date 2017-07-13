@@ -1,4 +1,4 @@
-![](images/screenshot.png)
+![](https://github.com/openfl/lime-vscode-extension/raw/master/images/screenshot.png)
 
 # Visual Studio Code Support for Lime/OpenFL
 

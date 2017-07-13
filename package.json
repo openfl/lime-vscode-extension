@@ -15,6 +15,11 @@
         "theme": "dark",
         "color": "#333333"
     },
+    "keywords": [
+        "haxe",
+        "lime",
+        "openfl"
+    ],
     "badges": [],
     "icon": "images/icon-128.png",
     "author": "Joshua Granick",

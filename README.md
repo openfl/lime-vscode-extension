@@ -1,4 +1,6 @@
-# Visual Studio Code Support
+![](images/screenshot.png)
+
+# Visual Studio Code Support for Lime/OpenFL
 
 The Lime extension for Visual Studio Code adds code completion, inline documentation, 
 populates the Haxe dependency tree and provides (for Insider Builds) build, clean, test and

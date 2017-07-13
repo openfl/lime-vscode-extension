@@ -16,8 +16,9 @@ class Main {
 	private var context:ExtensionContext;
 	private var displayArgumentsProvider:LimeDisplayArgumentsProvider;
 	private var editTargetFlagsItem:StatusBarItem;
-	private var enabled:Bool;
+	private var hasProjectFile:Bool;
 	private var initialized:Bool;
+	private var isProviderActive:Bool;
 	//private var lastLanguage:String;
 	private var selectBuildConfigItem:StatusBarItem;
 	private var selectTargetItem:StatusBarItem;
@@ -37,19 +38,19 @@ class Main {
 	}
 	
 	
-	private function checkEnabled ():Void {
+	private function checkHasProjectFile ():Void {
 		
-		enabled = false;
-		
+		hasProjectFile = false;
+
 		try {
 			
 			if (getProjectFile () != "") {
 				
-				enabled = true;
+				hasProjectFile = true;
 				
 			}
 			
-			if (!enabled) {
+			if (!hasProjectFile) {
 				
 				var rootPath = workspace.rootPath;
 				
@@ -63,7 +64,7 @@ class Main {
 						
 						if (FileSystem.exists (rootPath + "/" + file)) {
 							
-							enabled = true;
+							hasProjectFile = true;
 							break;
 							
 						}
@@ -102,10 +103,20 @@ class Main {
 		
 		workspace.registerTaskProvider ("lime", this);
 
+	}
+
+
+	private function constructDisplayArgumentsProvider () {
+
 		var vshaxe:Dynamic = extensions.getExtension("nadako.vshaxe");
 		var api:Vshaxe = vshaxe.exports;
 		
-		displayArgumentsProvider = new LimeDisplayArgumentsProvider (api);
+		displayArgumentsProvider = new LimeDisplayArgumentsProvider (api, function (isProviderActive) {
+
+			this.isProviderActive = isProviderActive;
+			refresh();
+
+		});
 		
 		if (untyped !api) {
 			
@@ -116,7 +127,7 @@ class Main {
 			api.registerDisplayArgumentsProvider ("Lime", displayArgumentsProvider);
 			
 		}
-		
+
 	}
 	
 	
@@ -339,21 +350,31 @@ class Main {
 	
 	private function refresh ():Void {
 		
-		checkEnabled ();
+		checkHasProjectFile ();
 		
-		if (enabled) {
-			
-			if (!initialized) {
+		if (hasProjectFile) {
+
+			if (displayArgumentsProvider == null) {
+
+				constructDisplayArgumentsProvider ();
+
+			}
+
+			if (isProviderActive && !initialized) {
 				
-				initialize ();
-				construct ();
+				if (!initialized) {
+
+					initialize ();
+					construct ();
+
+				}
+
+				updateDisplayArguments ();
 				
 			}
-			
-			updateDisplayArguments ();
-			
+
 		}
-		
+
 		if (initialized) {
 			
 			updateStatusBarItems ();
@@ -401,7 +422,7 @@ class Main {
 	
 	private function updateDisplayArguments ():Void {
 		
-		if (!enabled) return;
+		if (!hasProjectFile || !isProviderActive) return;
 		
 		var projectFile = getProjectFile ();
 		var buildConfigFlags = getBuildConfigFlags ();
@@ -445,7 +466,7 @@ class Main {
 		//var isDocument = hasEditor && languages.match({language: 'haxe', scheme: 'file'}, window.activeTextEditor.document) > 0;
 		//var isRelatedPanel = hasEditor && (window.activeTextEditor.document:Dynamic).scheme != "file" && lastLanguage == "haxe";
 		
-		if (enabled) {
+		if (hasProjectFile && isProviderActive) {
 			
 			var target = getTarget ();
 			

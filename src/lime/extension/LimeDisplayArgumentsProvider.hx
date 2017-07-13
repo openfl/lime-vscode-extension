@@ -10,15 +10,17 @@ class LimeDisplayArgumentsProvider {
 	private var api:Vshaxe;
 	private var arguments:String;
 	private var parsedArguments:Array<String>;
+	private var activationChangedCallback:Bool->Void;
 	private var updateArgumentsCallback:Array<String>->Void;
 	
 	
 	public var description(default,never):String = "from auto-detected project file or lime.projectFile";
+	
 
-
-	public function new (api:Vshaxe) {
+	public function new (api:Vshaxe, activationChangedCallback:Bool->Void) {
 
 		this.api = api;
+		this.activationChangedCallback = activationChangedCallback;
 
 	}
 	
@@ -33,13 +35,17 @@ class LimeDisplayArgumentsProvider {
 			
 		}
 		
+		activationChangedCallback (true);
+
 	}
 	
 	
 	public function deactivate ():Void {
 		
 		updateArgumentsCallback = null;
-		
+
+		activationChangedCallback (false);
+
 	}
 	
 	

@@ -27,13 +27,13 @@ For questions, comments or concerns, please visit the forums at [http://communit
 
 # Using Development Builds
 
-### Install Visual Studio Code, Insider Build
+### Install Visual Studio Code
  
-Go to https://code.visualstudio.com/insiders and install
+Go to https://code.visualstudio.com/download and install
  
 ### Disable auto-updates
 
-Open the Insider's Build, then go to "Preferences" > "Settings". This will open a text editor.
+Open Visual Studio Code, then go to "Preferences" > "Settings". This will open a text editor.
 
 In the window, add the following value:
 
@@ -41,7 +41,7 @@ In the window, add the following value:
 "extensions.autoUpdate": false
 ```
 
-This will prevent an auto-update mechanism that will install a release version of vshaxe, breaking the development version
+This will prevent an auto-update mechanism that will install a release version of vshaxe and lime-vscode-extension, breaking the development version
  
 ### Install a custom version of the vshaxe extension
 
@@ -50,19 +50,19 @@ The current version of vshaxe lacks an extension API needed for lime-vscode to w
 ##### Windows
 
 ```bash
-cd C:\Users\(your user name)\.vscode-insiders\extensions
+cd C:\Users\(your user name)\.vscode\extensions
 ```
 
-##### macOS/Linux
+##### macOS or Linux
 
 ```bash
- cd ~/.vscode-insiders/extensions
+ cd ~/.vscode/extensions
 ```
 
 then:
 
 ```bash
-git clone -b api --recursive https://github.com/jgranick/vshaxe
+git clone --recursive https://github.com/jgranick/vshaxe
 haxelib git vshaxe-build https://github.com/vshaxe/vshaxe-build
 cd vshaxe
 haxelib run vshaxe-build --target vshaxe --debug --mode both

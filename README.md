@@ -1,8 +1,30 @@
-# lime-vscode-extension
+# Visual Studio Code Support
 
-_This extension is a work in-progress_
+The Lime extension for Visual Studio Code adds code completion, inline documentation, 
+populates the Haxe dependency tree and provides (for Insider Builds) build, clean, test and
+(other) tasks automatically.
 
-## Setup
+This depends on the Haxe extension, and requires Haxe 3.4.2 or greater. You should also have
+Lime installed and properly set up.
+
+Opening a folder that contains a "project.xml", "project.hxp" or "project.lime" file activates
+this extension. Optionally, you can set "lime.projectFile" in the workspace "settings.json"
+file in order to specify a different file path. When activated, this extension adds support for
+changing the target platform, build configuration as well as additional command-line arguments.
+
+# About Lime
+
+Lime is a flexible, cross-platform framework for native desktop, mobile and console development,
+and Flash, HTML5 and WebAssembly.
+
+OpenFL is a productive 2D library built on Lime. More information about Lime and OpenFL are 
+available at [http://www.openfl.org](http://www.openfl.org)
+
+# Feedback
+
+For questions, comments or concerns, please visit the forums at [http://community.openfl.org](http://community.openfl.org)
+
+# Using Development Builds
 
 ### Install Visual Studio Code, Insider Build
  

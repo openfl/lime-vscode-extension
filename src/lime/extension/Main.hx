@@ -9,6 +9,9 @@ import Vscode.*;
 import vscode.*;
 
 
+using lime.extension.ArrayHelper;
+
+
 class Main {
 	
 
@@ -571,6 +574,7 @@ class Main {
 	private function selectBuildConfigItem_onCommand ():Void {
 		
 		var items = buildConfigItems;
+		items.moveToStart(function (item) return item.flags == getBuildConfigFlags ());
 		window.showQuickPick (items, { matchOnDescription: true, placeHolder: "Select Build Configuration"}).then (function (choice:BuildConfigItem) {
 			
 			// TODO: Update if target flags include a build configuration?
@@ -588,6 +592,7 @@ class Main {
 	private function selectTargetItem_onCommand ():Void {
 		
 		var items = targetItems;
+		items.moveToStart(function (item) return item.target == getTarget ());
 		window.showQuickPick (items, { matchOnDescription: true, placeHolder: "Select Target" }).then (function (choice:TargetItem) {
 			
 			if (choice == null || choice.target == getTarget ())

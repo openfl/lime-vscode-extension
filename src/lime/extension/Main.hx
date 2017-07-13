@@ -359,14 +359,19 @@ class Main {
 			createTask ("Run", "run"),
 			//createTask ("Test", "test", TaskGroup.Test),
 			createTask ("Test", "test", untyped __js__('new vscode.TaskGroup ("test", "Test")')),
-			createTask ("Rebuild", "rebuild", TaskGroup.Rebuild)
 		];
 		
-		if (getTarget () != "html5") {
+		var target = getTarget ();
+		
+		// TODO: Detect Lime development build
+		
+		if (target != "html5" && target != "flash") {
 			
-			tasks.push (createTask ("Rebuild", "rebuild tools", TaskGroup.Rebuild));
+			//tasks.push (createTask ("Rebuild", "rebuild", TaskGroup.Rebuild));
 			
 		}
+		
+		//tasks.push (createTask ("Rebuild", "rebuild tools", TaskGroup.Rebuild));
 		
 		return tasks;
 		

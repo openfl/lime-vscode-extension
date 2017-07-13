@@ -160,7 +160,7 @@ class Main {
 	
 	private function createTask (description:String, command:String, ?group:TaskGroup) {
 		
-		var definition:TaskDefinition = cast {
+		var definition:LimeTaskDefinition = {
 			
 			type: "lime",
 			command: command
@@ -605,6 +605,12 @@ class Main {
 	}
 	
 	
+}
+
+
+private typedef LimeTaskDefinition = {
+	>TaskDefinition,
+	var command:String;
 }
 
 

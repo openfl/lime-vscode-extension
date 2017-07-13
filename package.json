@@ -64,6 +64,17 @@
                 "command": "lime.editTargetFlags",
                 "category": "Lime"
             }
+        ],
+        "taskDefinitions": [
+            {
+                "type": "lime",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "The Lime command to run"
+                    }
+                }
+            }
         ]
     },
     "extensionDependencies": [

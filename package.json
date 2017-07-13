@@ -63,6 +63,5 @@
     },
     "extensionDependencies": [
         "nadako.vshaxe"
-    ],
-    "enableProposedApi": true
+    ]
 }

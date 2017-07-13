@@ -4,7 +4,7 @@ package lime.extension;
 import js.node.Buffer;
 import js.node.ChildProcess;
 import sys.FileSystem;
-import vshaxe.api.VshaxeAPI;
+import vshaxe.Vshaxe;
 import Vscode.*;
 import vscode.*;
 
@@ -14,7 +14,7 @@ class Main {
 	
 	private var buildConfigItems:Array<BuildConfigItem>;
 	private var context:ExtensionContext;
-	private var displayArgumentProvider:LimeDisplayArgumentProvider;
+	private var displayArgumentsProvider:LimeDisplayArgumentsProvider;
 	private var editTargetFlagsItem:StatusBarItem;
 	private var enabled:Bool;
 	private var initialized:Bool;
@@ -101,11 +101,11 @@ class Main {
 		context.subscriptions.push (commands.registerCommand ("lime.editTargetFlags", editTargetFlagsItem_onCommand));
 		
 		workspace.registerTaskProvider ("lime", this);
-		
-		displayArgumentProvider = new LimeDisplayArgumentProvider ();
-		
+
 		var vshaxe:Dynamic = extensions.getExtension("nadako.vshaxe");
-		var api:VshaxeAPI = vshaxe.exports;
+		var api:Vshaxe = vshaxe.exports;
+		
+		displayArgumentsProvider = new LimeDisplayArgumentsProvider (api);
 		
 		if (untyped !api) {
 			
@@ -113,7 +113,7 @@ class Main {
 			
 		} else {
 			
-			api.registerDisplayArgumentProvider ("lime", displayArgumentProvider);
+			api.registerDisplayArgumentsProvider ("Lime", displayArgumentsProvider);
 			
 		}
 		
@@ -418,7 +418,7 @@ class Main {
 				
 				try {
 					
-					displayArgumentProvider.update (stdout.toString ());
+					displayArgumentsProvider.update (stdout.toString ());
 					
 				} catch (e:Dynamic) {
 					

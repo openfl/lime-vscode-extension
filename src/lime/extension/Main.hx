@@ -8,28 +8,25 @@ import vshaxe.Vshaxe;
 import Vscode.*;
 import vscode.*;
 
-
 using lime.extension.ArrayHelper;
 
 
 class Main {
 	
-
+	
 	private static var instance:Main;
-
-
+	
 	private var buildConfigItems:Array<BuildConfigItem>;
 	private var context:ExtensionContext;
 	private var displayArgumentsProvider:LimeDisplayArgumentsProvider;
+	private var disposables:Array<{ function dispose():Void; }>;
 	private var editTargetFlagsItem:StatusBarItem;
 	private var hasProjectFile:Bool;
 	private var initialized:Bool;
 	private var isProviderActive:Bool;
-	//private var lastLanguage:String;
 	private var selectBuildConfigItem:StatusBarItem;
 	private var selectTargetItem:StatusBarItem;
 	private var targetItems:Array<TargetItem>;
-	private var disposables:Array<{ function dispose():Void; }>;
 	
 	
 	public function new (context:ExtensionContext) {
@@ -37,8 +34,6 @@ class Main {
 		this.context = context;
 		
 		context.subscriptions.push (workspace.onDidChangeConfiguration (workspace_onDidChangeConfiguration));
-		//context.subscriptions.push (window.onDidChangeActiveTextEditor (window_onDidChangeActiveTextEditor));
-		
 		refresh ();
 		
 	}
@@ -47,7 +42,7 @@ class Main {
 	private function checkHasProjectFile ():Void {
 		
 		hasProjectFile = false;
-
+		
 		try {
 			
 			if (getProjectFile () != "") {
@@ -89,7 +84,7 @@ class Main {
 	private function construct ():Void {
 		
 		disposables = [];
-
+		
 		selectTargetItem = window.createStatusBarItem (Left, 9);
 		selectTargetItem.tooltip = "Lime: Select Target";
 		selectTargetItem.command = "lime.selectTarget";
@@ -108,46 +103,46 @@ class Main {
 		disposables.push (commands.registerCommand ("lime.selectTarget", selectTargetItem_onCommand));
 		disposables.push (commands.registerCommand ("lime.selectBuildConfig", selectBuildConfigItem_onCommand));
 		disposables.push (commands.registerCommand ("lime.editTargetFlags", editTargetFlagsItem_onCommand));
-
+		
 		disposables.push (workspace.registerTaskProvider ("lime", this));
-
+		
 	}
-
-
+	
+	
 	private function deconstruct ():Void {
-
+		
 		if (disposables == null) {
-
+			
 			return;
-
+			
 		}
-
+		
 		for (disposable in disposables) {
-
+			
 			disposable.dispose ();
-
+			
 		}
-
+		
 		selectTargetItem = null;
 		selectBuildConfigItem = null;
 		editTargetFlagsItem = null;
-
+		
 		disposables = null;
 		initialized = false;
-
+		
 	}
-
-
+	
+	
 	private function constructDisplayArgumentsProvider () {
-
-		var vshaxe:Dynamic = extensions.getExtension("nadako.vshaxe");
+		
+		var vshaxe:Dynamic = extensions.getExtension ("nadako.vshaxe");
 		var api:Vshaxe = vshaxe.exports;
 		
 		displayArgumentsProvider = new LimeDisplayArgumentsProvider (api, function (isProviderActive) {
-
+			
 			this.isProviderActive = isProviderActive;
-			refresh();
-
+			refresh ();
+			
 		});
 		
 		if (untyped !api) {
@@ -159,7 +154,7 @@ class Main {
 			api.registerDisplayArgumentsProvider ("Lime", displayArgumentsProvider);
 			
 		}
-
+		
 	}
 	
 	
@@ -265,8 +260,6 @@ class Main {
 	
 	private function initialize ():Void {
 		
-		// TODO: Check for workspace.getConfiguration ("lime").get ("projectFile");
-		// TODO: Use Lime to check if directory is a Lime project if not found
 		// TODO: Populate target items and build configurations from Lime
 		
 		targetItems = [
@@ -383,36 +376,36 @@ class Main {
 	private function refresh ():Void {
 		
 		checkHasProjectFile ();
-
+		
 		if (hasProjectFile) {
-
+			
 			if (displayArgumentsProvider == null) {
-
+				
 				constructDisplayArgumentsProvider ();
-
+				
 			}
-
+			
 			if (isProviderActive && !initialized) {
 				
 				if (!initialized) {
-
+					
 					initialize ();
 					construct ();
-
+					
 				}
-
+				
 				updateDisplayArguments ();
 				
 			}
-
+			
 		}
-
+		
 		if (!hasProjectFile || !isProviderActive) {
-		
+			
 			deconstruct();
-		
+			
 		}
-
+		
 		if (initialized) {
 			
 			updateStatusBarItems ();
@@ -500,10 +493,6 @@ class Main {
 	
 	private function updateStatusBarItems ():Void {
 		
-		//var hasEditor = (window.activeTextEditor != null);
-		//var isDocument = hasEditor && languages.match({language: 'haxe', scheme: 'file'}, window.activeTextEditor.document) > 0;
-		//var isRelatedPanel = hasEditor && (window.activeTextEditor.document:Dynamic).scheme != "file" && lastLanguage == "haxe";
-		
 		if (hasProjectFile && isProviderActive) {
 			
 			var target = getTarget ();
@@ -538,15 +527,14 @@ class Main {
 			
 			editTargetFlagsItem.text = "$(list-unordered)";
 			editTargetFlagsItem.show ();
-			//lastLanguage = "haxe";
-			return;
+			
+		} else {
+			
+			selectTargetItem.hide ();
+			selectBuildConfigItem.hide ();
+			editTargetFlagsItem.hide ();
 			
 		}
-		
-		//lastLanguage = null;
-		selectTargetItem.hide ();
-		selectBuildConfigItem.hide ();
-		editTargetFlagsItem.hide ();
 		
 	}
 	
@@ -601,13 +589,6 @@ class Main {
 			setTarget (choice.target);
 			
 		});
-		
-	}
-	
-	
-	private function window_onDidChangeActiveTextEditor (_):Void {
-		
-		//updateStatusBarItems ();
 		
 	}
 	

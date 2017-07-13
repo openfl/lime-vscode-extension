@@ -87,17 +87,17 @@ class Main {
 		
 		disposables = [];
 
-		selectTargetItem = window.createStatusBarItem (Left, 19);
+		selectTargetItem = window.createStatusBarItem (Left, 9);
 		selectTargetItem.tooltip = "Select Target";
 		selectTargetItem.command = "lime.selectTarget";
 		disposables.push (selectTargetItem);
 		
-		selectBuildConfigItem = window.createStatusBarItem (Left, 18);
+		selectBuildConfigItem = window.createStatusBarItem (Left, 8);
 		selectBuildConfigItem.tooltip = "Select Build Configuration";
 		selectBuildConfigItem.command = "lime.selectBuildConfig";
 		disposables.push (selectBuildConfigItem);
 		
-		editTargetFlagsItem = window.createStatusBarItem (Left, 17);
+		editTargetFlagsItem = window.createStatusBarItem (Left, 7);
 		editTargetFlagsItem.tooltip = "Additional Command-Line Arguments";
 		editTargetFlagsItem.command = "lime.editTargetFlags";
 		disposables.push (editTargetFlagsItem);

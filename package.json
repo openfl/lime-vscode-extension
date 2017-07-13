@@ -50,17 +50,17 @@
         },
         "commands": [
             {
-                "title": "Select Target...",
+                "title": "Select Target",
                 "command": "lime.selectTarget",
                 "category": "Lime"
             },
             {
-                "title": "Select Build Configuration...",
+                "title": "Select Build Configuration",
                 "command": "lime.selectBuildConfig",
                 "category": "Lime"
             },
             {
-                "title": "Edit Target Flags...",
+                "title": "Edit Target Flags",
                 "command": "lime.editTargetFlags",
                 "category": "Lime"
             }

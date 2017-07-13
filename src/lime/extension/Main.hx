@@ -11,7 +11,10 @@ import vscode.*;
 
 class Main {
 	
-	
+
+	private static var instance:Main;
+
+
 	private var buildConfigItems:Array<BuildConfigItem>;
 	private var context:ExtensionContext;
 	private var displayArgumentsProvider:LimeDisplayArgumentsProvider;
@@ -23,7 +26,7 @@ class Main {
 	private var selectBuildConfigItem:StatusBarItem;
 	private var selectTargetItem:StatusBarItem;
 	private var targetItems:Array<TargetItem>;
-	private var taskDisposable:Disposable;
+	private var disposables:Array<{ function dispose():Void; }>;
 	
 	
 	public function new (context:ExtensionContext) {
@@ -82,26 +85,52 @@ class Main {
 	
 	private function construct ():Void {
 		
+		disposables = [];
+
 		selectTargetItem = window.createStatusBarItem (Left, 19);
 		selectTargetItem.tooltip = "Select Target";
 		selectTargetItem.command = "lime.selectTarget";
-		context.subscriptions.push (selectTargetItem);
+		disposables.push (selectTargetItem);
 		
 		selectBuildConfigItem = window.createStatusBarItem (Left, 18);
 		selectBuildConfigItem.tooltip = "Select Build Configuration";
 		selectBuildConfigItem.command = "lime.selectBuildConfig";
-		context.subscriptions.push (selectBuildConfigItem);
+		disposables.push (selectBuildConfigItem);
 		
 		editTargetFlagsItem = window.createStatusBarItem (Left, 17);
 		editTargetFlagsItem.tooltip = "Additional Command-Line Arguments";
 		editTargetFlagsItem.command = "lime.editTargetFlags";
-		context.subscriptions.push (editTargetFlagsItem);
+		disposables.push (editTargetFlagsItem);
 		
-		context.subscriptions.push (commands.registerCommand ("lime.selectTarget", selectTargetItem_onCommand));
-		context.subscriptions.push (commands.registerCommand ("lime.selectBuildConfig", selectBuildConfigItem_onCommand));
-		context.subscriptions.push (commands.registerCommand ("lime.editTargetFlags", editTargetFlagsItem_onCommand));
-		
-		workspace.registerTaskProvider ("lime", this);
+		disposables.push (commands.registerCommand ("lime.selectTarget", selectTargetItem_onCommand));
+		disposables.push (commands.registerCommand ("lime.selectBuildConfig", selectBuildConfigItem_onCommand));
+		disposables.push (commands.registerCommand ("lime.editTargetFlags", editTargetFlagsItem_onCommand));
+
+		disposables.push (workspace.registerTaskProvider ("lime", this));
+
+	}
+
+
+	private function deconstruct ():Void {
+
+		if (disposables == null) {
+
+			return;
+
+		}
+
+		for (disposable in disposables) {
+
+			disposable.dispose ();
+
+		}
+
+		selectTargetItem = null;
+		selectBuildConfigItem = null;
+		editTargetFlagsItem = null;
+
+		disposables = null;
+		initialized = false;
 
 	}
 
@@ -310,14 +339,14 @@ class Main {
 	
 	@:keep @:expose("activate") public static function activate (context:ExtensionContext) {
 		
-		new Main (context);
+		instance = new Main (context);
 		
 	}
 	
 	
 	@:keep @:expose("deactivate") public static function deactivate () {
 		
-		
+		instance.deconstruct ();
 		
 	}
 	
@@ -351,7 +380,7 @@ class Main {
 	private function refresh ():Void {
 		
 		checkHasProjectFile ();
-		
+
 		if (hasProjectFile) {
 
 			if (displayArgumentsProvider == null) {
@@ -373,6 +402,12 @@ class Main {
 				
 			}
 
+		}
+
+		if (!hasProjectFile || !isProviderActive) {
+		
+			deconstruct();
+		
 		}
 
 		if (initialized) {

@@ -86,17 +86,17 @@ class Main {
 		disposables = [];
 		
 		selectTargetItem = window.createStatusBarItem (Left, 9);
-		selectTargetItem.tooltip = "Lime: Select Target";
+		selectTargetItem.tooltip = "Select Lime Target";
 		selectTargetItem.command = "lime.selectTarget";
 		disposables.push (selectTargetItem);
 		
 		selectBuildConfigItem = window.createStatusBarItem (Left, 8);
-		selectBuildConfigItem.tooltip = "Lime: Select Build Configuration";
+		selectBuildConfigItem.tooltip = "Select Lime Build Configuration";
 		selectBuildConfigItem.command = "lime.selectBuildConfig";
 		disposables.push (selectBuildConfigItem);
 		
 		editTargetFlagsItem = window.createStatusBarItem (Left, 7);
-		editTargetFlagsItem.tooltip = "Lime: Edit Target Flags...";
+		editTargetFlagsItem.tooltip = "Edit Lime Target Flags";
 		editTargetFlagsItem.command = "lime.editTargetFlags";
 		disposables.push (editTargetFlagsItem);
 		
@@ -549,7 +549,7 @@ class Main {
 	private function editTargetFlagsItem_onCommand ():Void {
 		
 		var flags = getTargetFlags ();
-		window.showInputBox ({ prompt: "Additional Command-Line Arguments", value: flags + " ", valueSelection: [ flags.length + 1, flags.length + 1 ] }).then (function (value:String) {
+		window.showInputBox ({ prompt: "Edit Target Flags", value: flags + " ", valueSelection: [ flags.length + 1, flags.length + 1 ] }).then (function (value:String) {
 			
 			if (untyped !value) value = "";
 			setTargetFlags (StringTools.trim (value));

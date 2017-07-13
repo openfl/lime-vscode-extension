@@ -15,6 +15,11 @@
         "theme": "dark",
         "color": "#333333"
     },
+    "keywords": [
+        "haxe",
+        "lime",
+        "openfl"
+    ],
     "badges": [],
     "icon": "images/icon-128.png",
     "author": "Joshua Granick",
@@ -45,17 +50,17 @@
         },
         "commands": [
             {
-                "title": "Select Target",
+                "title": "Select Target...",
                 "command": "lime.selectTarget",
                 "category": "Lime"
             },
             {
-                "title": "Select Build Configuration",
+                "title": "Select Build Configuration...",
                 "command": "lime.selectBuildConfig",
                 "category": "Lime"
             },
             {
-                "title": "Edit Target Flags",
+                "title": "Edit Target Flags...",
                 "command": "lime.editTargetFlags",
                 "category": "Lime"
             }

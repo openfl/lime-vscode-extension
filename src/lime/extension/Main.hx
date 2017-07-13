@@ -422,7 +422,7 @@ class Main {
 	
 	public function resolveTask (task:Task, ?token:CancellationToken):ProviderResult<Task> {
 		
-		var definition:Dynamic = task.definition;
+		var definition:LimeTaskDefinition = cast task.definition;
 		var command = definition.command;
 		task.execution = new ShellExecution (getCommandLine (command), { cwd: workspace.rootPath });
 		return task;

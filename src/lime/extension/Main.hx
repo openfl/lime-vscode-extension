@@ -82,17 +82,17 @@ class Main {
 	private function construct ():Void {
 		
 		selectTargetItem = window.createStatusBarItem (Left, 19);
-		selectTargetItem.tooltip = "Lime: Select Target";
+		selectTargetItem.tooltip = "Lime: Select Target...";
 		selectTargetItem.command = "lime.selectTarget";
 		context.subscriptions.push (selectTargetItem);
 		
 		selectBuildConfigItem = window.createStatusBarItem (Left, 18);
-		selectBuildConfigItem.tooltip = "Lime: Select Build Configuration";
+		selectBuildConfigItem.tooltip = "Lime: Select Build Configuration...";
 		selectBuildConfigItem.command = "lime.selectBuildConfig";
 		context.subscriptions.push (selectBuildConfigItem);
 		
 		editTargetFlagsItem = window.createStatusBarItem (Left, 17);
-		editTargetFlagsItem.tooltip = "Lime: Edit Target Flags";
+		editTargetFlagsItem.tooltip = "Lime: Edit Target Flags...";
 		editTargetFlagsItem.command = "lime.editTargetFlags";
 		context.subscriptions.push (editTargetFlagsItem);
 		

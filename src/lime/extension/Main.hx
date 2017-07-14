@@ -4,6 +4,7 @@ package lime.extension;
 import js.node.Buffer;
 import js.node.ChildProcess;
 import sys.FileSystem;
+import haxe.io.Path;
 import vshaxe.Vshaxe;
 import Vscode.*;
 import vscode.*;
@@ -135,8 +136,7 @@ class Main {
 	
 	private function constructDisplayArgumentsProvider () {
 		
-		var vshaxe:Dynamic = extensions.getExtension ("nadako.vshaxe");
-		var api:Vshaxe = vshaxe.exports;
+		var api:Vshaxe = getVshaxe ();
 		
 		displayArgumentsProvider = new LimeDisplayArgumentsProvider (api, function (isProviderActive) {
 			
@@ -157,6 +157,43 @@ class Main {
 		
 	}
 	
+
+	private inline function getVshaxe ():Vshaxe {
+		
+		return extensions.getExtension ("nadako.vshaxe").exports;
+	
+	}
+
+
+	private function getHaxeEnvironment ():haxe.DynamicAccess<String> {
+
+		var haxeConfiguration = getVshaxe ().haxeExecutable.configuration;
+		var env = new haxe.DynamicAccess();
+		
+		for (field in Reflect.fields(haxeConfiguration.env)) {
+	
+			env[field] = haxeConfiguration.env[field];
+	
+		}
+
+		var haxePath = haxeConfiguration.path;
+		if (!Path.isAbsolute(haxePath)) {
+			
+			haxePath = Path.join([workspace.rootPath, haxePath]);
+		
+		}
+
+		if (FileSystem.exists(haxePath)) {
+
+			var separator = Sys.systemName() == "Windows" ? ";" : ":";
+			env["PATH"] = Path.directory(haxePath) + separator + Sys.getEnv("PATH");
+
+		}
+		
+		return env;
+
+	}
+
 	
 	private function createTask (description:String, command:String, ?group:TaskGroup) {
 		
@@ -171,7 +208,7 @@ class Main {
 		
 		var commandLine = getCommandLine (command);
 		var task = new Task (definition, commandLine.substr (5), "lime");
-		task.execution = new ShellExecution (commandLine, { cwd: workspace.rootPath });
+		task.execution = new ShellExecution (commandLine, { cwd: workspace.rootPath, env: getHaxeEnvironment () });
 		//task.presentationOptions = { panel: TaskPanelKind.Shared };
 		
 		if (group != null) {

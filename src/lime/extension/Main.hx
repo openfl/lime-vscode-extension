@@ -5,6 +5,7 @@ import js.node.Buffer;
 import js.node.ChildProcess;
 import sys.FileSystem;
 import haxe.io.Path;
+import haxe.DynamicAccess;
 import vshaxe.Vshaxe;
 import Vscode.*;
 import vscode.*;
@@ -28,6 +29,7 @@ class Main {
 	private var selectBuildConfigItem:StatusBarItem;
 	private var selectTargetItem:StatusBarItem;
 	private var targetItems:Array<TargetItem>;
+	private var haxeEnvironment:DynamicAccess<String>;
 	
 	
 	public function new (context:ExtensionContext) {
@@ -36,10 +38,10 @@ class Main {
 		
 		context.subscriptions.push (workspace.onDidChangeConfiguration (workspace_onDidChangeConfiguration));
 		refresh ();
-		
+
 	}
-	
-	
+
+
 	private function checkHasProjectFile ():Void {
 		
 		hasProjectFile = false;
@@ -164,36 +166,6 @@ class Main {
 	
 	}
 
-
-	private function getHaxeEnvironment ():haxe.DynamicAccess<String> {
-
-		var haxeConfiguration = getVshaxe ().haxeExecutable.configuration;
-		var env = new haxe.DynamicAccess();
-		
-		for (field in Reflect.fields(haxeConfiguration.env)) {
-	
-			env[field] = haxeConfiguration.env[field];
-	
-		}
-
-		var haxePath = haxeConfiguration.path;
-		if (!Path.isAbsolute(haxePath)) {
-			
-			haxePath = Path.join([workspace.rootPath, haxePath]);
-		
-		}
-
-		if (FileSystem.exists(haxePath)) {
-
-			var separator = Sys.systemName() == "Windows" ? ";" : ":";
-			env["PATH"] = Path.directory(haxePath) + separator + Sys.getEnv("PATH");
-
-		}
-		
-		return env;
-
-	}
-
 	
 	private function createTask (description:String, command:String, ?group:TaskGroup) {
 		
@@ -208,7 +180,7 @@ class Main {
 		
 		var commandLine = getCommandLine (command);
 		var task = new Task (definition, commandLine.substr (5), "lime");
-		task.execution = new ShellExecution (commandLine, { cwd: workspace.rootPath, env: getHaxeEnvironment () });
+		task.execution = new ShellExecution (commandLine, { cwd: workspace.rootPath, env: haxeEnvironment });
 		//task.presentationOptions = { panel: TaskPanelKind.Shared };
 		
 		if (group != null) {
@@ -365,10 +337,42 @@ class Main {
 			}
 		];
 		
+		getVshaxe ().haxeExecutable.onDidChangeConfiguration (function (_) updateHaxeEnvironment ());
+		updateHaxeEnvironment ();
+
 		initialized = true;
 		
 	}
 	
+	private function updateHaxeEnvironment () {
+
+		var haxeConfiguration = getVshaxe ().haxeExecutable.configuration;
+		var env = new DynamicAccess ();
+		
+		for (field in Reflect.fields (haxeConfiguration.env)) {
+	
+			env[field] = haxeConfiguration.env[field];
+	
+		}
+
+		var haxePath = haxeConfiguration.path;
+		if (!Path.isAbsolute (haxePath)) {
+			
+			haxePath = Path.join ([workspace.rootPath, haxePath]);
+		
+		}
+
+		if (FileSystem.exists (haxePath)) {
+
+			var separator = Sys.systemName () == "Windows" ? ";" : ":";
+			env["PATH"] = Path.directory (haxePath) + separator + Sys.getEnv("PATH");
+
+		}
+		
+		haxeEnvironment = env;
+
+	}
+
 	
 	@:keep @:expose("activate") public static function activate (context:ExtensionContext) {
 		

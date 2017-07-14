@@ -177,11 +177,10 @@ class Main {
 		}
 		
 		//var task = new Task (definition, description, "Lime");
-		
-		var commandLine = getCommandLine (command);
-		var task = new Task (definition, commandLine.substr (5), "lime");
-		task.execution = new ShellExecution (commandLine, { cwd: workspace.rootPath, env: haxeEnvironment });
-		//task.presentationOptions = { panel: TaskPanelKind.Shared };
+		var args = getCommandArguments (command);
+		var task = new Task (definition, args.join (" "), "lime");
+		task.execution = new ProcessExecution ("lime", args, { cwd: workspace.rootPath, env: haxeEnvironment });
+		task.presentationOptions = { panel: TaskPanelKind.Shared, reveal: TaskRevealKind.Silent };
 		
 		if (group != null) {
 			
@@ -202,34 +201,33 @@ class Main {
 	}
 	
 	
-	private function getCommandLine (command:String):String {
+	private function getCommandArguments (command:String):Array<String> {
 		
-		var commandLine = "lime " + command;
+		var args = [ command ];
 		
-		// TODO: Smarter logic (skips rebuild tools)
-		if (command.indexOf (" ") == -1) {
-			
-			var projectFile = getProjectFile ();
-			
-			commandLine += " " + (projectFile != "" ? projectFile + " " : "") + getTarget ();
-			
-		}
+		// TODO: Support rebuild tools (and other command with no project file argument)
+		
+		var projectFile = getProjectFile ();
+		if (projectFile != "") args.push (projectFile);
+		args.push (getTarget ());
 		
 		var buildConfigFlags = getBuildConfigFlags ();
 		if (buildConfigFlags != "") {
 			
-			commandLine += " " + buildConfigFlags;
+			// TODO: Handle argument list better
+			args = args.concat (buildConfigFlags.split (" "));
 			
 		}
 		
 		var targetFlags = StringTools.trim (getTargetFlags ());
 		if (targetFlags != "") {
 			
-			commandLine += " " + targetFlags;
+			// TODO: Handle argument list better
+			args = args.concat (targetFlags.split (" "));
 			
 		}
 		
-		return commandLine;
+		return args;
 		
 	}
 	
@@ -463,9 +461,9 @@ class Main {
 	
 	public function resolveTask (task:Task, ?token:CancellationToken):ProviderResult<Task> {
 		
-		var definition:LimeTaskDefinition = cast task.definition;
-		var command = definition.command;
-		task.execution = new ShellExecution (getCommandLine (command), { cwd: workspace.rootPath });
+		//var definition:LimeTaskDefinition = cast task.definition;
+		//var command = definition.command;
+		//task.execution = new ProcessExecution ("lime", getCommandArguments (command), { cwd: workspace.rootPath });
 		return task;
 		
 	}
@@ -504,8 +502,8 @@ class Main {
 		var projectFile = getProjectFile ();
 		var buildConfigFlags = getBuildConfigFlags ();
 		var targetFlags = getTargetFlags ();
-		var commandLine = StringTools.trim ("lime display " + (projectFile != "" ? projectFile + " " : "") + getTarget () + (buildConfigFlags != "" ? " " + buildConfigFlags : "") + (targetFlags != "" ? " " + targetFlags : ""));
 		
+		var commandLine = "lime " + getCommandArguments ("display").join (" ");
 		commandLine = StringTools.replace (commandLine, "-verbose", "");
 		
 		//trace ("Running display command: " + commandLine);

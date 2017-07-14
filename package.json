@@ -35,22 +35,10 @@
     },
     "main": "bin/lime-vscode.js",
     "activationEvents": [
-        "workspaceContains: *.hxp",
-        "workspaceContains: *.lime",
-        "workspaceContains: project.xml",
-        "onLanguage:haxe",
-        "workspaceContains: */*.hxp",
-        "workspaceContains: */*.lime",
-        "workspaceContains: */project.xml",
-        "workspaceContains: */*/*.hxp",
-        "workspaceContains: */*/*.lime",
-        "workspaceContains: */*/project.xml",
-        "workspaceContains: */*/*/*.hxp",
-        "workspaceContains: */*/*/*.lime",
-        "workspaceContains: */*/*/project.xml",
-        "workspaceContains: */*/*/*/*.hxp",
-        "workspaceContains: */*/*/*/*.lime",
-        "workspaceContains: */*/*/*/project.xml"
+        "workspaceContains:**/*.hxp",
+        "workspaceContains:**/*.lime",
+        "workspaceContains:**/project.xml",
+        "onLanguage:haxe"
     ],
     "contributes": {
         "configuration": {

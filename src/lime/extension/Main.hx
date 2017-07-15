@@ -389,7 +389,7 @@ class Main {
 	static function main () {}
 	
 	
-	public function provideTasks (?token:CancellationToken):ProviderResult<Array<Task>> {
+	@:access(vscode.TaskGroup) public function provideTasks (?token:CancellationToken):ProviderResult<Array<Task>> {
 		
 		var tasks = [
 			createTask ("Clean", "clean", TaskGroup.Clean),
@@ -397,7 +397,7 @@ class Main {
 			createTask ("Build", "build", TaskGroup.Build),
 			createTask ("Run", "run"),
 			//createTask ("Test", "test", TaskGroup.Test),
-			createTask ("Test", "test", untyped __js__('new vscode.TaskGroup ("test", "Test")')),
+			createTask ("Test", "test", new TaskGroup ("test", "Test")),
 		];
 		
 		var target = getTarget ();

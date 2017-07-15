@@ -6,8 +6,7 @@
         {
             "args": [
                 "build.hxml",
-                "-debug",
-                "-D", "js-unflatten"
+                "-debug"
             ],
             "taskName": "build (debug)",
             "problemMatcher": "$haxe",

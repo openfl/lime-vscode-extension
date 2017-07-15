@@ -271,26 +271,6 @@ class Main {
 		
 		targetItems = [
 			{
-				target: "windows",
-				label: "Windows",
-				description: "",
-			},
-			{
-				target: "mac",
-				label: "macOS",
-				description: "",
-			},
-			{
-				target: "linux",
-				label: "Linux",
-				description: "",
-			},
-			{
-				target: "ios",
-				label: "iOS",
-				description: "",
-			},
-			{
 				target: "android",
 				label: "Android",
 				description: "",
@@ -317,6 +297,40 @@ class Main {
 			}
 		];
 		
+		switch (Sys.systemName()) {
+
+			case "Windows":
+
+				targetItems.unshift ({
+					target: "windows",
+					label: "Windows",
+					description: "",
+				});
+
+			case "Linux":
+
+				targetItems.unshift ({
+					target: "linux",
+					label: "Linux",
+					description: "",
+				});
+
+			case "Mac":
+
+				targetItems.unshift ({
+					target: "mac",
+					label: "macOS",
+					description: "",
+				});
+
+				targetItems.unshift ({
+					target: "ios",
+					label: "iOS",
+					description: "",
+				});
+
+		}
+
 		buildConfigItems = [
 			{
 				flags: "-debug",

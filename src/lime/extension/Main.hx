@@ -180,7 +180,7 @@ class Main {
 		var args = getCommandArguments (command);
 		var task = new Task (definition, args.join (" "), "lime");
 		task.execution = new ProcessExecution ("lime", args, { cwd: workspace.rootPath, env: haxeEnvironment });
-		task.presentationOptions = { panel: TaskPanelKind.Shared, reveal: TaskRevealKind.Silent };
+		task.presentationOptions = { panel: TaskPanelKind.Shared, reveal: /*TaskRevealKind.Silent*/ TaskRevealKind.Always };
 		
 		if (group != null) {
 			

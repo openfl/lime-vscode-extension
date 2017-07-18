@@ -367,17 +367,10 @@ class Main {
 	
 		}
 
-		var haxePath = haxeConfiguration.path;
-		if (!Path.isAbsolute (haxePath)) {
-			
-			haxePath = Path.join ([workspace.rootPath, haxePath]);
-		
-		}
-
-		if (FileSystem.exists (haxePath)) {
+		if (!haxeConfiguration.isCommand) {
 
 			var separator = Sys.systemName () == "Windows" ? ";" : ":";
-			env["PATH"] = Path.directory (haxePath) + separator + Sys.getEnv("PATH");
+			env["PATH"] = Path.directory (haxeConfiguration.executable) + separator + Sys.getEnv("PATH");
 
 		}
 		

@@ -42,32 +42,6 @@ In the window, add the following value:
 ```
 
 This will prevent an auto-update mechanism that will install a release version of vshaxe and lime-vscode-extension, breaking the development version
- 
-### Install a custom version of the vshaxe extension
-
-The current version of vshaxe lacks an extension API needed for lime-vscode to work properly. This is how to clone and build a custom fork for now 
-
-##### Windows
-
-```bash
-cd C:\Users\(your user name)\.vscode\extensions
-```
-
-##### macOS or Linux
-
-```bash
- cd ~/.vscode/extensions
-```
-
-then:
-
-```bash
-git clone --recursive https://github.com/jgranick/vshaxe
-haxelib git vshaxe-build https://github.com/vshaxe/vshaxe-build
-cd vshaxe
-haxelib run vshaxe-build --target vshaxe --debug --mode both
-cd ..
-```
 
 ### Install and build this extension
 
@@ -88,9 +62,9 @@ haxe build.hxml
 
 ### Development workflow
 
-Otherwise, you can open the "lime-vscode-extension" directory using Visual Studio Code. This enables a development workflow, where you can use <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> on Mac) to open the build command, and hit <kbd>Enter</kbd> to recompile the extension.
+Otherwise, you can open the "lime-vscode-extension" directory using Visual Studio Code. This enables a development workflow, where you can use <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> on Mac) to recompile the extension.
 
-Hit <kbd>F5</kbd> to begin debugging. This opens another Visual Studio Code window with the extension enabled. Errors, log output and other data will be reported back to the "Debug Console" in the first window
+Hit <kbd>F5</kbd> to begin debugging. This opens a second Visual Studio Code window with the extension enabled. Errors, log output and other data will be reported back to the "Debug Console" in the first window.
 
 ## Using the extension
 
@@ -100,4 +74,4 @@ The lower-left part of the window should include status bar items for the curren
 
 You can change them by clicking, and selecting a new option in the pop-up. Code completion should be working, but may require a update or build first.
 
-You should be able to use <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> on Mac) to access the `lime build` task. There is also a "Run Test" command you can use, but it has no keyboard shortcut. I set mine to <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>Cmd</kbd>+<kbd>Enter</kbd>) for accessing `lime test`.
+You should be able to use <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> on Mac) to access the `lime build` task. There is also a "Run Test" command you can use, but it has no keyboard shortcut. One option would be to set "Run Test Task" in keyboard shortcuts to <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>Cmd</kbd>+<kbd>Enter</kbd>) for accessing `lime test` quickly.

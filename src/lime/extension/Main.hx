@@ -196,7 +196,7 @@ class Main {
 	
 	public function getBuildConfigFlags ():String {
 		
-		return context.workspaceState.get ("lime.buildConfigFlags", "");
+		return context.workspaceState.get ("lime.buildConfigFlags", "-debug");
 		
 	}
 	

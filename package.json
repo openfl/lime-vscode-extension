@@ -7,7 +7,7 @@
         "nadako.vshaxe": "^1.8.0"
     },
     "displayName": "Lime",
-    "description": "Adds support for Lime and OpenFL projects in Visual Studio Code",
+    "description": "Adds support for Lime and OpenFL projects",
     "categories": [
         "Other"
     ],

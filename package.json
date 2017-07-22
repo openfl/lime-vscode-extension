@@ -71,6 +71,7 @@
         "taskDefinitions": [
             {
                 "type": "lime",
+                "required": ["command"],
                 "properties": {
                     "command": {
                         "type": "string",

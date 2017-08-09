@@ -7,7 +7,7 @@
         "nadako.vshaxe": "^1.9.0"
     },
     "displayName": "Lime",
-    "description": "Adds support for Lime and OpenFL projects",
+    "description": "Lime and OpenFL project support",
     "categories": [
         "Other"
     ],

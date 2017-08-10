@@ -38,6 +38,7 @@
         "workspaceContains:**/*.hxp",
         "workspaceContains:**/*.lime",
         "workspaceContains:**/project.xml",
+        "workspaceContains:**/Project.xml",
         "onLanguage:haxe"
     ],
     "contributes": {

@@ -62,7 +62,7 @@ class Main {
 					
 					// TODO: support custom project file references
 					
-					var files = [ "project.xml", "project.hxp", "project.lime" ];
+					var files = [ "project.xml", "Project.xml", "project.hxp", "project.lime" ];
 					
 					for (file in files) {
 						

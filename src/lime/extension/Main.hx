@@ -298,39 +298,51 @@ class Main {
 		];
 		
 		switch (Sys.systemName()) {
-
+			
 			case "Windows":
-
+				
 				targetItems.unshift ({
 					target: "windows",
 					label: "Windows",
 					description: "",
 				});
-
+				
+				targetItems.push ({
+					target: "air",
+					label: "AIR",
+					description: "",
+				});
+			
 			case "Linux":
-
+				
 				targetItems.unshift ({
 					target: "linux",
 					label: "Linux",
 					description: "",
 				});
-
+			
 			case "Mac":
-
+				
 				targetItems.unshift ({
 					target: "mac",
 					label: "macOS",
 					description: "",
 				});
-
+				
 				targetItems.unshift ({
 					target: "ios",
 					label: "iOS",
 					description: "",
 				});
-
+				
+				targetItems.push ({
+					target: "air",
+					label: "AIR",
+					description: "",
+				});
+				
 		}
-
+		
 		buildConfigItems = [
 			{
 				flags: "-debug",
@@ -351,33 +363,33 @@ class Main {
 		
 		getVshaxe ().haxeExecutable.onDidChangeConfiguration (function (_) updateHaxeEnvironment ());
 		updateHaxeEnvironment ();
-
+		
 		initialized = true;
 		
 	}
 	
 	private function updateHaxeEnvironment () {
-
+		
 		var haxeConfiguration = getVshaxe ().haxeExecutable.configuration;
 		var env = new DynamicAccess ();
 		
 		for (field in Reflect.fields (haxeConfiguration.env)) {
-	
+			
 			env[field] = haxeConfiguration.env[field];
-	
+			
 		}
-
+		
 		if (!haxeConfiguration.isCommand) {
-
+			
 			var separator = Sys.systemName () == "Windows" ? ";" : ":";
 			env["PATH"] = Path.directory (haxeConfiguration.executable) + separator + Sys.getEnv("PATH");
-
+			
 		}
 		
 		haxeEnvironment = env;
-
+		
 	}
-
+	
 	
 	@:keep @:expose("activate") public static function activate (context:ExtensionContext) {
 		

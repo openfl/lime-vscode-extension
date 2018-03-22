@@ -11,6 +11,7 @@ import Vscode.*;
 import vscode.*;
 
 using lime.extension.ArrayHelper;
+using Lambda;
 
 
 class Main {
@@ -196,7 +197,16 @@ class Main {
 	
 	public function getBuildConfigFlags ():String {
 		
-		return context.workspaceState.get ("lime.buildConfigFlags", "");
+		var defaultFlags = "";
+		var defaultBuildConfigLabel = workspace.getConfiguration ("lime").get ("defaultBuildConfiguration", "Release");
+		var defaultBuildConfig = buildConfigItems.find (function(item) return item.label == defaultBuildConfigLabel);
+		if (defaultBuildConfig != null) {
+
+			defaultFlags = defaultBuildConfig.flags;
+			
+		}
+
+		return context.workspaceState.get ("lime.buildConfigFlags", defaultFlags);
 		
 	}
 	
@@ -253,7 +263,16 @@ class Main {
 	
 	public function getTarget ():String {
 		
-		return context.workspaceState.get ("lime.target", "html5");
+		var defaultTarget = "html5";
+		var defaultTargetLabel = workspace.getConfiguration ("lime").get ("defaultTarget", "HTML5");
+		var defaultTargetItem = targetItems.find (function(item) return item.label == defaultTargetLabel);
+		if (defaultTargetItem != null) {
+
+			defaultTarget = defaultTargetItem.target;
+
+		}
+
+		return context.workspaceState.get ("lime.target", defaultTarget);
 		
 	}
 	

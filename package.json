@@ -49,6 +49,33 @@
                     "description": "Custom path to Lime project file",
                     "type": "string",
                     "default": null
+                },
+                "lime.defaultTarget": {
+                    "description": "The target to select by default for new workspaces",
+                    "type": "string",
+                    "default": "HTML5",
+                    "enum": [
+                        "Android",
+                        "Flash",
+                        "HTML5",
+                        "Neko",
+                        "Emscripten",
+                        "Windows",
+                        "Linux",
+                        "macOS",
+                        "iOS",
+                        "AIR"
+                    ]
+                },
+                "lime.defaultBuildConfiguration": {
+                    "description": "The build configuration to select by default for new workspaces",
+                    "type": "string",
+                    "default": "Release",
+                    "enum": [
+                        "Release",
+                        "Debug",
+                        "Final"
+                    ]
                 }
             }
         },

@@ -179,7 +179,17 @@ class Main {
 		
 		//var task = new Task (definition, description, "Lime");
 		var args = getCommandArguments (command);
-		var task = new Task (definition, args.join (" "), "lime");
+		var name = args.join (" ");
+		
+		var displayPort = getVshaxe ().displayPort;
+		if (getVshaxe ().enableCompilationServer && displayPort != null) {
+
+			args.push('--haxeflag="--connect $displayPort"');
+
+		}
+
+		var task = new Task (definition, name, "lime");
+		
 		task.execution = new ShellExecution ("lime " + args.join (" "), { cwd: workspace.rootPath, env: haxeEnvironment });
 		task.presentationOptions = { panel: TaskPanelKind.Shared, reveal: /*TaskRevealKind.Silent*/ TaskRevealKind.Always };
 		

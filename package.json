@@ -1,6 +1,6 @@
 {
     "name": "lime-vscode-extension",
-    "version": "1.0.8",
+    "version": "1.1.0",
     "publisher": "openfl",
     "engines": {
         "vscode": "^1.14.0",

@@ -1,6 +1,15 @@
-### 1.1.0 (to be released)
+# Change Log
 
-**New Features**:
+1.1.0 (04/04/2018)
+------------------
 
-- added `"lime.defaultBuildConfiguration"` and `"lime.defaultTarget"` settings ([#27](https://github.com/openfl/lime-vscode-extension/issues/27))
-- added support for building through the compilation server ([#28](https://github.com/openfl/lime-vscode-extension/issues/28))
+* Added `lime.defaultTarget` for use when opening a new workspace ([#27](https://github.com/openfl/lime-vscode-extension/issues/27))
+* Added `lime.defaultBuildConfiguration` as well for new workspaces ([#27](https://github.com/openfl/lime-vscode-extension/issues/27))
+* Added support for sharing the compilation server with the Haxe extension ([#28](https://github.com/openfl/lime-vscode-extension/issues/28))
+
+
+1.0.8 (11/10/2017)
+------------------
+
+* Added AIR as a selectable target in the UI
+* Minor fixes

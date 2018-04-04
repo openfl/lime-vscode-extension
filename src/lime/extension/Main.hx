@@ -182,12 +182,13 @@ class Main {
 		var name = args.join (" ");
 		
 		var displayPort = getVshaxe ().displayPort;
-		if (getVshaxe ().enableCompilationServer && displayPort != null) {
-
-			args.push('--haxeflag="--connect $displayPort"');
-
+		if (getVshaxe ().enableCompilationServer && displayPort != null && args.indexOf ("--connect") == -1) {
+			
+			args.push ("--connect");
+			args.push (Std.string (displayPort));
+			
 		}
-
+		
 		var task = new Task (definition, name, "lime");
 		
 		task.execution = new ShellExecution ("lime " + args.join (" "), { cwd: workspace.rootPath, env: haxeEnvironment });

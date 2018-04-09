@@ -192,7 +192,6 @@ class Main {
 		var task = new Task (definition, name, "lime");
 		
 		task.execution = new ShellExecution ("lime " + args.join (" "), { cwd: workspace.rootPath, env: haxeEnvironment });
-		task.presentationOptions = { panel: TaskPanelKind.Shared, reveal: /*TaskRevealKind.Silent*/ TaskRevealKind.Always };
 		
 		if (group != null) {
 			

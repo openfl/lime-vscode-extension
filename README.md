@@ -49,6 +49,8 @@ In the "extensions" directory:
 
 ```bash
 git clone --recursive https://github.com/openfl/lime-vscode-extension
+cd lime-vscode-extension
+npm install
 ```
 
 ### Build the extension
@@ -57,7 +59,7 @@ If you do not want to debug the extension, you should build it at least once:
 
 ```bash
 cd lime-vscode-extension
-haxe build.hxml
+npm run build -s
 ```
 
 ### Development workflow

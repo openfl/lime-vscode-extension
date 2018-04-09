@@ -180,7 +180,8 @@ class Main {
 		var args = getCommandArguments (command);
 		var name = args.join (" ");
 		
-		var displayPort = getVshaxe ().displayPort;
+		var vshaxe = getVshaxe ();
+		var displayPort = vshaxe.displayPort;
 		if (getVshaxe ().enableCompilationServer && displayPort != null && args.indexOf ("--connect") == -1) {
 			
 			args.push ("--connect");
@@ -199,7 +200,15 @@ class Main {
 			
 		}
 		
-		task.problemMatchers = [ "$haxe" ];
+		task.problemMatchers = vshaxe.problemMatchers.get ();
+
+		var presentation = vshaxe.taskPresentation;
+		task.presentationOptions = {
+			reveal: presentation.reveal,
+			echo: presentation.echo,
+			focus: presentation.focus,
+			panel: presentation.panel
+		};
 		return task;
 		
 	}

@@ -1,10 +1,10 @@
 {
     "name": "lime-vscode-extension",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "publisher": "openfl",
     "engines": {
         "vscode": "^1.14.0",
-        "nadako.vshaxe": "^1.10.0"
+        "nadako.vshaxe": "^1.11.0"
     },
     "displayName": "Lime",
     "description": "Lime and OpenFL project support",

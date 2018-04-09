@@ -6,7 +6,6 @@ import js.node.ChildProcess;
 import sys.FileSystem;
 import haxe.io.Path;
 import haxe.DynamicAccess;
-import vshaxe.Vshaxe;
 import Vscode.*;
 import vscode.*;
 

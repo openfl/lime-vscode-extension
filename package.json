@@ -31,7 +31,8 @@
         "url": "https://github.com/openfl/lime-vscode-extension"
     },
     "scripts": {
-        "vscode:prepublish": "haxe build.hxml"
+        "build": "haxe build.hxml",
+        "vscode:prepublish": "npm run build"
     },
     "main": "bin/lime-vscode.js",
     "activationEvents": [
@@ -99,7 +100,9 @@
         "taskDefinitions": [
             {
                 "type": "lime",
-                "required": ["command"],
+                "required": [
+                    "command"
+                ],
                 "properties": {
                     "command": {
                         "type": "string",
@@ -108,6 +111,9 @@
                 }
             }
         ]
+    },
+    "devDependencies": {
+        "vshaxe": "vshaxe/vshaxe"
     },
     "extensionDependencies": [
         "nadako.vshaxe"

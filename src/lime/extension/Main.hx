@@ -452,8 +452,7 @@ class Main {
 			createTask ("Update", "update"),
 			createTask ("Build", "build", TaskGroup.Build),
 			createTask ("Run", "run"),
-			//createTask ("Test", "test", TaskGroup.Test),
-			createTask ("Test", "test", new TaskGroup ("test", "Test")),
+			createTask ("Test", "test", TaskGroup.Test),
 		];
 		
 		var target = getTarget ();

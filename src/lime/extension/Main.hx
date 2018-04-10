@@ -191,7 +191,7 @@ class Main {
 		
 		var task = new Task (definition, name, "lime");
 		
-		task.execution = new ShellExecution ("lime " + args.join (" "), { cwd: workspace.rootPath, env: haxeEnvironment });
+		task.execution = new ShellExecution ("haxelib run lime " + args.join (" "), { cwd: workspace.rootPath, env: haxeEnvironment });
 		
 		if (group != null) {
 			
@@ -558,7 +558,7 @@ class Main {
 		var buildConfigFlags = getBuildConfigFlags ();
 		var targetFlags = getTargetFlags ();
 		
-		var commandLine = "lime " + getCommandArguments ("display").join (" ");
+		var commandLine = "haxelib run lime " + getCommandArguments ("display").join (" ");
 		commandLine = StringTools.replace (commandLine, "-verbose", "");
 		
 		//trace ("Running display command: " + commandLine);

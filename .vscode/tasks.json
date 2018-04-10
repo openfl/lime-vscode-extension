@@ -4,12 +4,6 @@
 		{
 			"type": "hxml",
 			"file": "build-debug.hxml",
-			"problemMatcher": [
-				"$haxe-absolute",
-				"$haxe",
-				"$haxe-error",
-				"$haxe-trace"
-			],
 			"group": {
 				"kind": "build",
 				"isDefault": true
@@ -18,12 +12,6 @@
 		{
 			"type": "hxml",
 			"file": "build.hxml",
-			"problemMatcher": [
-				"$haxe-absolute",
-				"$haxe",
-				"$haxe-error",
-				"$haxe-trace"
-			],
 			"group": {
 				"kind": "test",
 				"isDefault": true

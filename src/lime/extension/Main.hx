@@ -445,7 +445,7 @@ class Main {
 	static function main () {}
 	
 	
-	@:access(vscode.TaskGroup) public function provideTasks (?token:CancellationToken):ProviderResult<Array<Task>> {
+	public function provideTasks (?token:CancellationToken):ProviderResult<Array<Task>> {
 		
 		var tasks = [
 			createTask ("Clean", "clean", TaskGroup.Clean),

@@ -561,32 +561,26 @@ class Main {
 		
 		var commandLine = getCommand () + " " + getCommandArguments ("display").join (" ");
 		commandLine = StringTools.replace (commandLine, "-verbose", "");
-		
-		//trace ("Running display command: " + commandLine);
-		
-		try {
+
+		ChildProcess.exec (commandLine, { cwd: workspace.workspaceFolders[0].uri.fsPath }, function (err, stdout:Buffer, stderror) {
 			
-			ChildProcess.exec (commandLine, { cwd: workspace.workspaceFolders[0].uri.fsPath }, function (err, stdout:Buffer, stderror) {
-				
-				try {
-					
-					displayArgumentsProvider.update (stdout.toString ());
-					
-				} catch (e:Dynamic) {
-					
-					trace ("Error running display command: " + commandLine);
-					trace (e);
-					
-				}
-				
-			});
-			
-		} catch (e:Dynamic) {
-			
-			trace ("Error running display command: " + commandLine);
-			trace (e);
-			
-		}
+			if (err != null && err.code != 0) {
+	
+				var message = 'Lime completion setup failed. Is the lime command available? Try running "lime setup" or changing the "lime.command" setting.';
+				window.showErrorMessage (message, "Show Full Error").then (function (_) {
+
+					commands.executeCommand ("workbench.action.toggleDevTools");
+
+				});
+				trace (err);
+
+			} else {
+
+				displayArgumentsProvider.update (stdout.toString ());
+
+			}
+
+		});
 		
 	}
 	

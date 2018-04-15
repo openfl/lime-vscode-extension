@@ -191,7 +191,7 @@ class Main {
 		
 		var task = new Task (definition, name, "lime");
 		
-		task.execution = new ShellExecution ("lime " + args.join (" "), { cwd: workspace.rootPath, env: haxeEnvironment });
+		task.execution = new ShellExecution ("lime " + args.join (" "), { cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment });
 		
 		if (group != null) {
 			
@@ -554,10 +554,6 @@ class Main {
 		
 		if (!hasProjectFile || !isProviderActive) return;
 		
-		var projectFile = getProjectFile ();
-		var buildConfigFlags = getBuildConfigFlags ();
-		var targetFlags = getTargetFlags ();
-		
 		var commandLine = "lime " + getCommandArguments ("display").join (" ");
 		commandLine = StringTools.replace (commandLine, "-verbose", "");
 		
@@ -565,7 +561,7 @@ class Main {
 		
 		try {
 			
-			ChildProcess.exec (commandLine, { cwd: workspace.rootPath }, function (err, stdout:Buffer, stderror) {
+			ChildProcess.exec (commandLine, { cwd: workspace.workspaceFolders[0].uri.fsPath }, function (err, stdout:Buffer, stderror) {
 				
 				try {
 					

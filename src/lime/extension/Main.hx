@@ -575,9 +575,14 @@ class Main {
 			if (err != null && err.code != 0) {
 	
 				var message = 'Lime completion setup failed. Is the lime command available? Try running "lime setup" or changing the "lime.command" setting.';
-				window.showErrorMessage (message, "Show Full Error").then (function (_) {
+				var showFullErrorLabel = "Show Full Error";
+				window.showErrorMessage (message, showFullErrorLabel).then (function (selection) {
 
-					commands.executeCommand ("workbench.action.toggleDevTools");
+					if (selection == showFullErrorLabel) {
+
+						commands.executeCommand ("workbench.action.toggleDevTools");
+
+					}
 
 				});
 				trace (err);

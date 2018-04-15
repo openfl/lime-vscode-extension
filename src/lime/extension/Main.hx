@@ -30,6 +30,7 @@ class Main {
 	private var selectTargetItem:StatusBarItem;
 	private var targetItems:Array<TargetItem>;
 	private var haxeEnvironment:DynamicAccess<String>;
+	private var limeCommand:String;
 	
 	
 	public function new (context:ExtensionContext) {
@@ -56,7 +57,10 @@ class Main {
 			
 			if (!hasProjectFile) {
 				
-				var rootPath = workspace.rootPath;
+				// TODO: multi-folder support
+
+				var wsFolder = if (workspace.workspaceFolders == null) null else workspace.workspaceFolders[0];
+				var rootPath = wsFolder.uri.fsPath;
 				
 				if (rootPath != null) {
 					
@@ -191,7 +195,7 @@ class Main {
 		
 		var task = new Task (definition, name, "lime");
 		
-		task.execution = new ShellExecution (getCommand () + " " + args.join (" "), { cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment });
+		task.execution = new ShellExecution (limeCommand + " " + args.join (" "), { cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment });
 		
 		if (group != null) {
 			
@@ -481,7 +485,7 @@ class Main {
 	
 	
 	private function refresh ():Void {
-		
+
 		checkHasProjectFile ();
 		
 		if (hasProjectFile) {
@@ -492,7 +496,11 @@ class Main {
 				
 			}
 			
-			if (isProviderActive && !initialized) {
+			var oldLimeCommand = limeCommand;
+			limeCommand = getCommand ();
+			var limeCommandChanged = oldLimeCommand != limeCommand;
+
+			if (isProviderActive && (!initialized || limeCommandChanged)) {
 				
 				if (!initialized) {
 					
@@ -559,7 +567,7 @@ class Main {
 		
 		if (!hasProjectFile || !isProviderActive) return;
 		
-		var commandLine = getCommand () + " " + getCommandArguments ("display").join (" ");
+		var commandLine = limeCommand + " " + getCommandArguments ("display").join (" ");
 		commandLine = StringTools.replace (commandLine, "-verbose", "");
 
 		ChildProcess.exec (commandLine, { cwd: workspace.workspaceFolders[0].uri.fsPath }, function (err, stdout:Buffer, stderror) {

@@ -77,6 +77,11 @@
                         "Debug",
                         "Final"
                     ]
+                },
+                "lime.command": {
+                    "description": "The Lime command to call in tasks and for `lime display`",
+                    "type": "string",
+                    "default": "lime"
                 }
             }
         },

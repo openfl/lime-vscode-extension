@@ -191,7 +191,7 @@ class Main {
 		
 		var task = new Task (definition, name, "lime");
 		
-		task.execution = new ShellExecution ("lime " + args.join (" "), { cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment });
+		task.execution = new ShellExecution (getCommand () + " " + args.join (" "), { cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment });
 		
 		if (group != null) {
 			
@@ -228,6 +228,14 @@ class Main {
 		
 	}
 	
+
+	private function getCommand ():String {
+
+		var command = workspace.getConfiguration ("lime").get ("command");
+		return if (command == null) "lime" else command;
+	
+	}
+
 	
 	private function getCommandArguments (command:String):Array<String> {
 		
@@ -516,9 +524,6 @@ class Main {
 	
 	public function resolveTask (task:Task, ?token:CancellationToken):ProviderResult<Task> {
 		
-		//var definition:LimeTaskDefinition = cast task.definition;
-		//var command = definition.command;
-		//task.execution = new ProcessExecution ("lime", getCommandArguments (command), { cwd: workspace.rootPath });
 		return task;
 		
 	}
@@ -554,7 +559,7 @@ class Main {
 		
 		if (!hasProjectFile || !isProviderActive) return;
 		
-		var commandLine = "lime " + getCommandArguments ("display").join (" ");
+		var commandLine = getCommand () + " " + getCommandArguments ("display").join (" ");
 		commandLine = StringTools.replace (commandLine, "-verbose", "");
 		
 		//trace ("Running display command: " + commandLine);

@@ -5,6 +5,7 @@
 
 * Added support for the `haxe.taskPresentation` setting in vshaxe 1.11.0 ([#31](https://github.com/openfl/lime-vscode-extension/issues/31))
 * Added support for the new problem matchers in vshaxe 1.11.0 ([#31](https://github.com/openfl/lime-vscode-extension/issues/31))
+* Added `lime.command` for using a custom Lime command ([#35](https://github.com/openfl/lime-vscode-extension/issues/35))
 
 1.1.0 (04/04/2018)
 ------------------

@@ -30,7 +30,7 @@ class Main {
 	private var selectTargetItem:StatusBarItem;
 	private var targetItems:Array<TargetItem>;
 	private var haxeEnvironment:DynamicAccess<String>;
-	private var limeCommand:String;
+	private var limeExecutable:String;
 	
 	
 	public function new (context:ExtensionContext) {
@@ -195,7 +195,7 @@ class Main {
 		
 		var task = new Task (definition, name, "lime");
 		
-		task.execution = new ShellExecution (limeCommand + " " + args.join (" "), { cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment });
+		task.execution = new ShellExecution (limeExecutable + " " + args.join (" "), { cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment });
 		
 		if (group != null) {
 			
@@ -233,10 +233,10 @@ class Main {
 	}
 	
 
-	private function getCommand ():String {
+	private function getExecutable ():String {
 
-		var command = workspace.getConfiguration ("lime").get ("command");
-		return if (command == null) "lime" else command;
+		var executable = workspace.getConfiguration ("lime").get ("executable");
+		return if (executable == null) "lime" else executable;
 	
 	}
 
@@ -496,11 +496,11 @@ class Main {
 				
 			}
 			
-			var oldLimeCommand = limeCommand;
-			limeCommand = getCommand ();
-			var limeCommandChanged = oldLimeCommand != limeCommand;
+			var oldLimeExecutable = limeExecutable;
+			limeExecutable = getExecutable ();
+			var limeExecutableChanged = oldLimeExecutable != limeExecutable;
 
-			if (isProviderActive && (!initialized || limeCommandChanged)) {
+			if (isProviderActive && (!initialized || limeExecutableChanged)) {
 				
 				if (!initialized) {
 					
@@ -567,14 +567,14 @@ class Main {
 		
 		if (!hasProjectFile || !isProviderActive) return;
 		
-		var commandLine = limeCommand + " " + getCommandArguments ("display").join (" ");
+		var commandLine = limeExecutable + " " + getCommandArguments ("display").join (" ");
 		commandLine = StringTools.replace (commandLine, "-verbose", "");
 
 		ChildProcess.exec (commandLine, { cwd: workspace.workspaceFolders[0].uri.fsPath }, function (err, stdout:Buffer, stderror) {
 			
 			if (err != null && err.code != 0) {
 	
-				var message = 'Lime completion setup failed. Is the lime command available? Try running "lime setup" or changing the "lime.command" setting.';
+				var message = 'Lime completion setup failed. Is the lime command available? Try running "lime setup" or changing the "lime.executable" setting.';
 				var showFullErrorLabel = "Show Full Error";
 				window.showErrorMessage (message, showFullErrorLabel).then (function (selection) {
 

@@ -232,7 +232,18 @@ class Main {
 	private function getExecutable ():String {
 
 		var executable = workspace.getConfiguration ("lime").get ("executable");
-		return if (executable == null) "lime" else executable;
+		if (executable == null) {
+		
+			executable = "lime";
+		
+		}
+		// naive check to see if it's a path, or multiple arguments such as "haxelib run lime"
+		if (FileSystem.exists(executable)) {
+
+			executable = '"' + executable + '"';
+
+		}
+		return executable;
 	
 	}
 

@@ -47,35 +47,31 @@ class Main {
 		
 		hasProjectFile = false;
 		
-		try {
+		if (getProjectFile () != "") {
 			
-			if (getProjectFile () != "") {
-				
-				hasProjectFile = true;
-				
-			}
+			hasProjectFile = true;
 			
-			if (!hasProjectFile) {
-				
-				// TODO: multi-folder support
+		}
+		
+		if (!hasProjectFile) {
+			
+			// TODO: multi-folder support
 
-				var wsFolder = if (workspace.workspaceFolders == null) null else workspace.workspaceFolders[0];
-				var rootPath = wsFolder.uri.fsPath;
+			var wsFolder = if (workspace.workspaceFolders == null) null else workspace.workspaceFolders[0];
+			var rootPath = wsFolder.uri.fsPath;
+			
+			if (rootPath != null) {
 				
-				if (rootPath != null) {
+				// TODO: support custom project file references
+				
+				var files = [ "project.xml", "Project.xml", "project.hxp", "project.lime" ];
+				
+				for (file in files) {
 					
-					// TODO: support custom project file references
-					
-					var files = [ "project.xml", "Project.xml", "project.hxp", "project.lime" ];
-					
-					for (file in files) {
+					if (FileSystem.exists (rootPath + "/" + file)) {
 						
-						if (FileSystem.exists (rootPath + "/" + file)) {
-							
-							hasProjectFile = true;
-							break;
-							
-						}
+						hasProjectFile = true;
+						break;
 						
 					}
 					

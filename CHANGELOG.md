@@ -1,6 +1,6 @@
 # Change Log
 
-1.2.0 (04/10/2018)
+1.2.0 (04/20/2018)
 ------------------
 
 * Added support for the `haxe.taskPresentation` setting in vshaxe 1.11.0 ([#31](https://github.com/openfl/lime-vscode-extension/issues/31))

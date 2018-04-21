@@ -663,10 +663,14 @@ class Main {
 	private function editTargetFlagsItem_onCommand ():Void {
 		
 		var flags = getTargetFlags ();
-		window.showInputBox ({ prompt: "Target Flags", value: flags + " ", valueSelection: [ flags.length + 1, flags.length + 1 ] }).then (function (value:String) {
-			
-			if (untyped !value) value = "";
-			setTargetFlags (StringTools.trim (value));
+		var value = if (flags.length == 0) "" else flags + " ";
+		window.showInputBox ({ prompt: "Target Flags", value: value, valueSelection: [ flags.length + 1, flags.length + 1 ] }).then (function (newValue:String) {
+
+			if (newValue != null) {
+
+				setTargetFlags (StringTools.trim (newValue));
+
+			}
 			
 		});
 		

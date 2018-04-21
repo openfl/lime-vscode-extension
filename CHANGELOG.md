@@ -4,6 +4,7 @@
 ------------------
 
 * Fixed target flags being cleared when the input prompt is canceled ([#40](https://github.com/openfl/lime-vscode-extension/issues/40))
+* Changed the target flags status bar item to show the flags in the tooltip ([#40](https://github.com/openfl/lime-vscode-extension/issues/40))
 
 1.2.0 (04/20/2018)
 ------------------

@@ -99,7 +99,6 @@ class Main {
 		disposables.push (selectBuildConfigItem);
 		
 		editTargetFlagsItem = window.createStatusBarItem (Left, 7);
-		editTargetFlagsItem.tooltip = "Edit Target Flags";
 		editTargetFlagsItem.command = "lime.editTargetFlags";
 		disposables.push (editTargetFlagsItem);
 		
@@ -565,6 +564,7 @@ class Main {
 	public function setTargetFlags (flags:String):Void {
 		
 		context.workspaceState.update ("lime.additionalTargetFlags", flags);
+		updateStatusBarItems();
 		updateDisplayArguments ();
 		
 	}
@@ -640,6 +640,13 @@ class Main {
 			}
 			
 			editTargetFlagsItem.text = "$(list-unordered)";
+			editTargetFlagsItem.tooltip = "Edit Target Flags";
+			var flags = getTargetFlags ();
+			if (flags.length != 0) {
+				
+				editTargetFlagsItem.tooltip += ' ($flags)';
+
+			}
 			editTargetFlagsItem.show ();
 			
 		} else {

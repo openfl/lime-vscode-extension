@@ -1,5 +1,10 @@
 # Change Log
 
+1.2.1 (to be released)
+------------------
+
+* Fixed target flags being cleared when the input prompt is canceled ([#40](https://github.com/openfl/lime-vscode-extension/issues/40))
+
 1.2.0 (04/20/2018)
 ------------------
 

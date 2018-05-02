@@ -3,7 +3,7 @@
     "version": "1.2.0",
     "publisher": "openfl",
     "engines": {
-        "vscode": "^1.14.0",
+        "vscode": "^1.20.0",
         "nadako.vshaxe": "^1.11.0"
     },
     "displayName": "Lime",

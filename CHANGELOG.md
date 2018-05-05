@@ -1,8 +1,9 @@
 # Change Log
 
-1.2.1 (to be released)
+1.2.1 (03/05/2018)
 ------------------
 
+* Updated the minimum required VSCode version to 1.20.0
 * Fixed target flags being cleared when the input prompt is canceled ([#40](https://github.com/openfl/lime-vscode-extension/issues/40))
 * Changed the target flags status bar item to show the flags in the tooltip ([#40](https://github.com/openfl/lime-vscode-extension/issues/40))
 

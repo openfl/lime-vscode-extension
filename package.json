@@ -44,7 +44,7 @@
     ],
     "contributes": {
         "configuration": {
-            "title": "Lime configuration",
+            "title": "Lime",
             "properties": {
                 "lime.projectFile": {
                     "description": "Custom path to Lime project file",

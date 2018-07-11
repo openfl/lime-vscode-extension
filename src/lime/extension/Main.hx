@@ -106,7 +106,7 @@ class Main {
 		disposables.push (commands.registerCommand ("lime.selectBuildConfig", selectBuildConfigItem_onCommand));
 		disposables.push (commands.registerCommand ("lime.editTargetFlags", editTargetFlagsItem_onCommand));
 		
-		disposables.push (workspace.registerTaskProvider ("lime", this));
+		disposables.push (tasks.registerTaskProvider ("lime", this));
 		
 	}
 	
@@ -205,7 +205,8 @@ class Main {
 			reveal: presentation.reveal,
 			echo: presentation.echo,
 			focus: presentation.focus,
-			panel: presentation.panel
+			panel: presentation.panel,
+			showReuseMessage: presentation.showReuseMessage
 		};
 		return task;
 		

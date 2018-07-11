@@ -1,5 +1,11 @@
 # Change Log
 
+1.2.2 (??/??/2018)
+------------------
+
+* Updated the minimum required VSCode version to 1.25.0
+* Added support for `showReuseMessage` in `haxe.taskPresentation` ([#46](https://github.com/openfl/lime-vscode-extension/issues/46))
+
 1.2.1 (03/05/2018)
 ------------------
 

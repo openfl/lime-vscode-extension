@@ -368,6 +368,12 @@ class Main {
 					label: "AIR",
 					description: "",
 				});
+				
+				targetItems.push ({
+					target: "electron",
+					label: "Electron",
+					description: "",
+				});
 			
 			case "Linux":
 				
@@ -394,6 +400,12 @@ class Main {
 				targetItems.push ({
 					target: "air",
 					label: "AIR",
+					description: "",
+				});
+				
+				targetItems.push ({
+					target: "electron",
+					label: "Electron",
 					description: "",
 				});
 				

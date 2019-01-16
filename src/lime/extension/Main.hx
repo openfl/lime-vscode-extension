@@ -166,7 +166,7 @@ class Main {
 	}
 
 	
-	private function createTask (description:String, command:String, ?group:TaskGroup) {
+	private function createTask (description:String, command:String, shortName:Bool, ?group:TaskGroup) {
 		
 		var definition:LimeTaskDefinition = {
 			
@@ -177,7 +177,7 @@ class Main {
 		
 		//var task = new Task (definition, description, "Lime");
 		var args = getCommandArguments (command);
-		var name = args.join (" ");
+		var name = shortName ? command : args.join(" ");
 		
 		var vshaxe = getVshaxe ();
 		var displayPort = vshaxe.displayPort;
@@ -479,11 +479,19 @@ class Main {
 	public function provideTasks (?token:CancellationToken):ProviderResult<Array<Task>> {
 		
 		var tasks = [
-			createTask ("Clean", "clean", TaskGroup.Clean),
-			createTask ("Update", "update"),
-			createTask ("Build", "build", TaskGroup.Build),
-			createTask ("Run", "run"),
-			createTask ("Test", "test", TaskGroup.Test),
+			// Short Names (e.g. lime: build)
+			createTask ("Clean", "clean", true, TaskGroup.Clean),
+			createTask ("Update", "update", true),
+			createTask ("Build", "build", true, TaskGroup.Build),
+			createTask ("Run", "run", true),
+			createTask ("Test", "test", true, TaskGroup.Test),
+			
+			// Long Names (e.g. lime: build project.lime html5 -debug)
+			createTask ("Clean", "clean", false, TaskGroup.Clean),
+			createTask ("Update", "update", false),
+			createTask ("Build", "build", false, TaskGroup.Build),
+			createTask ("Run", "run", false),
+			createTask ("Test", "test", false, TaskGroup.Test),
 		];
 		
 		var target = getTarget ();

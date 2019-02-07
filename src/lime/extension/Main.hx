@@ -1,6 +1,5 @@
 package lime.extension;
 
-
 import js.node.Buffer;
 import js.node.ChildProcess;
 import sys.FileSystem;
@@ -12,16 +11,14 @@ import vscode.*;
 using lime.extension.ArrayHelper;
 using Lambda;
 
-
-class Main {
-	
-	
+class Main
+{
 	private static var instance:Main;
-	
+
 	private var buildConfigItems:Array<BuildConfigItem>;
 	private var context:ExtensionContext;
 	private var displayArgumentsProvider:LimeDisplayArgumentsProvider;
-	private var disposables:Array<{ function dispose():Void; }>;
+	private var disposables:Array<{function dispose():Void;}>;
 	private var editTargetFlagsItem:StatusBarItem;
 	private var hasProjectFile:Bool;
 	private var initialized:Bool;
@@ -31,301 +28,256 @@ class Main {
 	private var targetItems:Array<TargetItem>;
 	private var haxeEnvironment:DynamicAccess<String>;
 	private var limeExecutable:String;
-	
-	
-	public function new (context:ExtensionContext) {
-		
-		this.context = context;
-		
-		context.subscriptions.push (workspace.onDidChangeConfiguration (workspace_onDidChangeConfiguration));
-		refresh ();
 
+	public function new(context:ExtensionContext)
+	{
+		this.context = context;
+
+		context.subscriptions.push(workspace.onDidChangeConfiguration(workspace_onDidChangeConfiguration));
+		refresh();
 	}
 
-
-	private function checkHasProjectFile ():Void {
-		
+	private function checkHasProjectFile():Void
+	{
 		hasProjectFile = false;
-		
-		if (getProjectFile () != "") {
-			
+
+		if (getProjectFile() != "")
+		{
 			hasProjectFile = true;
-			
 		}
-		
-		if (!hasProjectFile) {
-			
+
+		if (!hasProjectFile)
+		{
 			// TODO: multi-folder support
 
 			var wsFolder = if (workspace.workspaceFolders == null) null else workspace.workspaceFolders[0];
 			var rootPath = wsFolder.uri.fsPath;
-			
-			if (rootPath != null) {
-				
+
+			if (rootPath != null)
+			{
 				// TODO: support custom project file references
-				
-				var files = [ "project.xml", "Project.xml", "project.hxp", "project.lime" ];
-				
-				for (file in files) {
-					
-					if (FileSystem.exists (rootPath + "/" + file)) {
-						
+
+				var files = ["project.xml", "Project.xml", "project.hxp", "project.lime"];
+
+				for (file in files)
+				{
+					if (FileSystem.exists(rootPath + "/" + file))
+					{
 						hasProjectFile = true;
 						break;
-						
 					}
-					
 				}
-				
 			}
-			
 		}
-		
 	}
-	
-	
-	private function construct ():Void {
-		
+
+	private function construct():Void
+	{
 		disposables = [];
-		
-		selectTargetItem = window.createStatusBarItem (Left, 9);
+
+		selectTargetItem = window.createStatusBarItem(Left, 9);
 		selectTargetItem.tooltip = "Select Target";
 		selectTargetItem.command = "lime.selectTarget";
-		disposables.push (selectTargetItem);
-		
-		selectBuildConfigItem = window.createStatusBarItem (Left, 8);
+		disposables.push(selectTargetItem);
+
+		selectBuildConfigItem = window.createStatusBarItem(Left, 8);
 		selectBuildConfigItem.tooltip = "Select Build Configuration";
 		selectBuildConfigItem.command = "lime.selectBuildConfig";
-		disposables.push (selectBuildConfigItem);
-		
-		editTargetFlagsItem = window.createStatusBarItem (Left, 7);
+		disposables.push(selectBuildConfigItem);
+
+		editTargetFlagsItem = window.createStatusBarItem(Left, 7);
 		editTargetFlagsItem.command = "lime.editTargetFlags";
-		disposables.push (editTargetFlagsItem);
-		
-		disposables.push (commands.registerCommand ("lime.selectTarget", selectTargetItem_onCommand));
-		disposables.push (commands.registerCommand ("lime.selectBuildConfig", selectBuildConfigItem_onCommand));
-		disposables.push (commands.registerCommand ("lime.editTargetFlags", editTargetFlagsItem_onCommand));
-		
-		disposables.push (tasks.registerTaskProvider ("lime", this));
-		
+		disposables.push(editTargetFlagsItem);
+
+		disposables.push(commands.registerCommand("lime.selectTarget", selectTargetItem_onCommand));
+		disposables.push(commands.registerCommand("lime.selectBuildConfig", selectBuildConfigItem_onCommand));
+		disposables.push(commands.registerCommand("lime.editTargetFlags", editTargetFlagsItem_onCommand));
+
+		disposables.push(tasks.registerTaskProvider("lime", this));
 	}
-	
-	
-	private function deconstruct ():Void {
-		
-		if (disposables == null) {
-			
+
+	private function deconstruct():Void
+	{
+		if (disposables == null)
+		{
 			return;
-			
 		}
-		
-		for (disposable in disposables) {
-			
-			disposable.dispose ();
-			
+
+		for (disposable in disposables)
+		{
+			disposable.dispose();
 		}
-		
+
 		selectTargetItem = null;
 		selectBuildConfigItem = null;
 		editTargetFlagsItem = null;
-		
+
 		disposables = null;
 		initialized = false;
-		
 	}
-	
-	
-	private function constructDisplayArgumentsProvider () {
-		
-		var api:Vshaxe = getVshaxe ();
-		
-		displayArgumentsProvider = new LimeDisplayArgumentsProvider (api, function (isProviderActive) {
-			
+
+	private function constructDisplayArgumentsProvider()
+	{
+		var api:Vshaxe = getVshaxe();
+
+		displayArgumentsProvider = new LimeDisplayArgumentsProvider(api, function(isProviderActive)
+		{
 			this.isProviderActive = isProviderActive;
-			refresh ();
-			
+			refresh();
 		});
-		
-		if (untyped !api) {
-			
-			trace ("Warning: Haxe language server not available (using an incompatible vshaxe version)");
-			
-		} else {
-			
-			api.registerDisplayArgumentsProvider ("Lime", displayArgumentsProvider);
-			
-		}
-		
-	}
-	
 
-	private inline function getVshaxe ():Vshaxe {
-		
-		return extensions.getExtension ("nadako.vshaxe").exports;
-	
+		if (untyped !api)
+		{
+			trace("Warning: Haxe language server not available (using an incompatible vshaxe version)");
+		}
+		else
+		{
+			api.registerDisplayArgumentsProvider("Lime", displayArgumentsProvider);
+		}
 	}
 
-	
-	private function createTask (description:String, command:String, ?group:TaskGroup) {
-		
-		var definition:LimeTaskDefinition = {
-			
-			type: "lime",
-			command: command
-			
-		}
-		
-		//var task = new Task (definition, description, "Lime");
-		var args = getCommandArguments (command);
-		var name = args.join (" ");
-		
-		var vshaxe = getVshaxe ();
+	private inline function getVshaxe():Vshaxe
+	{
+		return extensions.getExtension("nadako.vshaxe").exports;
+	}
+
+	private function createTask(description:String, command:String, ?group:TaskGroup)
+	{
+		var definition:LimeTaskDefinition =
+			{
+				type: "lime",
+				command: command
+			}
+
+		// var task = new Task (definition, description, "Lime");
+		var args = getCommandArguments(command);
+		var name = args.join(" ");
+
+		var vshaxe = getVshaxe();
 		var displayPort = vshaxe.displayPort;
-		if (getVshaxe ().enableCompilationServer && displayPort != null && args.indexOf ("--connect") == -1) {
-			
-			args.push ("--connect");
-			args.push (Std.string (displayPort));
-			
+		if (getVshaxe().enableCompilationServer && displayPort != null && args.indexOf("--connect") == -1)
+		{
+			args.push("--connect");
+			args.push(Std.string(displayPort));
 		}
-		
-		var task = new Task (definition, TaskScope.Workspace, name, "lime");
-		
-		task.execution = new ShellExecution (limeExecutable + " " + args.join (" "), { cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment });
-		
-		if (group != null) {
-			
+
+		var task = new Task(definition, TaskScope.Workspace, name, "lime");
+
+		task.execution = new ShellExecution(limeExecutable + " " + args.join(" "), {cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment});
+
+		if (group != null)
+		{
 			task.group = group;
-			
 		}
-		
-		task.problemMatchers = vshaxe.problemMatchers.get ();
+
+		task.problemMatchers = vshaxe.problemMatchers.get();
 
 		var presentation = vshaxe.taskPresentation;
-		task.presentationOptions = {
-			reveal: presentation.reveal,
-			echo: presentation.echo,
-			focus: presentation.focus,
-			panel: presentation.panel,
-			showReuseMessage: presentation.showReuseMessage,
-			clear: presentation.clear
-		};
+		task.presentationOptions =
+			{
+				reveal: presentation.reveal,
+				echo: presentation.echo,
+				focus: presentation.focus,
+				panel: presentation.panel,
+				showReuseMessage: presentation.showReuseMessage,
+				clear: presentation.clear
+			};
 		return task;
-		
 	}
-	
-	
-	public function getBuildConfigFlags ():String {
-		
-		var defaultFlags = "";
-		var defaultBuildConfigLabel = workspace.getConfiguration ("lime").get ("defaultBuildConfiguration", "Release");
-		var defaultBuildConfig = buildConfigItems.find (function(item) return item.label == defaultBuildConfigLabel);
-		if (defaultBuildConfig != null) {
 
+	public function getBuildConfigFlags():String
+	{
+		var defaultFlags = "";
+		var defaultBuildConfigLabel = workspace.getConfiguration("lime").get("defaultBuildConfiguration", "Release");
+		var defaultBuildConfig = buildConfigItems.find(function(item) return item.label == defaultBuildConfigLabel);
+		if (defaultBuildConfig != null)
+		{
 			defaultFlags = defaultBuildConfig.flags;
-			
 		}
 
-		return context.workspaceState.get ("lime.buildConfigFlags", defaultFlags);
-		
+		return context.workspaceState.get("lime.buildConfigFlags", defaultFlags);
 	}
-	
 
-	private function getExecutable ():String {
-
-		var executable = workspace.getConfiguration ("lime").get ("executable");
-		if (executable == null) {
-		
+	private function getExecutable():String
+	{
+		var executable = workspace.getConfiguration("lime").get("executable");
+		if (executable == null)
+		{
 			executable = "lime";
-		
 		}
 		// naive check to see if it's a path, or multiple arguments such as "haxelib run lime"
-		if (FileSystem.exists(executable)) {
-
+		if (FileSystem.exists(executable))
+		{
 			executable = '"' + executable + '"';
-
 		}
 		return executable;
-	
 	}
 
-	
-	private function getCommandArguments (command:String):Array<String> {
-		
-		var args = [ command ];
-		
+	private function getCommandArguments(command:String):Array<String>
+	{
+		var args = [command];
+
 		// TODO: Support rebuild tools (and other command with no project file argument)
-		
-		var projectFile = getProjectFile ();
-		if (projectFile != "") args.push (projectFile);
-		args.push (getTarget ());
-		
-		var buildConfigFlags = getBuildConfigFlags ();
-		if (buildConfigFlags != "") {
-			
+
+		var projectFile = getProjectFile();
+		if (projectFile != "") args.push(projectFile);
+		args.push(getTarget());
+
+		var buildConfigFlags = getBuildConfigFlags();
+		if (buildConfigFlags != "")
+		{
 			// TODO: Handle argument list better
-			args = args.concat (buildConfigFlags.split (" "));
-			
+			args = args.concat(buildConfigFlags.split(" "));
 		}
-		
-		var targetFlags = StringTools.trim (getTargetFlags ());
-		if (targetFlags != "") {
-			
+
+		var targetFlags = StringTools.trim(getTargetFlags());
+		if (targetFlags != "")
+		{
 			// TODO: Handle argument list better
-			args = args.concat (targetFlags.split (" "));
-			
+			args = args.concat(targetFlags.split(" "));
 		}
-		
+
 		return args;
-		
 	}
-	
-	
-	public function getProjectFile ():String {
-		
-		var config = workspace.getConfiguration ("lime");
-		
-		if (config.has ("projectFile")) {
-			
-			var projectFile = Std.string (config.get ("projectFile"));
+
+	public function getProjectFile():String
+	{
+		var config = workspace.getConfiguration("lime");
+
+		if (config.has("projectFile"))
+		{
+			var projectFile = Std.string(config.get("projectFile"));
 			if (projectFile == "null") projectFile = "";
 			return projectFile;
-			
-		} else {
-			
+		}
+		else
+		{
 			return "";
-			
 		}
-		
 	}
-	
-	
-	public function getTarget ():String {
-		
+
+	public function getTarget():String
+	{
 		var defaultTarget = "html5";
-		var defaultTargetLabel = workspace.getConfiguration ("lime").get ("defaultTarget", "HTML5");
-		var defaultTargetItem = targetItems.find (function(item) return item.label == defaultTargetLabel);
-		if (defaultTargetItem != null) {
-
+		var defaultTargetLabel = workspace.getConfiguration("lime").get("defaultTarget", "HTML5");
+		var defaultTargetItem = targetItems.find(function(item) return item.label == defaultTargetLabel);
+		if (defaultTargetItem != null)
+		{
 			defaultTarget = defaultTargetItem.target;
-
 		}
 
-		return context.workspaceState.get ("lime.target", defaultTarget);
-		
+		return context.workspaceState.get("lime.target", defaultTarget);
 	}
-	
-	
-	public function getTargetFlags ():String {
-		
-		return context.workspaceState.get ("lime.additionalTargetFlags", "");
-		
+
+	public function getTargetFlags():String
+	{
+		return context.workspaceState.get("lime.additionalTargetFlags", "");
 	}
-	
-	
-	private function initialize ():Void {
-		
+
+	private function initialize():Void
+	{
 		// TODO: Populate target items and build configurations from Lime
-		
+
 		targetItems = [
 			{
 				target: "android",
@@ -353,65 +305,69 @@ class Main {
 				description: "",
 			}
 		];
-		
-		switch (Sys.systemName()) {
-			
+
+		switch (Sys.systemName())
+		{
 			case "Windows":
-				
-				targetItems.unshift ({
-					target: "windows",
-					label: "Windows",
-					description: "",
-				});
-				
-				targetItems.push ({
-					target: "air",
-					label: "AIR",
-					description: "",
-				});
-				
-				targetItems.push ({
-					target: "electron",
-					label: "Electron",
-					description: "",
-				});
-			
+				targetItems.unshift(
+					{
+						target: "windows",
+						label: "Windows",
+						description: "",
+					});
+
+				targetItems.push(
+					{
+						target: "air",
+						label: "AIR",
+						description: "",
+					});
+
+				targetItems.push(
+					{
+						target: "electron",
+						label: "Electron",
+						description: "",
+					});
+
 			case "Linux":
-				
-				targetItems.unshift ({
-					target: "linux",
-					label: "Linux",
-					description: "",
-				});
-			
+				targetItems.unshift(
+					{
+						target: "linux",
+						label: "Linux",
+						description: "",
+					});
+
 			case "Mac":
-				
-				targetItems.unshift ({
-					target: "mac",
-					label: "macOS",
-					description: "",
-				});
-				
-				targetItems.unshift ({
-					target: "ios",
-					label: "iOS",
-					description: "",
-				});
-				
-				targetItems.push ({
-					target: "air",
-					label: "AIR",
-					description: "",
-				});
-				
-				targetItems.push ({
-					target: "electron",
-					label: "Electron",
-					description: "",
-				});
-				
+				targetItems.unshift(
+					{
+						target: "mac",
+						label: "macOS",
+						description: "",
+					});
+
+				targetItems.unshift(
+					{
+						target: "ios",
+						label: "iOS",
+						description: "",
+					});
+
+				targetItems.push(
+					{
+						target: "air",
+						label: "AIR",
+						description: "",
+					});
+
+				targetItems.push(
+					{
+						target: "electron",
+						label: "Electron",
+						description: "",
+					});
 		}
-		
+
 		buildConfigItems = [
 			{
 				flags: "-debug",
@@ -429,332 +385,268 @@ class Main {
 				description: "",
 			}
 		];
-		
-		getVshaxe ().haxeExecutable.onDidChangeConfiguration (function (_) updateHaxeEnvironment ());
-		updateHaxeEnvironment ();
-		
-		initialized = true;
-		
-	}
-	
-	private function updateHaxeEnvironment () {
-		
-		var haxeConfiguration = getVshaxe ().haxeExecutable.configuration;
-		var env = new DynamicAccess ();
-		
-		for (field in Reflect.fields (haxeConfiguration.env)) {
-			
-			env[field] = haxeConfiguration.env[field];
-			
-		}
-		
-		if (!haxeConfiguration.isCommand) {
-			
-			var separator = Sys.systemName () == "Windows" ? ";" : ":";
-			env["PATH"] = Path.directory (haxeConfiguration.executable) + separator + Sys.getEnv("PATH");
-			
-		}
-		
-		haxeEnvironment = env;
-		
-	}
-	
-	
-	@:keep @:expose("activate") public static function activate (context:ExtensionContext) {
-		
-		instance = new Main (context);
-		
-	}
-	
-	
-	@:keep @:expose("deactivate") public static function deactivate () {
-		
-		instance.deconstruct ();
-		
-	}
-	
-	
-	static function main () {}
-	
-	
-	public function provideTasks (?token:CancellationToken):ProviderResult<Array<Task>> {
-		
-		var tasks = [
-			createTask ("Clean", "clean", TaskGroup.Clean),
-			createTask ("Update", "update"),
-			createTask ("Build", "build", TaskGroup.Build),
-			createTask ("Run", "run"),
-			createTask ("Test", "test", TaskGroup.Test),
-		];
-		
-		var target = getTarget ();
-		
-		// TODO: Detect Lime development build
-		
-		if (target != "html5" && target != "flash") {
-			
-			//tasks.push (createTask ("Rebuild", "rebuild", TaskGroup.Rebuild));
-			
-		}
-		
-		//tasks.push (createTask ("Rebuild", "rebuild tools", TaskGroup.Rebuild));
-		
-		return tasks;
-		
-	}
-	
-	
-	private function refresh ():Void {
 
-		checkHasProjectFile ();
-		
-		if (hasProjectFile) {
-			
-			if (displayArgumentsProvider == null) {
-				
-				constructDisplayArgumentsProvider ();
-				
+		getVshaxe().haxeExecutable.onDidChangeConfiguration(function(_) updateHaxeEnvironment());
+		updateHaxeEnvironment();
+
+		initialized = true;
+	}
+
+	private function updateHaxeEnvironment()
+	{
+		var haxeConfiguration = getVshaxe().haxeExecutable.configuration;
+		var env = new DynamicAccess();
+
+		for (field in Reflect.fields(haxeConfiguration.env))
+		{
+			env[field] = haxeConfiguration.env[field];
+		}
+
+		if (!haxeConfiguration.isCommand)
+		{
+			var separator = Sys.systemName() == "Windows" ? ";" : ":";
+			env["PATH"] = Path.directory(haxeConfiguration.executable) + separator + Sys.getEnv("PATH");
+		}
+
+		haxeEnvironment = env;
+	}
+
+	@:keep @:expose("activate") public static function activate(context:ExtensionContext)
+	{
+		instance = new Main(context);
+	}
+
+	@:keep @:expose("deactivate") public static function deactivate()
+	{
+		instance.deconstruct();
+	}
+
+	static function main() {}
+
+	public function provideTasks(?token:CancellationToken):ProviderResult<Array<Task>>
+	{
+		var tasks = [
+			createTask("Clean", "clean", TaskGroup.Clean),
+			createTask("Update", "update"),
+			createTask("Build", "build", TaskGroup.Build),
+			createTask("Run", "run"),
+			createTask("Test", "test", TaskGroup.Test),
+		];
+
+		var target = getTarget();
+
+		// TODO: Detect Lime development build
+
+		if (target != "html5" && target != "flash")
+		{
+			// tasks.push (createTask ("Rebuild", "rebuild", TaskGroup.Rebuild));
+		}
+
+		// tasks.push (createTask ("Rebuild", "rebuild tools", TaskGroup.Rebuild));
+
+		return tasks;
+	}
+
+	private function refresh():Void
+	{
+		checkHasProjectFile();
+
+		if (hasProjectFile)
+		{
+			if (displayArgumentsProvider == null)
+			{
+				constructDisplayArgumentsProvider();
 			}
-			
+
 			var oldLimeExecutable = limeExecutable;
-			limeExecutable = getExecutable ();
+			limeExecutable = getExecutable();
 			var limeExecutableChanged = oldLimeExecutable != limeExecutable;
 
-			if (isProviderActive && (!initialized || limeExecutableChanged)) {
-				
-				if (!initialized) {
-					
-					initialize ();
-					construct ();
-					
+			if (isProviderActive && (!initialized || limeExecutableChanged))
+			{
+				if (!initialized)
+				{
+					initialize();
+					construct();
 				}
-				
-				updateDisplayArguments ();
-				
-			}
-			
-		}
-		
-		if (!hasProjectFile || !isProviderActive) {
-			
-			deconstruct();
-			
-		}
-		
-		if (initialized) {
-			
-			updateStatusBarItems ();
-			
-		}
-		
-	}
-	
-	
-	public function resolveTask (task:Task, ?token:CancellationToken):ProviderResult<Task> {
-		
-		return task;
-		
-	}
-	
-	
-	public function setBuildConfigFlags (flags:String):Void {
-		
-		context.workspaceState.update ("lime.buildConfigFlags", flags);
-		updateStatusBarItems ();
-		updateDisplayArguments ();
-		
-	}
-	
-	
-	public function setTarget (target:String):Void {
-		
-		context.workspaceState.update ("lime.target", target);
-		updateStatusBarItems ();
-		updateDisplayArguments ();
-		
-	}
-	
-	
-	public function setTargetFlags (flags:String):Void {
-		
-		context.workspaceState.update ("lime.additionalTargetFlags", flags);
-		updateStatusBarItems();
-		updateDisplayArguments ();
-		
-	}
-	
-	
-	private function updateDisplayArguments ():Void {
-		
-		if (!hasProjectFile || !isProviderActive) return;
-		
-		var commandLine = limeExecutable + " " + getCommandArguments ("display").join (" ");
-		commandLine = StringTools.replace (commandLine, "-verbose", "");
 
-		ChildProcess.exec (commandLine, { cwd: workspace.workspaceFolders[0].uri.fsPath }, function (err, stdout:Buffer, stderror) {
-			
-			if (err != null && err.code != 0) {
-	
+				updateDisplayArguments();
+			}
+		}
+
+		if (!hasProjectFile || !isProviderActive)
+		{
+			deconstruct();
+		}
+
+		if (initialized)
+		{
+			updateStatusBarItems();
+		}
+	}
+
+	public function resolveTask(task:Task, ?token:CancellationToken):ProviderResult<Task>
+	{
+		return task;
+	}
+
+	public function setBuildConfigFlags(flags:String):Void
+	{
+		context.workspaceState.update("lime.buildConfigFlags", flags);
+		updateStatusBarItems();
+		updateDisplayArguments();
+	}
+
+	public function setTarget(target:String):Void
+	{
+		context.workspaceState.update("lime.target", target);
+		updateStatusBarItems();
+		updateDisplayArguments();
+	}
+
+	public function setTargetFlags(flags:String):Void
+	{
+		context.workspaceState.update("lime.additionalTargetFlags", flags);
+		updateStatusBarItems();
+		updateDisplayArguments();
+	}
+
+	private function updateDisplayArguments():Void
+	{
+		if (!hasProjectFile || !isProviderActive) return;
+
+		var commandLine = limeExecutable + " " + getCommandArguments("display").join(" ");
+		commandLine = StringTools.replace(commandLine, "-verbose", "");
+
+		ChildProcess.exec(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath}, function(err, stdout:Buffer, stderror)
+		{
+			if (err != null && err.code != 0)
+			{
 				var message = 'Lime completion setup failed. Is the lime command available? Try running "lime setup" or changing the "lime.executable" setting.';
 				var showFullErrorLabel = "Show Full Error";
-				window.showErrorMessage (message, showFullErrorLabel).then (function (selection) {
-
-					if (selection == showFullErrorLabel) {
-
-						commands.executeCommand ("workbench.action.toggleDevTools");
-
+				window.showErrorMessage(message, showFullErrorLabel).then(function(selection)
+				{
+					if (selection == showFullErrorLabel)
+					{
+						commands.executeCommand("workbench.action.toggleDevTools");
 					}
-
 				});
-				trace (err);
-
-			} else {
-
-				displayArgumentsProvider.update (stdout.toString ());
-
+				trace(err);
 			}
-
+			else
+			{
+				displayArgumentsProvider.update(stdout.toString());
+			}
 		});
-		
 	}
-	
-	
-	private function updateStatusBarItems ():Void {
-		
-		if (hasProjectFile && isProviderActive) {
-			
-			var target = getTarget ();
-			
-			for (i in 0...targetItems.length) {
-				
+
+	private function updateStatusBarItems():Void
+	{
+		if (hasProjectFile && isProviderActive)
+		{
+			var target = getTarget();
+
+			for (i in 0...targetItems.length)
+			{
 				var item = targetItems[i];
-				if (item.target == target) {
-					
+				if (item.target == target)
+				{
 					selectTargetItem.text = item.label;
-					selectTargetItem.show ();
+					selectTargetItem.show();
 					break;
-					
 				}
-				
 			}
-			
-			var buildConfigFlags = getBuildConfigFlags ();
-			
-			for (i in 0...buildConfigItems.length) {
-				
+
+			var buildConfigFlags = getBuildConfigFlags();
+
+			for (i in 0...buildConfigItems.length)
+			{
 				var item = buildConfigItems[i];
-				if (item.flags == buildConfigFlags) {
-					
+				if (item.flags == buildConfigFlags)
+				{
 					selectBuildConfigItem.text = item.label;
-					selectBuildConfigItem.show ();
+					selectBuildConfigItem.show();
 					break;
-					
 				}
-				
 			}
-			
+
 			editTargetFlagsItem.text = "$(list-unordered)";
 			editTargetFlagsItem.tooltip = "Edit Target Flags";
-			var flags = getTargetFlags ();
-			if (flags.length != 0) {
-				
+			var flags = getTargetFlags();
+			if (flags.length != 0)
+			{
 				editTargetFlagsItem.tooltip += ' ($flags)';
-
 			}
-			editTargetFlagsItem.show ();
-			
-		} else {
-			
-			selectTargetItem.hide ();
-			selectBuildConfigItem.hide ();
-			editTargetFlagsItem.hide ();
-			
+			editTargetFlagsItem.show();
 		}
-		
+		else
+		{
+			selectTargetItem.hide();
+			selectBuildConfigItem.hide();
+			editTargetFlagsItem.hide();
+		}
 	}
-	
-	
-	
-	
+
 	// Event Handlers
-	
-	
-	
-	
-	private function editTargetFlagsItem_onCommand ():Void {
-		
-		var flags = getTargetFlags ();
+	private function editTargetFlagsItem_onCommand():Void
+	{
+		var flags = getTargetFlags();
 		var value = if (flags.length == 0) "" else flags + " ";
-		window.showInputBox ({ prompt: "Target Flags", value: value, valueSelection: [ flags.length + 1, flags.length + 1 ] }).then (function (newValue:String) {
-
-			if (newValue != null) {
-
-				setTargetFlags (StringTools.trim (newValue));
-
+		window.showInputBox({prompt: "Target Flags", value: value, valueSelection: [flags.length + 1, flags.length + 1]}).then(function(newValue:String)
+		{
+			if (newValue != null)
+			{
+				setTargetFlags(StringTools.trim(newValue));
 			}
-			
 		});
-		
 	}
-	
-	
-	private function selectBuildConfigItem_onCommand ():Void {
-		
+
+	private function selectBuildConfigItem_onCommand():Void
+	{
 		var items = buildConfigItems;
-		items.moveToStart(function (item) return item.flags == getBuildConfigFlags ());
-		window.showQuickPick (items, { matchOnDescription: true, placeHolder: "Select Build Configuration"}).then (function (choice:BuildConfigItem) {
-			
+		items.moveToStart(function(item) return item.flags == getBuildConfigFlags());
+		window.showQuickPick(items, {matchOnDescription: true, placeHolder: "Select Build Configuration"}).then(function(choice:BuildConfigItem)
+		{
 			// TODO: Update if target flags include a build configuration?
-			
-			if (choice == null || choice.flags == getBuildConfigFlags ())
-				return;
-				
-			setBuildConfigFlags (choice.flags);
-			
+
+			if (choice == null || choice.flags == getBuildConfigFlags()) return;
+
+			setBuildConfigFlags(choice.flags);
 		});
-		
 	}
-	
-	
-	private function selectTargetItem_onCommand ():Void {
-		
+
+	private function selectTargetItem_onCommand():Void
+	{
 		var items = targetItems;
-		items.moveToStart(function (item) return item.target == getTarget ());
-		window.showQuickPick (items, { matchOnDescription: true, placeHolder: "Select Target" }).then (function (choice:TargetItem) {
-			
-			if (choice == null || choice.target == getTarget ())
-				return;
-			
-			setTarget (choice.target);
-			
+		items.moveToStart(function(item) return item.target == getTarget());
+		window.showQuickPick(items, {matchOnDescription: true, placeHolder: "Select Target"}).then(function(choice:TargetItem)
+		{
+			if (choice == null || choice.target == getTarget()) return;
+
+			setTarget(choice.target);
 		});
-		
 	}
-	
-	
-	private function workspace_onDidChangeConfiguration (_):Void {
-		
-		refresh ();
-		
+
+	private function workspace_onDidChangeConfiguration(_):Void
+	{
+		refresh();
 	}
-	
-	
 }
 
-
-private typedef LimeTaskDefinition = {
-	>TaskDefinition,
+private typedef LimeTaskDefinition =
+{
+	> TaskDefinition,
 	var command:String;
 }
 
-
-private typedef TargetItem = {
-	>QuickPickItem,
+private typedef TargetItem =
+{
+	> QuickPickItem,
 	var target:String;
 }
 
-
-private typedef BuildConfigItem = {
-	>QuickPickItem,
+private typedef BuildConfigItem =
+{
+	> QuickPickItem,
 	var flags:String;
 }

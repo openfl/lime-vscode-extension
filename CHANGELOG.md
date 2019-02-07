@@ -3,8 +3,8 @@
 1.2.2 (??/??/2019)
 ------------------
 
-* Updated the minimum required VSCode version to 1.25.0
-* Added support for `showReuseMessage` in `haxe.taskPresentation` ([#46](https://github.com/openfl/lime-vscode-extension/issues/46))
+* Updated the minimum required VSCode version to 1.31.0
+* Added support for `showReuseMessage` and `clear` in `haxe.taskPresentation` ([#46](https://github.com/openfl/lime-vscode-extension/issues/46))
 * Worked around tasks not working with VSCode 1.31.0 ([vscode#67990](https://github.com/Microsoft/vscode/issues/67990))
 
 1.2.1 (03/05/2018)

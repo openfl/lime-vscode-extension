@@ -1,6 +1,6 @@
 # Change Log
 
-1.2.2 (??/??/2019)
+1.2.2 (02/07/2019)
 ------------------
 
 * Updated the minimum required VSCode version to 1.31.0

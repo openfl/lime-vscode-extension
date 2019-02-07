@@ -188,7 +188,7 @@ class Main {
 			
 		}
 		
-		var task = new Task (definition, name, "lime");
+		var task = new Task (definition, TaskScope.Workspace, name, "lime");
 		
 		task.execution = new ShellExecution (limeExecutable + " " + args.join (" "), { cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment });
 		

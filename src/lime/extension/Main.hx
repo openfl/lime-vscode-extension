@@ -561,20 +561,27 @@ class Main
 			switch (target)
 			{
 				case "flash":
+					// TODO: Force -D fdb and -debug?
 					config.type = "fdb";
 					config.program = "${workspaceFolder}/" + outputFile;
 
 				case "hl":
+					// TODO: "program" is the wrong attribute for the HL debugger
+					// TODO: Use HXML config?
 					config.type = "hl";
 					config.program = "${workspaceFolder}/" + outputFile;
 
 				case "html5", "electron":
+					// TODO: Use correct webRoot path
+					// TODO: Let Lime tell us what server and port
+					// TODO: Use isBackground + problemMatcher task as preLaunch to run server
 					config.type = "chrome";
 					config.url = "http://127.0.0.1:3000";
 					config.sourceMaps = true;
 					config.webRoot = "${workspaceFolder}/" + outputFile;
 
 				case "windows", "mac", "linux":
+					// TODO: Add -lib hxcpp-debug-server
 					config.type = "hxcpp";
 					config.program = "${workspaceFolder}/" + outputFile;
 

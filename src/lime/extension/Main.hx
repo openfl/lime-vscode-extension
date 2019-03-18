@@ -223,6 +223,7 @@ class Main
 		// TODO: Support rebuild tools (and other command with no project file argument)
 
 		var target = getTarget();
+		var debug = false;
 
 		var projectFile = getProjectFile();
 		if (projectFile != "") args.push(projectFile);
@@ -231,6 +232,7 @@ class Main
 		var buildConfigFlags = getBuildConfigFlags();
 		if (buildConfigFlags != "")
 		{
+			if (buildConfigFlags.indexOf("-debug") > -1) debug = true;
 			// TODO: Handle argument list better
 			args = args.concat(buildConfigFlags.split(" "));
 		}
@@ -245,6 +247,10 @@ class Main
 		if (target == "windows" || target == "mac" || target == "linux")
 		{
 			args.push("--haxelib=hxcpp-debug-server");
+		}
+		else if (target == "flash" && debug)
+		{
+			args.push("-Dfdb");
 		}
 
 		return args;

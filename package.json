@@ -1,126 +1,137 @@
 {
-    "name": "lime-vscode-extension",
-    "version": "1.2.2",
-    "publisher": "openfl",
-    "engines": {
-        "vscode": "^1.31.0",
-        "nadako.vshaxe": "^2.5.0"
-    },
-    "displayName": "Lime",
-    "description": "Lime and OpenFL project support",
-    "categories": [
-        "Other"
-    ],
-    "galleryBanner": {
-        "theme": "dark",
-        "color": "#333333"
-    },
-    "keywords": [
-        "haxe",
-        "lime",
-        "openfl"
-    ],
-    "badges": [],
-    "icon": "images/icon-128.png",
-    "author": "Joshua Granick",
-    "license": "MIT",
-    "bugs": "https://github.com/openfl/lime-vscode-extension/issues",
-    "homepage": "http://www.openfl.org",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/openfl/lime-vscode-extension"
-    },
-    "scripts": {
-        "build": "haxe build.hxml",
-        "vscode:prepublish": "npm run build"
-    },
-    "main": "bin/lime-vscode.js",
-    "activationEvents": [
-        "workspaceContains:**/*.hxp",
-        "workspaceContains:**/*.lime",
-        "workspaceContains:**/project.xml",
-        "workspaceContains:**/Project.xml",
-        "onLanguage:haxe"
-    ],
-    "contributes": {
-        "configuration": {
-            "title": "Lime",
-            "properties": {
-                "lime.projectFile": {
-                    "description": "Custom path to Lime project file",
-                    "type": "string",
-                    "default": null
-                },
-                "lime.defaultTarget": {
-                    "description": "The target to select by default for new workspaces",
-                    "type": "string",
-                    "default": "HTML5",
-                    "enum": [
-                        "Android",
-                        "Flash",
-                        "HTML5",
-                        "Neko",
-                        "Emscripten",
-                        "Windows",
-                        "Linux",
-                        "macOS",
-                        "iOS",
-                        "AIR"
-                    ]
-                },
-                "lime.defaultBuildConfiguration": {
-                    "description": "The build configuration to select by default for new workspaces",
-                    "type": "string",
-                    "default": "Release",
-                    "enum": [
-                        "Release",
-                        "Debug",
-                        "Final"
-                    ]
-                },
-                "lime.executable": {
-                    "description": "The Lime executable to call in tasks and for `lime display`. Can be multiple arguments separated by spaces or a path to an executable.",
-                    "type": "string",
-                    "default": "lime"
-                }
-            }
-        },
-        "commands": [
-            {
-                "title": "Select Target",
-                "command": "lime.selectTarget",
-                "category": "Lime"
-            },
-            {
-                "title": "Select Build Configuration",
-                "command": "lime.selectBuildConfig",
-                "category": "Lime"
-            },
-            {
-                "title": "Edit Target Flags",
-                "command": "lime.editTargetFlags",
-                "category": "Lime"
-            }
-        ],
-        "taskDefinitions": [
-            {
-                "type": "lime",
-                "required": [
-                    "command"
-                ],
-                "properties": {
-                    "command": {
-                        "type": "string",
-                        "description": "The Lime command to run"
-                    }
-                }
-            }
-        ]
-    },
-    "devDependencies": {
-        "vshaxe": "vshaxe/vshaxe"
-    },
-    "extensionDependencies": [
-        "nadako.vshaxe"
-    ]
+	"name": "lime-vscode-extension",
+	"version": "1.2.2",
+	"publisher": "openfl",
+	"engines": {
+		"vscode": "^1.31.0",
+		"nadako.vshaxe": "^2.5.0"
+	},
+	"displayName": "Lime",
+	"description": "Lime and OpenFL project support",
+	"categories": [
+		"Other"
+	],
+	"galleryBanner": {
+		"theme": "dark",
+		"color": "#333333"
+	},
+	"keywords": [
+		"haxe",
+		"lime",
+		"openfl"
+	],
+	"badges": [],
+	"icon": "images/icon-128.png",
+	"author": "Joshua Granick",
+	"license": "MIT",
+	"bugs": "https://github.com/openfl/lime-vscode-extension/issues",
+	"homepage": "http://www.openfl.org",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/openfl/lime-vscode-extension"
+	},
+	"scripts": {
+		"build": "haxe build.hxml",
+		"vscode:prepublish": "npm run build"
+	},
+	"main": "bin/lime-vscode.js",
+	"activationEvents": [
+		"workspaceContains:**/*.hxp",
+		"workspaceContains:**/*.lime",
+		"workspaceContains:**/project.xml",
+		"workspaceContains:**/Project.xml",
+		"onLanguage:haxe"
+	],
+	"contributes": {
+		"configuration": {
+			"title": "Lime",
+			"properties": {
+				"lime.projectFile": {
+					"description": "Custom path to Lime project file",
+					"type": "string",
+					"default": null
+				},
+				"lime.defaultTarget": {
+					"description": "The target to select by default for new workspaces",
+					"type": "string",
+					"default": "HTML5",
+					"enum": [
+						"Android",
+						"Flash",
+						"HTML5",
+						"Neko",
+						"Emscripten",
+						"Windows",
+						"Linux",
+						"macOS",
+						"iOS",
+						"AIR"
+					]
+				},
+				"lime.defaultBuildConfiguration": {
+					"description": "The build configuration to select by default for new workspaces",
+					"type": "string",
+					"default": "Release",
+					"enum": [
+						"Release",
+						"Debug",
+						"Final"
+					]
+				},
+				"lime.executable": {
+					"description": "The Lime executable to call in tasks and for `lime display`. Can be multiple arguments separated by spaces or a path to an executable.",
+					"type": "string",
+					"default": "lime"
+				}
+			}
+		},
+		"commands": [
+			{
+				"title": "Select Target",
+				"command": "lime.selectTarget",
+				"category": "Lime"
+			},
+			{
+				"title": "Select Build Configuration",
+				"command": "lime.selectBuildConfig",
+				"category": "Lime"
+			},
+			{
+				"title": "Edit Target Flags",
+				"command": "lime.editTargetFlags",
+				"category": "Lime"
+			}
+		],
+		"taskDefinitions": [
+			{
+				"type": "lime",
+				"required": [
+					"command"
+				],
+				"properties": {
+					"command": {
+						"type": "string",
+						"description": "The Lime command to run"
+					}
+				}
+			}
+		]
+	},
+	"debuggers": [
+		{
+			"type": "lime",
+			"label": "Lime"
+		}
+	],
+	"devDependencies": {
+		"vshaxe": "vshaxe/vshaxe"
+	},
+	"extensionDependencies": [
+		"nadako.vshaxe"
+	],
+	"__metadata": {
+		"id": "c1cbdc7a-9c92-422b-87af-d193b3444f23",
+		"publisherDisplayName": "OpenFL",
+		"publisherId": "66a617f2-8aca-41e4-8cfe-f498606c6ab2"
+	}
 }

@@ -33,6 +33,8 @@ class Main
 	{
 		this.context = context;
 
+		registerDebugConfigurationProviders();
+
 		context.subscriptions.push(workspace.onDidChangeConfiguration(workspace_onDidChangeConfiguration));
 		refresh();
 	}
@@ -300,6 +302,11 @@ class Main
 				description: "",
 			},
 			{
+				target: "hl",
+				label: "HashLink (JIT)",
+				description: "",
+			},
+			{
 				target: "emscripten",
 				label: "Emscripten",
 				description: "",
@@ -423,6 +430,16 @@ class Main
 
 	static function main() {}
 
+	public function provideDebugConfigurations(folder:Null<WorkspaceFolder>, ?token:CancellationToken):ProviderResult<Array<DebugConfiguration>>
+	{
+		return [
+			{
+				"name": "Lime",
+				"type": "lime",
+				"request": "launch"
+			}];
+	}
+
 	public function provideTasks(?token:CancellationToken):ProviderResult<Array<Task>>
 	{
 		var tasks = [
@@ -483,6 +500,55 @@ class Main
 		{
 			updateStatusBarItems();
 		}
+	}
+
+	private function registerDebugConfigurationProviders():Void
+	{
+		debug.registerDebugConfigurationProvider("chrome", this);
+		debug.registerDebugConfigurationProvider("fdb", this);
+		debug.registerDebugConfigurationProvider("hl", this);
+		debug.registerDebugConfigurationProvider("hxcpp", this);
+		debug.registerDebugConfigurationProvider("lime", this);
+	}
+
+	public function resolveDebugConfiguration(folder:Null<WorkspaceFolder>, config:DebugConfiguration,
+			?token:CancellationToken):ProviderResult<DebugConfiguration>
+	{
+		if (config != null && config.type == "lime")
+		{
+			var config:Dynamic = config;
+			var target = getTarget();
+
+			switch (target)
+			{
+				case "flash":
+					config.type = "fdb";
+					config.program = "${workspaceFolder}/Export/flash/bin/DisplayTest.swf";
+
+				case "hl":
+					config.type = "hl";
+					config.program = "${workspaceFolder}/Export/hl/bin/DisplayTest";
+
+				case "html5", "electron":
+					config.type = "chrome";
+					config.url = "http://127.0.0.1:3000";
+					config.sourceMaps = true;
+					config.webRoot = "${workspaceFolder}/Export/html5/bin";
+
+				case "windows", "mac", "linux":
+					config.type = "hxcpp";
+					config.program = "${workspaceFolder}/Export/mac/bin/ApplicationMain";
+
+				default:
+					return null;
+			}
+
+			// TODO: Cleaner approach
+			var task = createTask("Build", "build", TaskGroup.Build);
+			config.preLaunchTask = "lime: " + task.name;
+			trace(task.name);
+		}
+		return config;
 	}
 
 	public function resolveTask(task:Task, ?token:CancellationToken):ProviderResult<Task>

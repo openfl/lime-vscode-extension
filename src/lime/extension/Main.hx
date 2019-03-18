@@ -245,17 +245,16 @@ class Main
 
 	private function getLimeVersion():Void
 	{
-		ChildProcess.exec(limeExecutable + " -version", {cwd: workspace.workspaceFolders[0].uri.fsPath}, function(err, stdout:Buffer, stderror)
+		try
 		{
-			if (err != null && err.code != 0)
-			{
-				limeVersion = "0.0.0";
-			}
-			else
-			{
-				limeVersion = StringTools.trim(stdout.toString());
-			}
-		});
+			var output = ChildProcess.execSync(limeExecutable + " -version", {cwd: workspace.workspaceFolders[0].uri.fsPath});
+			limeVersion = StringTools.trim(Std.string(output));
+		}
+		catch (e:Dynamic)
+		{
+			limeVersion = "0.0.0";
+			trace(e);
+		}
 	}
 
 	public function getProjectFile():String
@@ -549,26 +548,15 @@ class Main
 			var commandLine = limeExecutable + " " + getCommandArguments("display").join(" ") + " --output-file";
 			commandLine = StringTools.replace(commandLine, "-verbose", "");
 
-			ChildProcess.exec(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath}, function(err, stdout:Buffer, stderror)
+			try
 			{
-				if (err != null && err.code != 0)
-				{
-					// var message = 'Lime completion setup failed. Is the lime command available? Try running "lime setup" or changing the "lime.executable" setting.';
-					// var showFullErrorLabel = "Show Full Error";
-					// window.showErrorMessage(message, showFullErrorLabel).then(function(selection)
-					// {
-					// 	if (selection == showFullErrorLabel)
-					// 	{
-					// 		commands.executeCommand("workbench.action.toggleDevTools");
-					// 	}
-					// });
-					trace(err);
-				}
-				else
-				{
-					outputFile = StringTools.trim(stdout.toString());
-				}
-			});
+				var output = ChildProcess.execSync(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath});
+				outputFile = StringTools.trim(Std.string(output));
+			}
+			catch (e:Dynamic)
+			{
+				trace(e);
+			}
 
 			switch (target)
 			{
@@ -597,7 +585,6 @@ class Main
 			// TODO: Cleaner approach
 			var task = createTask("Build", "build", TaskGroup.Build);
 			config.preLaunchTask = "lime: " + task.name;
-			trace(task.name);
 		}
 		return config;
 	}

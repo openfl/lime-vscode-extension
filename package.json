@@ -102,6 +102,24 @@
 				"category": "Lime"
 			}
 		],
+		"debuggers": [
+			{
+				"type": "lime",
+				"label": "Lime",
+				"enableBreakpointsFor": {
+					"languageIds": [
+						"haxe"
+					]
+				},
+				"initialConfigurations": [
+					{
+						"name": "Lime",
+						"type": "lime",
+						"request": "launch"
+					}
+				]
+			}
+		],
 		"taskDefinitions": [
 			{
 				"type": "lime",
@@ -117,23 +135,7 @@
 			}
 		]
 	},
-	"debuggers": [
-		{
-			"type": "lime",
-			"label": "Lime",
-			"program": "./bin/lime-vscode-adapter.js",
-			"runtime": "node",
-			"initialConfigurations": [
-				{
-					"name": "Lime",
-					"type": "lime",
-					"request": "launch"
-				}
-			]
-		}
-	],
 	"devDependencies": {
-		"vscode-debugadapter-extern": "vshaxe/vscode-debugadapter-extern",
 		"vshaxe": "vshaxe/vshaxe"
 	},
 	"extensionDependencies": [

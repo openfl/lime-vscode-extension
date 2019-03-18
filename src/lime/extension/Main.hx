@@ -461,6 +461,7 @@ class Main
 
 	public function provideDebugConfigurations(folder:Null<WorkspaceFolder>, ?token:CancellationToken):ProviderResult<Array<DebugConfiguration>>
 	{
+		trace("provideDebugConfigurations");
 		return [
 			{
 				"name": "Lime",
@@ -537,12 +538,17 @@ class Main
 		debug.registerDebugConfigurationProvider("fdb", this);
 		debug.registerDebugConfigurationProvider("hl", this);
 		debug.registerDebugConfigurationProvider("hxcpp", this);
-		debug.registerDebugConfigurationProvider("lime", this);
+		debug.registerDebugConfigurationProvider("lime", {resolveDebugConfiguration: resolveDebugConfiguration});
 	}
 
 	public function resolveDebugConfiguration(folder:Null<WorkspaceFolder>, config:DebugConfiguration,
 			?token:CancellationToken):ProviderResult<DebugConfiguration>
 	{
+		if (config != null && config.type == null)
+		{
+			return null; // show launch.json
+		}
+
 		if (!hasProjectFile || !isProviderActive) return config;
 
 		if (limeVersion < new SemVer(8, 0, 0))

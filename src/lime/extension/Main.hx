@@ -28,6 +28,7 @@ class Main
 	private var targetItems:Array<TargetItem>;
 	private var haxeEnvironment:DynamicAccess<String>;
 	private var limeExecutable:String;
+	private var limeVersion:SemVer;
 
 	public function new(context:ExtensionContext)
 	{
@@ -242,6 +243,21 @@ class Main
 		return args;
 	}
 
+	private function getLimeVersion():Void
+	{
+		ChildProcess.exec(limeExecutable + " -version", {cwd: workspace.workspaceFolders[0].uri.fsPath}, function(err, stdout:Buffer, stderror)
+		{
+			if (err != null && err.code != 0)
+			{
+				limeVersion = "0.0.0";
+			}
+			else
+			{
+				limeVersion = StringTools.trim(stdout.toString());
+			}
+		});
+	}
+
 	public function getProjectFile():String
 	{
 		var config = workspace.getConfiguration("lime");
@@ -394,6 +410,7 @@ class Main
 		];
 
 		getVshaxe().haxeExecutable.onDidChangeConfiguration(function(_) updateHaxeEnvironment());
+		getLimeVersion();
 		updateHaxeEnvironment();
 
 		initialized = true;
@@ -515,6 +532,13 @@ class Main
 			?token:CancellationToken):ProviderResult<DebugConfiguration>
 	{
 		if (!hasProjectFile || !isProviderActive) return config;
+
+		if (limeVersion < new SemVer(8, 0, 0))
+		{
+			var message = 'Lime debug support requires Lime 8.0.0 (or greater)';
+			window.showWarningMessage(message);
+			return config;
+		}
 
 		if (config != null && config.type == "lime")
 		{

@@ -154,7 +154,7 @@ class Main
 
 		// var task = new Task (definition, description, "Lime");
 		var args = getCommandArguments(command);
-		var name = args.join(" ");
+		var name = command;
 
 		var vshaxe = getVshaxe();
 		var displayPort = vshaxe.displayPort;
@@ -589,9 +589,7 @@ class Main
 					return null;
 			}
 
-			// TODO: Cleaner approach
-			var task = createTask("Build", "build", TaskGroup.Build);
-			config.preLaunchTask = "lime: " + task.name;
+			config.preLaunchTask = "lime: build";
 		}
 		return config;
 	}

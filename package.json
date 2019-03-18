@@ -120,7 +120,16 @@
 	"debuggers": [
 		{
 			"type": "lime",
-			"label": "Lime"
+			"label": "Lime",
+			"program": "./bin/lime-vscode.js",
+			"runtime": "node",
+			"initialConfigurations": [
+				{
+					"name": "Lime",
+					"type": "lime",
+					"request": "launch"
+				}
+			]
 		}
 	],
 	"devDependencies": {
@@ -128,10 +137,5 @@
 	},
 	"extensionDependencies": [
 		"nadako.vshaxe"
-	],
-	"__metadata": {
-		"id": "c1cbdc7a-9c92-422b-87af-d193b3444f23",
-		"publisherDisplayName": "OpenFL",
-		"publisherId": "66a617f2-8aca-41e4-8cfe-f498606c6ab2"
-	}
+	]
 }

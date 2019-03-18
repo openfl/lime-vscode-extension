@@ -121,7 +121,7 @@
 		{
 			"type": "lime",
 			"label": "Lime",
-			"program": "./bin/lime-vscode.js",
+			"program": "./bin/lime-vscode-adapter.js",
 			"runtime": "node",
 			"initialConfigurations": [
 				{
@@ -133,6 +133,7 @@
 		}
 	],
 	"devDependencies": {
+		"vscode-debugadapter-extern": "vshaxe/vscode-debugadapter-extern",
 		"vshaxe": "vshaxe/vshaxe"
 	},
 	"extensionDependencies": [

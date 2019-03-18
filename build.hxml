@@ -7,3 +7,16 @@
 -js bin/lime-vscode.js
 -dce full
 -main lime.extension.Main
+
+--next
+
+-cp node_modules/vshaxe/vscode-extern/src
+-cp node_modules/vshaxe/src-api
+-cp node_modules/vscode-debugadapter-extern/src
+-cp src
+-D hxnodejs-no-version-warning
+-D analyzer-optimize
+-lib hxnodejs
+-js bin/lime-vscode-adapter.js
+-dce full
+-main lime.extension.DummyDebugAdapter

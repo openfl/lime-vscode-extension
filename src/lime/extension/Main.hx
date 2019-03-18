@@ -222,9 +222,11 @@ class Main
 
 		// TODO: Support rebuild tools (and other command with no project file argument)
 
+		var target = getTarget();
+
 		var projectFile = getProjectFile();
 		if (projectFile != "") args.push(projectFile);
-		args.push(getTarget());
+		args.push(target);
 
 		var buildConfigFlags = getBuildConfigFlags();
 		if (buildConfigFlags != "")
@@ -238,6 +240,11 @@ class Main
 		{
 			// TODO: Handle argument list better
 			args = args.concat(targetFlags.split(" "));
+		}
+
+		if (target == "windows" || target == "mac" || target == "linux")
+		{
+			args.push("--haxelib=hxcpp-debug-server");
 		}
 
 		return args;

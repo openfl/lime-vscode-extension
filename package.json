@@ -105,19 +105,7 @@
 		"debuggers": [
 			{
 				"type": "lime",
-				"label": "Lime",
-				"enableBreakpointsFor": {
-					"languageIds": [
-						"haxe"
-					]
-				},
-				"initialConfigurations": [
-					{
-						"name": "Lime",
-						"type": "lime",
-						"request": "launch"
-					}
-				]
+				"label": "Lime"
 			}
 		],
 		"taskDefinitions": [

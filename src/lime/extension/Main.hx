@@ -538,7 +538,7 @@ class Main
 		debug.registerDebugConfigurationProvider("fdb", this);
 		debug.registerDebugConfigurationProvider("hl", this);
 		debug.registerDebugConfigurationProvider("hxcpp", this);
-		debug.registerDebugConfigurationProvider("lime", {resolveDebugConfiguration: resolveDebugConfiguration});
+		debug.registerDebugConfigurationProvider("lime", this);
 	}
 
 	public function resolveDebugConfiguration(folder:Null<WorkspaceFolder>, config:DebugConfiguration,

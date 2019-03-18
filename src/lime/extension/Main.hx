@@ -514,30 +514,57 @@ class Main
 	public function resolveDebugConfiguration(folder:Null<WorkspaceFolder>, config:DebugConfiguration,
 			?token:CancellationToken):ProviderResult<DebugConfiguration>
 	{
+		if (!hasProjectFile || !isProviderActive) return config;
+
 		if (config != null && config.type == "lime")
 		{
 			var config:Dynamic = config;
 			var target = getTarget();
+			var outputFile = null;
+
+			var commandLine = limeExecutable + " " + getCommandArguments("display").join(" ") + " --output-file";
+			commandLine = StringTools.replace(commandLine, "-verbose", "");
+
+			ChildProcess.exec(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath}, function(err, stdout:Buffer, stderror)
+			{
+				if (err != null && err.code != 0)
+				{
+					// var message = 'Lime completion setup failed. Is the lime command available? Try running "lime setup" or changing the "lime.executable" setting.';
+					// var showFullErrorLabel = "Show Full Error";
+					// window.showErrorMessage(message, showFullErrorLabel).then(function(selection)
+					// {
+					// 	if (selection == showFullErrorLabel)
+					// 	{
+					// 		commands.executeCommand("workbench.action.toggleDevTools");
+					// 	}
+					// });
+					trace(err);
+				}
+				else
+				{
+					outputFile = StringTools.trim(stdout.toString());
+				}
+			});
 
 			switch (target)
 			{
 				case "flash":
 					config.type = "fdb";
-					config.program = "${workspaceFolder}/Export/flash/bin/DisplayTest.swf";
+					config.program = "${workspaceFolder}/" + outputFile;
 
 				case "hl":
 					config.type = "hl";
-					config.program = "${workspaceFolder}/Export/hl/bin/DisplayTest";
+					config.program = "${workspaceFolder}/" + outputFile;
 
 				case "html5", "electron":
 					config.type = "chrome";
 					config.url = "http://127.0.0.1:3000";
 					config.sourceMaps = true;
-					config.webRoot = "${workspaceFolder}/Export/html5/bin";
+					config.webRoot = "${workspaceFolder}/" + outputFile;
 
 				case "windows", "mac", "linux":
 					config.type = "hxcpp";
-					config.program = "${workspaceFolder}/Export/mac/bin/ApplicationMain";
+					config.program = "${workspaceFolder}/" + outputFile;
 
 				default:
 					return null;

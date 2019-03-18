@@ -580,15 +580,19 @@ class Main
 			switch (target)
 			{
 				case "flash":
-					// TODO: Force -D fdb and -debug?
 					config.type = "fdb";
 					config.program = "${workspaceFolder}/" + outputFile;
 
 				case "hl":
-					// TODO: "program" is the wrong attribute for the HL debugger
-					// TODO: Use HXML config?
+					// TODO: Waiting for HL debugger to have a way to use a custom exec
 					config.type = "hl";
-					config.program = "${workspaceFolder}/" + outputFile;
+
+					// TODO: Get from Lime?
+					config.hxml = "${workspaceFolder}/Export/hl/haxe/debug.hxml";
+					// config.cwd = Path.directory(outputFile);
+
+					// TODO: Get from Lime?
+					config.program = "${workspaceFolder}/" + Path.directory(outputFile) + "/hlboot.dat";
 
 				case "html5", "electron":
 					// TODO: Use correct webRoot path
@@ -600,7 +604,6 @@ class Main
 					config.webRoot = "${workspaceFolder}/" + outputFile;
 
 				case "windows", "mac", "linux":
-					// TODO: Add -lib hxcpp-debug-server
 					config.type = "hxcpp";
 					config.program = "${workspaceFolder}/" + outputFile;
 

@@ -137,6 +137,9 @@
 		"vshaxe": "vshaxe/vshaxe"
 	},
 	"extensionDependencies": [
-		"nadako.vshaxe"
+		"nadako.vshaxe",
+		"HaxeFoundation.haxe-hl",
+		"vshaxe.hxcpp-debugger",
+		"vshaxe.haxe-debug"
 	]
 }

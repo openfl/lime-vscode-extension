@@ -564,6 +564,23 @@ class Main
 			var target = getTarget();
 			var outputFile = null;
 
+			var supportedTargets = ["flash", "windows", "mac", "linux"];
+			if (supportedTargets.indexOf(target) == -1)
+			{
+				var targetName = target;
+				for (i in 0...targetItems.length)
+				{
+					var item = targetItems[i];
+					if (item.target == target)
+					{
+						targetName = item.label;
+						break;
+					}
+				}
+				window.showWarningMessage("Debugging " + targetName + " is not supported");
+				return js.Lib.undefined;
+			}
+
 			var commandLine = limeExecutable + " " + getCommandArguments("display").join(" ") + " --output-file";
 			commandLine = StringTools.replace(commandLine, "-verbose", "");
 

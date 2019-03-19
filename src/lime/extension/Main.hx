@@ -185,6 +185,14 @@ class Main
 				showReuseMessage: presentation.showReuseMessage,
 				clear: presentation.clear
 			};
+
+		var target = getTarget();
+		if (target == "html5" && command == "run")
+		{
+			task.isBackground = true;
+			task.problemMatchers = ["$lime-html5-run"];
+		}
+
 		return task;
 	}
 
@@ -251,6 +259,10 @@ class Main
 		else if (target == "flash" && debug)
 		{
 			args.push("-Dfdb");
+		}
+		else if (target == "html5" && command == "run")
+		{
+			args.push("-nolaunch");
 		}
 
 		return args;
@@ -572,7 +584,7 @@ class Main
 			var target = getTarget();
 			var outputFile = null;
 
-			var supportedTargets = ["flash", "windows", "mac", "linux"];
+			var supportedTargets = ["flash", "windows", "mac", "linux", "html5"];
 			#if debug
 			supportedTargets.push("hl");
 			#end
@@ -605,6 +617,8 @@ class Main
 				trace(e);
 			}
 
+			config.preLaunchTask = "lime: build";
+
 			switch (target)
 			{
 				case "flash":
@@ -618,13 +632,17 @@ class Main
 					config.exec = "${workspaceFolder}/" + outputFile;
 
 				case "html5", "electron":
-					// TODO: Use correct webRoot path
+					// TODO: Get webRoot path from Lime
+					// TODO: Get source maps working
 					// TODO: Let Lime tell us what server and port
-					// TODO: Use isBackground + problemMatcher task as preLaunch to run server
+					// TODO: Support other debuggers? Firefox debugger?
 					config.type = "chrome";
 					config.url = "http://127.0.0.1:3000";
 					config.sourceMaps = true;
-					config.webRoot = "${workspaceFolder}/" + outputFile;
+					// config.smartStep = true;
+					// config.internalConsoleOptions = "openOnSessionStart";
+					config.webRoot = "${workspaceFolder}/" + Path.directory(outputFile);
+					config.preLaunchTask = "lime: run";
 
 				case "windows", "mac", "linux":
 					config.type = "hxcpp";
@@ -633,8 +651,6 @@ class Main
 				default:
 					return null;
 			}
-
-			config.preLaunchTask = "lime: build";
 		}
 		return config;
 	}

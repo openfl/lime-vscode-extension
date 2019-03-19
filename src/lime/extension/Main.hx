@@ -28,7 +28,7 @@ class Main
 	private var targetItems:Array<TargetItem>;
 	private var haxeEnvironment:DynamicAccess<String>;
 	private var limeExecutable:String;
-	private var limeVersion:SemVer;
+	private var limeVersion:SemVer = "0.0.0";
 
 	public function new(context:ExtensionContext)
 	{
@@ -306,6 +306,8 @@ class Main
 
 	private function initialize():Void
 	{
+		getLimeVersion();
+
 		// TODO: Populate target items and build configurations from Lime
 
 		targetItems = [
@@ -328,18 +330,25 @@ class Main
 				target: "neko",
 				label: "Neko",
 				description: "",
-			},
-			{
-				target: "hl",
-				label: "HashLink (JIT)",
-				description: "",
-			},
+			}
+		];
+
+		if (limeVersion >= new SemVer(8, 0, 0))
+		{
+			targetItems.push(
+				{
+					target: "hl",
+					label: "HashLink (JIT)",
+					description: "",
+				});
+		}
+
+		targetItems.push(
 			{
 				target: "emscripten",
 				label: "Emscripten",
 				description: "",
-			}
-		];
+			});
 
 		switch (Sys.systemName())
 		{
@@ -422,7 +431,6 @@ class Main
 		];
 
 		getVshaxe().haxeExecutable.onDidChangeConfiguration(function(_) updateHaxeEnvironment());
-		getLimeVersion();
 		updateHaxeEnvironment();
 
 		initialized = true;

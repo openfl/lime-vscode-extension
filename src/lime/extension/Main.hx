@@ -573,6 +573,9 @@ class Main
 			var outputFile = null;
 
 			var supportedTargets = ["flash", "windows", "mac", "linux"];
+			#if debug
+			supportedTargets.push("hl");
+			#end
 			if (supportedTargets.indexOf(target) == -1)
 			{
 				var targetName = target;
@@ -611,13 +614,8 @@ class Main
 				case "hl":
 					// TODO: Waiting for HL debugger to have a way to use a custom exec
 					config.type = "hl";
-
-					// TODO: Get from Lime?
-					config.hxml = "${workspaceFolder}/Export/hl/haxe/debug.hxml";
-					// config.cwd = Path.directory(outputFile);
-
-					// TODO: Get from Lime?
 					config.program = "${workspaceFolder}/" + Path.directory(outputFile) + "/hlboot.dat";
+					config.exec = "${workspaceFolder}/" + outputFile;
 
 				case "html5", "electron":
 					// TODO: Use correct webRoot path

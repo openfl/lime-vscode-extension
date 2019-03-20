@@ -187,10 +187,10 @@ class Main
 			};
 
 		var target = getTarget();
-		if (target == "html5" && (command == "run" || command == "test"))
+		if (target == "html5" && command.indexOf("-nolaunch") > -1)
 		{
 			task.isBackground = true;
-			task.problemMatchers = ["$lime-html5-run"];
+			task.problemMatchers = ["$lime-nolaunch"];
 		}
 
 		return task;
@@ -226,7 +226,7 @@ class Main
 
 	private function getCommandArguments(command:String):Array<String>
 	{
-		var args = [command];
+		var args = command.split(" ");
 
 		// TODO: Support rebuild tools (and other command with no project file argument)
 
@@ -259,10 +259,6 @@ class Main
 		else if (target == "flash" && debug)
 		{
 			args.push("-Dfdb");
-		}
-		else if (target == "html5" && (command == "run" || command == "test"))
-		{
-			args.push("-nolaunch");
 		}
 
 		return args;
@@ -501,6 +497,11 @@ class Main
 		];
 
 		var target = getTarget();
+		if (target == "html5")
+		{
+			tasks.push(createTask("Run", "run -nolaunch"));
+			tasks.push(createTask("Test", "test -nolaunch"));
+		}
 
 		// TODO: Detect Lime development build
 
@@ -638,11 +639,12 @@ class Main
 					// TODO: Support other debuggers? Firefox debugger?
 					config.type = "chrome";
 					config.url = "http://127.0.0.1:3000";
+					// config.file = "${workspaceFolder}/" + Path.directory(outputFile) + "/index.html";
 					config.sourceMaps = true;
 					// config.smartStep = true;
 					// config.internalConsoleOptions = "openOnSessionStart";
 					config.webRoot = "${workspaceFolder}/" + Path.directory(outputFile);
-					config.preLaunchTask = "lime: test";
+					config.preLaunchTask = "lime: test -nolaunch";
 
 				case "windows", "mac", "linux":
 					config.type = "hxcpp";

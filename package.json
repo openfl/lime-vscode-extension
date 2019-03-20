@@ -110,7 +110,7 @@
 		],
 		"problemMatchers": [
 			{
-				"name": "lime-html5-run",
+				"name": "lime-nolaunch",
 				"owner": "lime",
 				"source": "tasks",
 				"pattern": [

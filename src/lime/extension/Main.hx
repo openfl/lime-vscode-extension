@@ -187,7 +187,7 @@ class Main
 			};
 
 		var target = getTarget();
-		if (target == "html5" && command == "run")
+		if (target == "html5" && (command == "run" || command == "test"))
 		{
 			task.isBackground = true;
 			task.problemMatchers = ["$lime-html5-run"];
@@ -260,7 +260,7 @@ class Main
 		{
 			args.push("-Dfdb");
 		}
-		else if (target == "html5" && command == "run")
+		else if (target == "html5" && (command == "run" || command == "test"))
 		{
 			args.push("-nolaunch");
 		}
@@ -642,7 +642,7 @@ class Main
 					// config.smartStep = true;
 					// config.internalConsoleOptions = "openOnSessionStart";
 					config.webRoot = "${workspaceFolder}/" + Path.directory(outputFile);
-					config.preLaunchTask = "lime: run";
+					config.preLaunchTask = "lime: test";
 
 				case "windows", "mac", "linux":
 					config.type = "hxcpp";

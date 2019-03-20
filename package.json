@@ -108,6 +108,26 @@
 				"label": "Lime"
 			}
 		],
+		"problemMatchers": [
+			{
+				"name": "lime-html5-run",
+				"owner": "lime",
+				"source": "tasks",
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": ".",
+					"endsPattern": ".*Starting.*"
+				}
+			}
+		],
 		"taskDefinitions": [
 			{
 				"type": "lime",

@@ -139,11 +139,6 @@ class Main
 		}
 	}
 
-	private inline function getVshaxe():Vshaxe
-	{
-		return extensions.getExtension("nadako.vshaxe").exports;
-	}
-
 	private function createTask(description:String, command:String, ?group:TaskGroup)
 	{
 		var definition:LimeTaskDefinition =
@@ -254,7 +249,11 @@ class Main
 
 		if (target == "windows" || target == "mac" || target == "linux")
 		{
-			args.push("--haxelib=hxcpp-debug-server");
+			// TODO: Update task when extension is installed?
+			if (hasExtension("vshaxe.hxcpp-debugger"))
+			{
+				args.push("--haxelib=hxcpp-debug-server");
+			}
 		}
 		else if (target == "flash" && debug)
 		{
@@ -310,6 +309,37 @@ class Main
 	public function getTargetFlags():String
 	{
 		return context.workspaceState.get("lime.additionalTargetFlags", "");
+	}
+
+	private inline function getVshaxe():Vshaxe
+	{
+		return extensions.getExtension("nadako.vshaxe").exports;
+	}
+
+	private function hasExtension(id:String, shouldInstall:Bool = false, message:String = ""):Bool
+	{
+		if (extensions.getExtension(id) == js.Lib.undefined)
+		{
+			if (shouldInstall)
+			{
+				// TODO: workbench.extensions.installExtension not available?
+				// var installNowLabel = "Install Now";
+				// window.showErrorMessage(message, installNowLabel).then(function(selection)
+				// {
+				// 	trace(selection);
+				// 	if (selection == installNowLabel)
+				// 	{
+				// 		commands.executeCommand("workbench.extensions.installExtension", id);
+				// 	}
+				// });
+				window.showWarningMessage(message);
+			}
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	private function initialize():Void
@@ -585,24 +615,52 @@ class Main
 			var target = getTarget();
 			var outputFile = null;
 
+			var targetName = target;
+			for (i in 0...targetItems.length)
+			{
+				var item = targetItems[i];
+				if (item.target == target)
+				{
+					targetName = item.label;
+					break;
+				}
+			}
+
 			var supportedTargets = ["flash", "windows", "mac", "linux", "html5"];
 			#if debug
 			supportedTargets.push("hl");
 			#end
 			if (supportedTargets.indexOf(target) == -1)
 			{
-				var targetName = target;
-				for (i in 0...targetItems.length)
-				{
-					var item = targetItems[i];
-					if (item.target == target)
-					{
-						targetName = item.label;
-						break;
-					}
-				}
 				window.showWarningMessage("Debugging " + targetName + " is not supported");
 				return js.Lib.undefined;
+			}
+
+			switch (target)
+			{
+				case "hl":
+					if (!hasExtension("HaxeFoundation.haxe-hl", true, "Debugging HashLink requires the \"HashLink Debugger\" extension"))
+					{
+						return js.Lib.undefined;
+					}
+
+				case "flash":
+					if (!hasExtension("vshaxe.haxe-debug", true, "Debugging Flash requires the \"Flash Debugger\" extension"))
+					{
+						return js.Lib.undefined;
+					}
+
+				case "html5":
+					if (!hasExtension("msjsdiag.debugger-for-chrome", true, "Debugging HTML5 requires the \"Debugger for Chrome\" extension"))
+					{
+						return js.Lib.undefined;
+					}
+
+				default:
+					if (!hasExtension("vshaxe.hxcpp-debugger", true, "Debugging " + targetName + " requires the \"HXCPP Debugger\" extension"))
+					{
+						return js.Lib.undefined;
+					}
 			}
 
 			var commandLine = limeExecutable + " " + getCommandArguments("display").join(" ") + " --output-file";

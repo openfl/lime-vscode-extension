@@ -132,12 +132,21 @@
 			{
 				"type": "lime",
 				"required": [
-					"command"
+					"command",
+					"target"
 				],
 				"properties": {
 					"command": {
 						"type": "string",
-						"description": "The Lime command to run"
+						"description": "The Lime command to execute"
+					},
+					"target": {
+						"type": "string",
+						"description": "The target platform to use"
+					},
+					"additionalArguments": {
+						"type": "array",
+						"description": "Any additional arguments"
 					}
 				}
 			}

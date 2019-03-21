@@ -139,17 +139,25 @@ class Main
 		}
 	}
 
-	private function createTask(description:String, command:String, args:Array<String>, presentation:vshaxe.TaskPresentationOptions,
-			problemMatchers:Array<String>, group:TaskGroup = null)
+	private function createTask(description:String, command:String, target:String, additionalArguments:Array<String>,
+			presentation:vshaxe.TaskPresentationOptions, problemMatchers:Array<String>, group:TaskGroup = null)
 	{
 		var definition:LimeTaskDefinition =
 			{
 				type: "lime",
-				command: command
+				command: command,
+				target: target,
+				additionalArguments: []
 			}
 
-		var task = new Task(definition, TaskScope.Workspace, command, "lime");
-		task.execution = new ShellExecution(limeExecutable + " " + args.join(" "),
+		var commandArgs = getCommandArguments(command, target);
+		if (additionalArguments != null)
+		{
+			commandArgs = commandArgs.concat(additionalArguments);
+		}
+
+		var task = new Task(definition, TaskScope.Workspace, command + " " + target, "lime");
+		task.execution = new ShellExecution(limeExecutable + " " + commandArgs.join(" "),
 			{
 				cwd: workspace.workspaceFolders[0].uri.fsPath,
 				env: haxeEnvironment
@@ -511,6 +519,13 @@ class Main
 		var commandNames = ["Clean", "Update", "Build", "Run", "Test"];
 		var tasks = [];
 
+		var additionalArguments = [];
+		if (vshaxe.enableCompilationServer && displayPort != null /*&& args.indexOf("--connect") == -1*/)
+		{
+			additionalArguments.push("--connect");
+			additionalArguments.push(Std.string(displayPort));
+		}
+
 		for (i in 0...targetItems.length)
 		{
 			var item = targetItems[i];
@@ -521,13 +536,6 @@ class Main
 			{
 				var command = commands[j];
 				var commandName = commandNames[j];
-				var args = getCommandArguments(command, target);
-
-				if (vshaxe.enableCompilationServer && displayPort != null && args.indexOf("--connect") == -1)
-				{
-					args.push("--connect");
-					args.push(Std.string(displayPort));
-				}
 
 				if (item.target == target)
 				{
@@ -544,32 +552,18 @@ class Main
 					group = null;
 				}
 
-				var task = createTask(commandName + " " + item.label, command + " " + item.target, args, presentation, problemMatchers, group);
+				var task = createTask(commandName + " " + item.label, command, item.target, additionalArguments, presentation, problemMatchers, group);
 				tasks.push(task);
 			}
 		}
 
-		var args = getCommandArguments("run", "html5");
-		args.push("-nolaunch");
-		if (vshaxe.enableCompilationServer && displayPort != null && args.indexOf("--connect") == -1)
-		{
-			args.push("--connect");
-			args.push(Std.string(displayPort));
-		}
-
-		var task = createTask("Run HTML5 (no launch)", "run html5 -nolaunch", args, presentation, ["$lime-nolaunch"]);
+		var task = createTask("Run HTML5 (no launch)", "run", "html5", additionalArguments.concat(["-nolaunch"]), presentation, ["$lime-nolaunch"]);
+		task.name = "run html5 -nolaunch";
 		task.isBackground = true;
 		tasks.push(task);
 
-		var args = getCommandArguments("test", "html5");
-		args.push("-nolaunch");
-		if (vshaxe.enableCompilationServer && displayPort != null && args.indexOf("--connect") == -1)
-		{
-			args.push("--connect");
-			args.push(Std.string(displayPort));
-		}
-
-		var task = createTask("Test HTML5 (no launch)", "test html5 -nolaunch", args, presentation, ["$lime-nolaunch"]);
+		var task = createTask("Test HTML5 (no launch)", "test", "html5", additionalArguments.concat(["-nolaunch"]), presentation, ["$lime-nolaunch"]);
+		task.name = "test html5 -nolaunch";
 		task.isBackground = true;
 		tasks.push(task);
 
@@ -748,6 +742,40 @@ class Main
 
 	public function resolveTask(task:Task, ?token:CancellationToken):ProviderResult<Task>
 	{
+		// This method is never called
+		// https://github.com/Microsoft/vscode/issues/33523
+		// Hopefully this will work in the future for custom configured issues
+
+		// TODO: Validate command name and target?
+		// TODO: Get command list and target list from Lime?
+		var definition:LimeTaskDefinition = cast task.definition;
+
+		var commandArgs = getCommandArguments(definition.command, definition.target);
+
+		var vshaxe = getVshaxe();
+		var displayPort = vshaxe.displayPort;
+
+		if (definition.additionalArguments != null)
+		{
+			commandArgs = commandArgs.concat(definition.additionalArguments);
+		}
+
+		if (vshaxe.enableCompilationServer && displayPort != null && commandArgs.indexOf("--connect") == -1)
+		{
+			commandArgs.push("--connect");
+			commandArgs.push(Std.string(displayPort));
+		}
+
+		// Resolve presentation or problem matcher?
+		// var problemMatchers = vshaxe.problemMatchers.get();
+		// var presentation = vshaxe.taskPresentation;
+
+		task.execution = new ShellExecution(limeExecutable + " " + commandArgs.join(" "),
+			{
+				cwd: workspace.workspaceFolders[0].uri.fsPath,
+				env: haxeEnvironment
+			});
+
 		return task;
 	}
 
@@ -898,6 +926,8 @@ private typedef LimeTaskDefinition =
 {
 	> TaskDefinition,
 	var command:String;
+	var target:String;
+	@:optional var additionalArguments:Array<String>;
 }
 
 private typedef TargetItem =

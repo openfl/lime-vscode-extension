@@ -132,8 +132,7 @@
 			{
 				"type": "lime",
 				"required": [
-					"command",
-					"target"
+					"command"
 				],
 				"properties": {
 					"command": {

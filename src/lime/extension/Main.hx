@@ -142,13 +142,22 @@ class Main
 	private function createTask(description:String, command:String, target:String, additionalArguments:Array<String>,
 			presentation:vshaxe.TaskPresentationOptions, problemMatchers:Array<String>, group:TaskGroup = null)
 	{
+		var name = null;
 		var definition:LimeTaskDefinition =
 			{
 				type: "lime",
-				command: command,
-				target: target,
-				additionalArguments: []
+				command: command
 			}
+
+		if (target != null)
+		{
+			name = command + " " + target;
+			definition.target = target;
+		}
+		else
+		{
+			name = command;
+		}
 
 		var commandArgs = getCommandArguments(command, target);
 		if (additionalArguments != null)
@@ -156,7 +165,7 @@ class Main
 			commandArgs = commandArgs.concat(additionalArguments);
 		}
 
-		var task = new Task(definition, TaskScope.Workspace, command + " " + target, "lime");
+		var task = new Task(definition, TaskScope.Workspace, name, "lime");
 		task.execution = new ShellExecution(limeExecutable + " " + commandArgs.join(" "),
 			{
 				cwd: workspace.workspaceFolders[0].uri.fsPath,
@@ -557,6 +566,15 @@ class Main
 			}
 		}
 
+		for (j in 0...commands.length)
+		{
+			var command = commands[j];
+			var commandName = commandNames[j];
+
+			var task = createTask(commandName, command, null, additionalArguments, presentation, problemMatchers, null);
+			tasks.push(task);
+		}
+
 		var task = createTask("Run HTML5 (no launch)", "run", "html5", additionalArguments.concat(["-nolaunch"]), presentation, ["$lime-nolaunch"]);
 		task.name = "run html5 -nolaunch";
 		task.isBackground = true;
@@ -926,7 +944,7 @@ private typedef LimeTaskDefinition =
 {
 	> TaskDefinition,
 	var command:String;
-	var target:String;
+	@:optional var target:String;
 	@:optional var additionalArguments:Array<String>;
 }
 

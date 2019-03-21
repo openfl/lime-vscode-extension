@@ -17,7 +17,7 @@ class Main
 
 	private var buildConfigItems:Array<BuildConfigItem>;
 	private var context:ExtensionContext;
-	private var displayArgumentsProvider:LimeDisplayArgumentsProvider;
+	private var displayArgumentsProvider:DisplayArgsProvider;
 	private var disposables:Array<{function dispose():Void;}>;
 	private var editTargetFlagsItem:StatusBarItem;
 	private var hasProjectFile:Bool;
@@ -123,7 +123,7 @@ class Main
 	{
 		var api:Vshaxe = getVshaxe();
 
-		displayArgumentsProvider = new LimeDisplayArgumentsProvider(api, function(isProviderActive)
+		displayArgumentsProvider = new DisplayArgsProvider(api, function(isProviderActive)
 		{
 			this.isProviderActive = isProviderActive;
 			refresh();
@@ -139,7 +139,8 @@ class Main
 		}
 	}
 
-	private function createTask(description:String, command:String, ?group:TaskGroup)
+	private function createTask(description:String, command:String, args:Array<String>, presentation:vshaxe.TaskPresentationOptions,
+			problemMatchers:Array<String>, group:TaskGroup = null)
 	{
 		var definition:LimeTaskDefinition =
 			{
@@ -147,30 +148,19 @@ class Main
 				command: command
 			}
 
-		// var task = new Task (definition, description, "Lime");
-		var args = getCommandArguments(command);
-		var name = command;
-
-		var vshaxe = getVshaxe();
-		var displayPort = vshaxe.displayPort;
-		if (getVshaxe().enableCompilationServer && displayPort != null && args.indexOf("--connect") == -1)
-		{
-			args.push("--connect");
-			args.push(Std.string(displayPort));
-		}
-
-		var task = new Task(definition, TaskScope.Workspace, name, "lime");
-
-		task.execution = new ShellExecution(limeExecutable + " " + args.join(" "), {cwd: workspace.workspaceFolders[0].uri.fsPath, env: haxeEnvironment});
+		var task = new Task(definition, TaskScope.Workspace, command, "lime");
+		task.execution = new ShellExecution(limeExecutable + " " + args.join(" "),
+			{
+				cwd: workspace.workspaceFolders[0].uri.fsPath,
+				env: haxeEnvironment
+			});
 
 		if (group != null)
 		{
 			task.group = group;
 		}
 
-		task.problemMatchers = vshaxe.problemMatchers.get();
-
-		var presentation = vshaxe.taskPresentation;
+		task.problemMatchers = problemMatchers;
 		task.presentationOptions =
 			{
 				reveal: presentation.reveal,
@@ -180,13 +170,6 @@ class Main
 				showReuseMessage: presentation.showReuseMessage,
 				clear: presentation.clear
 			};
-
-		var target = getTarget();
-		if (target == "html5" && command.indexOf("-nolaunch") > -1)
-		{
-			task.isBackground = true;
-			task.problemMatchers = ["$lime-nolaunch"];
-		}
 
 		return task;
 	}
@@ -219,13 +202,13 @@ class Main
 		return executable;
 	}
 
-	private function getCommandArguments(command:String):Array<String>
+	private function getCommandArguments(command:String, target:String = null):Array<String>
 	{
 		var args = command.split(" ");
 
 		// TODO: Support rebuild tools (and other command with no project file argument)
 
-		var target = getTarget();
+		if (target == null) target = getTarget();
 		var debug = false;
 
 		var projectFile = getProjectFile();
@@ -518,29 +501,77 @@ class Main
 
 	public function provideTasks(?token:CancellationToken):ProviderResult<Array<Task>>
 	{
-		var tasks = [
-			createTask("Clean", "clean", TaskGroup.Clean),
-			createTask("Update", "update"),
-			createTask("Build", "build", TaskGroup.Build),
-			createTask("Run", "run"),
-			createTask("Test", "test", TaskGroup.Test),
-		];
-
 		var target = getTarget();
-		if (target == "html5")
+		var vshaxe = getVshaxe();
+		var displayPort = vshaxe.displayPort;
+		var problemMatchers = vshaxe.problemMatchers.get();
+		var presentation = vshaxe.taskPresentation;
+
+		var commands = ["clean", "update", "build", "run", "test"];
+		var commandNames = ["Clean", "Update", "Build", "Run", "Test"];
+		var tasks = [];
+
+		for (i in 0...targetItems.length)
 		{
-			tasks.push(createTask("Run", "run -nolaunch"));
-			tasks.push(createTask("Test", "test -nolaunch"));
+			var item = targetItems[i];
+			var group = null;
+			var args = null;
+
+			for (j in 0...commands.length)
+			{
+				var command = commands[j];
+				var commandName = commandNames[j];
+				var args = getCommandArguments(command, target);
+
+				if (vshaxe.enableCompilationServer && displayPort != null && args.indexOf("--connect") == -1)
+				{
+					args.push("--connect");
+					args.push(Std.string(displayPort));
+				}
+
+				if (item.target == target)
+				{
+					group = switch (command)
+					{
+						case "clean": TaskGroup.Clean;
+						case "build": TaskGroup.Build;
+						case "test": TaskGroup.Test;
+						default: null;
+					}
+				}
+				else
+				{
+					group = null;
+				}
+
+				var task = createTask(commandName + " " + item.label, command + " " + item.target, args, presentation, problemMatchers, group);
+				tasks.push(task);
+			}
 		}
 
-		// TODO: Detect Lime development build
-
-		if (target != "html5" && target != "flash")
+		var args = getCommandArguments("run", "html5");
+		args.push("-nolaunch");
+		if (vshaxe.enableCompilationServer && displayPort != null && args.indexOf("--connect") == -1)
 		{
-			// tasks.push (createTask ("Rebuild", "rebuild", TaskGroup.Rebuild));
+			args.push("--connect");
+			args.push(Std.string(displayPort));
 		}
 
-		// tasks.push (createTask ("Rebuild", "rebuild tools", TaskGroup.Rebuild));
+		var task = createTask("Run HTML5 (no launch)", "run html5 -nolaunch", args, presentation, ["$lime-nolaunch"]);
+		task.isBackground = true;
+		tasks.push(task);
+
+		var args = getCommandArguments("test", "html5");
+		args.push("-nolaunch");
+		if (vshaxe.enableCompilationServer && displayPort != null && args.indexOf("--connect") == -1)
+		{
+			args.push("--connect");
+			args.push(Std.string(displayPort));
+		}
+
+		var task = createTask("Test HTML5 (no launch)", "test html5 -nolaunch", args, presentation, ["$lime-nolaunch"]);
+		task.isBackground = true;
+		tasks.push(task);
 
 		return tasks;
 	}

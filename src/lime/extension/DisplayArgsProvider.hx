@@ -1,6 +1,6 @@
 package lime.extension;
 
-class LimeDisplayArgumentsProvider
+class DisplayArgsProvider
 {
 	public var description(default, never):String = "Project using Lime/OpenFL command-line tools";
 

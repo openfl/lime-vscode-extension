@@ -416,7 +416,7 @@ class Main
 			var commandGroup = commandGroups[i];
 
 			var task = createTask(getCommandArguments(command, targetItem), args, presentation, problemMatchers, commandGroup);
-			task.name = command;
+			task.name = command + " (current)";
 			tasks.push(task);
 		}
 
@@ -709,10 +709,8 @@ class Main
 			}
 		}
 
-		// TODO: Refresh if setting changes?
-		var additionalConfigs = workspace.getConfiguration("lime").get("lime.targetConfigurations", []);
+		var additionalConfigs = workspace.getConfiguration("lime").get("targetConfigurations", []);
 
-		trace(additionalConfigs);
 		for (config in additionalConfigs)
 		{
 			if (config.target == null) continue;

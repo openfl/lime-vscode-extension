@@ -186,17 +186,21 @@ class Main
 
 		// TODO: Should this be separate?
 
-		if (target == "windows" || target == "mac" || target == "linux")
+		if (args.indexOf("-debug") > -1)
 		{
-			// TODO: Update task when extension is installed?
-			if (hasExtension("vshaxe.hxcpp-debugger"))
+			switch (target)
 			{
-				args.push("--haxelib=hxcpp-debug-server");
+				case "windows", "mac", "linux":
+					if (hasExtension("vshaxe.hxcpp-debugger"))
+					{
+						args.push("--haxelib=hxcpp-debug-server");
+					}
+
+				case "flash":
+					args.push("-Dfdb");
+
+				default:
 			}
-		}
-		else if (target == "flash" && args.indexOf("-debug") > -1)
-		{
-			args.push("-Dfdb");
 		}
 
 		return command + " " + target + " " + args.join(" ");

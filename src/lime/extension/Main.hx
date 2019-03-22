@@ -23,11 +23,10 @@ class Main
 	private var isProviderActive:Bool;
 	private var selectTargetItem:StatusBarItem;
 	private var targetItems:Array<TargetItem>;
-	private var targetLabels:Array<String>;
-	private var targets:Array<String>;
 	private var haxeEnvironment:DynamicAccess<String>;
 	private var limeCommands:Array<LimeCommand>;
 	private var limeExecutable:String;
+	private var limeTargets:Map<String, String>;
 	private var limeVerbose:Bool;
 	private var limeVersion:SemVer = "0.0.0";
 	private var toggleVerboseItem:StatusBarItem;
@@ -317,34 +316,6 @@ class Main
 
 		limeCommands = [CLEAN, UPDATE, BUILD, RUN, TEST];
 
-		// TODO: Allow additional configurations
-
-		targets = ["android", "flash", "html5", "neko"];
-		targetLabels = ["Android", "Flash", "HTML5", "Neko"];
-
-		if (limeVersion >= new SemVer(8, 0, 0))
-		{
-			targets.push("hl");
-			targetLabels.push("HashLink");
-		}
-
-		switch (Sys.systemName())
-		{
-			case "Windows":
-				targets = targets.concat(["windows", "air", "electron"]);
-				targetLabels = targetLabels.concat(["Windows", "AIR", "Electron"]);
-
-			case "Linux":
-				targets.push("linux");
-				targetLabels.push("Linux");
-
-			case "Mac":
-				targets = targets.concat(["mac", "ios", "tvos", "air", "electron"]);
-				targetLabels = targetLabels.concat(["macOS", "iOS", "tvOS", "AIR", "Electron"]);
-
-			default:
-		}
-
 		updateTargetItems();
 
 		getVshaxe().haxeExecutable.onDidChangeConfiguration(function(_) updateHaxeEnvironment());
@@ -519,13 +490,9 @@ class Main
 			var outputFile = null;
 
 			var targetLabel = "Unknown Target";
-			for (i in 0...targets.length)
+			if (limeTargets.exists(target))
 			{
-				if (targets[i] == target)
-				{
-					targetLabel = targetLabels[i];
-					break;
-				}
+				targetLabel = limeTargets.get(target);
 			}
 
 			var supportedTargets = ["flash", "windows", "mac", "linux", "html5"];
@@ -720,20 +687,81 @@ class Main
 
 	private function updateTargetItems():Void
 	{
+		// TODO: Allow additional configurations
+
+		limeTargets = ["android" => "Android", "flash" => "Flash", "html5" => "HTML5", "neko" => "Neko"];
+
+		if (limeVersion >= new SemVer(8, 0, 0))
+		{
+			limeTargets.set("hl", "HashLink");
+		}
+
+		switch (Sys.systemName())
+		{
+			case "Windows":
+				limeTargets.set("windows", "Windows");
+				limeTargets.set("air", "AIR");
+				limeTargets.set("electron", "Electron");
+
+			case "Linux":
+				limeTargets.set("linux", "Linux");
+
+			case "Mac":
+				limeTargets.set("mac", "macOS");
+				limeTargets.set("ios", "iOS");
+				limeTargets.set("tvos", "tvOS");
+				limeTargets.set("air", "AIR");
+				limeTargets.set("electron", "Electron");
+
+			default:
+		}
+
+		var targets = workspace.getConfiguration("lime").get("targets", []);
+		for (target in targets)
+		{
+			var enabled = Reflect.hasField(target, "enabled") ? target.enabled : true;
+			var name = Reflect.hasField(target, "name") ? StringTools.trim(target.name) : null;
+			var label = Reflect.hasField(target, "label") ? StringTools.trim(target.label) : null;
+
+			if (!enabled)
+			{
+				if (name != null && limeTargets.exists(name))
+				{
+					limeTargets.remove(name);
+				}
+				else if (label != null)
+				{
+					for (key in limeTargets.keys())
+					{
+						if (limeTargets.get(key) == label)
+						{
+							limeTargets.remove(key);
+							break;
+						}
+					}
+				}
+			}
+			else if ((name != null && name.length > 0) || (label != null && label.length > 0))
+			{
+				if (label == null) label = name.charAt(0).toUpperCase() + name.substr(1);
+				if (name == null) name = label.toLowerCase();
+				limeTargets.set(name, label);
+			}
+		}
+
 		targetItems = [];
 		var types = [null, "Debug", "Final"];
 
-		for (i in 0...targets.length)
+		for (target in limeTargets.keys())
 		{
-			var target = targets[i];
-			var targetLabel = targetLabels[i];
+			var targetLabel = limeTargets.get(target);
 
 			for (type in types)
 			{
 				targetItems.push(
 					{
 						label: targetLabel + (type != null ? " / " + type : ""),
-						description: "– " + target + (type != null ? " -" + type.toLowerCase() : ""),
+						// description: "– " + target + (type != null ? " -" + type.toLowerCase() : ""),
 						target: target,
 						args: (type != null ? ["-" + type.toLowerCase()] : null)
 					});
@@ -773,7 +801,7 @@ class Main
 			targetItems.push(
 				{
 					label: label,
-					description: "– " + command,
+					detail: command,
 					target: target,
 					args: args
 				});
@@ -814,7 +842,7 @@ class Main
 		var items = targetItems.copy();
 		var targetItem = getTargetItem();
 		items.moveToStart(function(item) return item == targetItem);
-		window.showQuickPick(items, {matchOnDescription: true, placeHolder: "Select Lime Target Configuration"}).then(function(choice:TargetItem)
+		window.showQuickPick(items, {matchOnDetail: true, placeHolder: "Select Lime Target Configuration"}).then(function(choice:TargetItem)
 		{
 			if (choice == null || choice == targetItem) return;
 			setTargetConfiguration(choice.label);

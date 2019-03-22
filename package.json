@@ -112,6 +112,28 @@
 							}
 						}
 					}
+				},
+				"lime.targets": {
+					"description": "Update the list of available Lime targets.",
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string",
+								"description": "The name of the Lime target"
+							},
+							"label": {
+								"type": "string",
+								"description": "A label to use for identifying this target."
+							},
+							"enabled": {
+								"type": "boolean",
+								"description": "Whether this target should be visible in the editor (true) or disabled.",
+								"default": true
+							}
+						}
+					}
 				}
 			}
 		},
@@ -168,10 +190,5 @@
 	},
 	"extensionDependencies": [
 		"nadako.vshaxe"
-	],
-	"__metadata": {
-		"id": "c1cbdc7a-9c92-422b-87af-d193b3444f23",
-		"publisherDisplayName": "OpenFL",
-		"publisherId": "66a617f2-8aca-41e4-8cfe-f498606c6ab2"
-	}
+	]
 }

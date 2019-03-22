@@ -46,6 +46,16 @@
 		"configuration": {
 			"title": "Lime",
 			"properties": {
+				"lime.browser": {
+					"description": "Type of browser used when debugging HTML5.",
+					"type": "string",
+					"enum": [
+						"chrome",
+						"firefox",
+						"edge"
+					],
+					"default": "chrome"
+				},
 				"lime.buildTypes": {
 					"description": "Additional custom build types for use with each available target.",
 					"type": "array",

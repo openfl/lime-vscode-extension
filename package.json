@@ -77,9 +77,6 @@
 						"description": "An additional Lime target configuration.",
 						"type": "object",
 						"additionalProperties": false,
-						"required": [
-							"target"
-						],
 						"properties": {
 							"label": {
 								"type": "string",
@@ -107,6 +104,11 @@
 								"items": {
 									"type": "string"
 								}
+							},
+							"enabled": {
+								"type": "boolean",
+								"description": "Whether this configuration should be visible in the editor (true) or disabled.",
+								"default": true
 							}
 						}
 					}

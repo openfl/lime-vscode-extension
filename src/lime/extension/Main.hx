@@ -709,16 +709,35 @@ class Main
 			}
 		}
 
-		var additionalConfigs = workspace.getConfiguration("lime").get("targetConfigurations", []);
+		var additionalConfigs:Array<LimeTargetConfiguration> = workspace.getConfiguration("lime").get("targetConfigurations", []);
+		var disabledConfigs = [];
 
 		for (config in additionalConfigs)
 		{
-			if (config.target == null) continue;
+			if (Reflect.hasField(config, "enabled") && !config.enabled)
+			{
+				disabledConfigs.push(config.label);
+				continue;
+			}
+			else if (!Reflect.hasField(config, "target") || config.target == null)
+			{
+				continue;
+			}
 
 			var target = config.target;
-			var args:Array<String> = (config.args != null ? config.args : null);
-			var command = target + (args != null ? " " + args.join(" ") : "");
-			var label:String = (config.label != null ? config.label : command);
+			var args = Reflect.hasField(config, "args") ? config.args : [];
+			if (args == null) args = [];
+			var command = StringTools.trim(target + " " + args.join(" "));
+			var label = (Reflect.hasField(config, "label") && config.label != null ? config.label : command);
+
+			for (item in targetItems)
+			{
+				if (item.label == label)
+				{
+					targetItems.remove(item);
+					break;
+				}
+			}
 
 			targetItems.push(
 				{
@@ -729,17 +748,16 @@ class Main
 				});
 		}
 
-		var hiddenConfigs = workspace.getConfiguration("lime").get("hiddenTargetConfigurations", []);
-		for (hidden in hiddenConfigs)
+		var i = 0;
+		while (i < targetItems.length)
 		{
-			var i = 0;
-			while (i < targetItems.length)
+			var targetItem = targetItems[i];
+			if (disabledConfigs.indexOf(targetItem.label) > -1)
 			{
-				var targetItem = targetItems[i];
-				if (hiddenConfigs.indexOf(targetItem.label) > -1)
-				{
-					targetItems.splice(i, 1);
-				}
+				targetItems.splice(i, 1);
+			}
+			else
+			{
 				i++;
 			}
 		}
@@ -778,6 +796,14 @@ class Main
 	var BUILD = "build";
 	var RUN = "run";
 	var TEST = "test";
+}
+
+private typedef LimeTargetConfiguration =
+{
+	@:optional var label:String;
+	@:optional var target:String;
+	@:optional var args:Array<String>;
+	@:optional var enabled:Bool;
 }
 
 private typedef LimeTaskDefinition =

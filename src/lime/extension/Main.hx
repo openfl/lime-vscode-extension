@@ -313,7 +313,7 @@ class Main
 		if (limeVersion >= new SemVer(8, 0, 0))
 		{
 			targets.push("hl");
-			targetLabels.push("HashLink/JIT");
+			targetLabels.push("HashLink");
 		}
 
 		switch (Sys.systemName())

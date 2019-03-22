@@ -750,20 +750,42 @@ class Main
 		}
 
 		targetItems = [];
-		var types = [null, "Debug", "Final"];
+		var buildTypes = ["Release" => null, "Debug" => ["-debug"], "Final" => ["-final"]];
+		var types = workspace.getConfiguration("lime").get("buildTypes", []);
+		for (type in types)
+		{
+			var enabled = Reflect.hasField(type, "enabled") ? type.enabled : true;
+			var label = Reflect.hasField(type, "label") ? type.label : null;
+			var args = Reflect.hasField(type, "args") ? type.args : null;
+
+			if (!enabled)
+			{
+				if (label != null && buildTypes.exists(label))
+				{
+					buildTypes.remove(label);
+				}
+			}
+			else
+			{
+				if (label != null && args != null)
+				{
+					buildTypes.set(label, args);
+				}
+			}
+		}
 
 		for (target in limeTargets.keys())
 		{
 			var targetLabel = limeTargets.get(target);
 
-			for (type in types)
+			for (type in buildTypes.keys())
 			{
 				targetItems.push(
 					{
-						label: targetLabel + (type != null ? " / " + type : ""),
+						label: targetLabel + (type != "Release" ? " / " + type : ""),
 						// description: "– " + target + (type != null ? " -" + type.toLowerCase() : ""),
 						target: target,
-						args: (type != null ? ["-" + type.toLowerCase()] : null)
+						args: (type != null ? buildTypes.get(type) : null)
 					});
 			}
 		}

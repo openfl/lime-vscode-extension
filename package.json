@@ -46,6 +46,31 @@
 		"configuration": {
 			"title": "Lime",
 			"properties": {
+				"lime.buildTypes": {
+					"description": "Additional custom build types for use with each available target.",
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"label": {
+								"type": "string",
+								"description": "A label to use for identifying this build type."
+							},
+							"args": {
+								"type": "array",
+								"description": "The arguments added when using this build type.",
+								"items": {
+									"type": "string"
+								}
+							},
+							"enabled": {
+								"type": "boolean",
+								"description": "Whether this build type should be visible in the editor (true) or disabled.",
+								"default": true
+							}
+						}
+					}
+				},
 				"lime.defaultTargetConfiguration": {
 					"description": "The label of the target configuration to select by default for new workspaces.",
 					"type": "string",
@@ -55,14 +80,6 @@
 					"description": "The Lime executable to use when running tasks and for display completion. Can be multiple arguments separated by spaces or a path to an executable.",
 					"type": "string",
 					"default": "lime"
-				},
-				"lime.hiddenTargetConfigurations": {
-					"description": "Target configurations to be hidden from tasks and the status bar.",
-					"type": "array",
-					"default": [],
-					"items": {
-						"type": "string"
-					}
 				},
 				"lime.projectFile": {
 					"description": "A custom path for a Lime project file to use for tasks and display completion.",

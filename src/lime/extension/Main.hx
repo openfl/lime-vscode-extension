@@ -563,7 +563,7 @@ class Main
 				trace(e);
 			}
 
-			config.preLaunchTask = "lime: build";
+			config.preLaunchTask = "lime: build (active configuration)";
 
 			switch (target)
 			{
@@ -584,10 +584,8 @@ class Main
 					// TODO: Support other debuggers? Firefox debugger?
 					config.type = "chrome";
 					config.url = "http://127.0.0.1:3000";
-					// config.file = "${workspaceFolder}/" + Path.directory(outputFile) + "/index.html";
 					config.sourceMaps = true;
-					// config.smartStep = true;
-					// config.internalConsoleOptions = "openOnSessionStart";
+					config.smartStep = true;
 					config.webRoot = "${workspaceFolder}/" + Path.directory(outputFile);
 					config.preLaunchTask = "lime: test html5 -nolaunch";
 

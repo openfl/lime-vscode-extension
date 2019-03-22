@@ -807,7 +807,6 @@ class Main
 		limeVerbose = !limeVerbose;
 		context.workspaceState.update("lime.verbose", limeVerbose);
 		updateStatusBarItems();
-		updateDisplayArguments();
 	}
 
 	private function selectTargetItem_onCommand():Void

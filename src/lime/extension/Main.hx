@@ -729,6 +729,21 @@ class Main
 				});
 		}
 
+		var hiddenConfigs = workspace.getConfiguration("lime").get("hiddenTargetConfigurations", []);
+		for (hidden in hiddenConfigs)
+		{
+			var i = 0;
+			while (i < targetItems.length)
+			{
+				var targetItem = targetItems[i];
+				if (hiddenConfigs.indexOf(targetItem.label) > -1)
+				{
+					targetItems.splice(i, 1);
+				}
+				i++;
+			}
+		}
+
 		targetItems.sort(function(a, b)
 		{
 			if (a.label < b.label) return -1;

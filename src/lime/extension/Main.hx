@@ -81,14 +81,12 @@ class Main
 		disposables = [];
 
 		selectTargetItem = window.createStatusBarItem(Left, 9);
-		selectTargetItem.tooltip = "Select Target Configuration";
+		selectTargetItem.tooltip = "Select Lime Target Configuration";
 		selectTargetItem.command = "lime.selectTarget";
 		disposables.push(selectTargetItem);
 
 		toggleVerboseItem = window.createStatusBarItem(Left, 8);
-		toggleVerboseItem.tooltip = "Toggle Verbose Mode";
 		toggleVerboseItem.command = "lime.toggleVerbose";
-		toggleVerboseItem.text = "$(three-bars)";
 		disposables.push(toggleVerboseItem);
 
 		disposables.push(commands.registerCommand("lime.selectTarget", selectTargetItem_onCommand));
@@ -700,12 +698,12 @@ class Main
 			if (limeVerbose)
 			{
 				toggleVerboseItem.text = "$(tasklist)";
-				toggleVerboseItem.tooltip = "Verbose Output (Enabled)";
+				toggleVerboseItem.tooltip = "Toggle Lime Verbose Mode (Enabled)";
 			}
 			else
 			{
 				toggleVerboseItem.text = "$(list-unordered)";
-				toggleVerboseItem.tooltip = "Verbose Output (Disabled)";
+				toggleVerboseItem.tooltip = "Toggle Lime Verbose Mode (Disabled)";
 			}
 			toggleVerboseItem.show();
 		}
@@ -813,7 +811,7 @@ class Main
 		var items = targetItems.copy();
 		var targetItem = getTargetItem();
 		items.moveToStart(function(item) return item == targetItem);
-		window.showQuickPick(items, {matchOnDescription: true, placeHolder: "Select Target Configuration"}).then(function(choice:TargetItem)
+		window.showQuickPick(items, {matchOnDescription: true, placeHolder: "Select Lime Target Configuration"}).then(function(choice:TargetItem)
 		{
 			if (choice == null || choice == targetItem) return;
 			setTargetConfiguration(choice.label);

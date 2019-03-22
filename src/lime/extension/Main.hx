@@ -183,26 +183,33 @@ class Main
 			args.unshift(projectFile);
 		}
 
-		// TODO: Should this be separate?
+		return command + " " + target + " " + args.join(" ");
+	}
 
-		if (args.indexOf("-debug") > -1)
+	private function getDebugArguments(targetItem:TargetItem, additionalArgs:Array<String> = null):Array<String>
+	{
+		var args = (targetItem.args != null ? targetItem.args.copy() : []);
+
+		if (args != null && args.indexOf("-debug") > -1)
 		{
-			switch (target)
+			switch (targetItem.target)
 			{
 				case "windows", "mac", "linux":
 					if (hasExtension("vshaxe.hxcpp-debugger"))
 					{
-						args.push("--haxelib=hxcpp-debug-server");
+						if (additionalArgs == null) additionalArgs = [];
+						return ["--haxelib=hxcpp-debug-server"].concat(additionalArgs);
 					}
 
 				case "flash":
-					args.push("-Dfdb");
+					if (additionalArgs == null) additionalArgs = [];
+					return ["-Dfdb"].concat(additionalArgs);
 
 				default:
 			}
 		}
 
-		return command + " " + target + " " + args.join(" ");
+		return additionalArgs;
 	}
 
 	private function getExecutable():String
@@ -397,7 +404,7 @@ class Main
 		{
 			for (command in limeCommands)
 			{
-				var task = createTask(getCommandArguments(command, item), args, presentation, problemMatchers);
+				var task = createTask(getCommandArguments(command, item), getDebugArguments(item, args), presentation, problemMatchers);
 				tasks.push(task);
 			}
 		}
@@ -407,10 +414,10 @@ class Main
 			var command = limeCommands[i];
 			var commandGroup = commandGroups[i];
 
-			var task = createTask(getCommandArguments(command, targetItem), args, presentation, problemMatchers, commandGroup);
+			var task = createTask(getCommandArguments(command, targetItem), getDebugArguments(targetItem, args), presentation, problemMatchers, commandGroup);
 			var definition:LimeTaskDefinition = cast task.definition;
 			definition.command = command;
-			task.name = command + " (current)";
+			task.name = command + " (active configuration)";
 			tasks.push(task);
 		}
 
@@ -540,7 +547,10 @@ class Main
 			}
 
 			var targetItem = getTargetItem();
-			var commandLine = limeExecutable + " " + getCommandArguments("display", targetItem) + " --output-file";
+			var commandLine = limeExecutable + " " + getCommandArguments("display", targetItem);
+			var additionalArgs = getDebugArguments(targetItem, null);
+			if (additionalArgs != null) commandLine += " " + additionalArgs.join(" ");
+			commandLine += " --output-file";
 			commandLine = StringTools.replace(commandLine, "-verbose", "");
 
 			try
@@ -639,6 +649,8 @@ class Main
 
 		var targetItem = getTargetItem();
 		var commandLine = limeExecutable + " " + getCommandArguments("display", targetItem);
+		var additionalArgs = getDebugArguments(targetItem, null);
+		if (additionalArgs != null) commandLine += " " + additionalArgs.join(" ");
 		commandLine = StringTools.replace(commandLine, "-verbose", "");
 
 		ChildProcess.exec(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath}, function(err, stdout:Buffer, stderror)

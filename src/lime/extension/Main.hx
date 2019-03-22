@@ -274,6 +274,11 @@ class Main
 			targetItem = defaultTargetItem;
 		}
 
+		if (targetItem == null)
+		{
+			targetItem = targetItems[0];
+		}
+
 		return targetItem;
 	}
 
@@ -784,7 +789,7 @@ class Main
 			{
 				targetItems.push(
 					{
-						label: targetLabel + (type != "Release" ? " / " + type : ""),
+						label: targetLabel + ((type != null && type != "Release") ? " / " + type : ""),
 						// description: "– " + target + (type != null ? " -" + type.toLowerCase() : ""),
 						target: target,
 						args: (type != null ? buildTypes.get(type) : null)

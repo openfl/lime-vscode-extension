@@ -28,7 +28,9 @@ class Main
 	private var haxeEnvironment:DynamicAccess<String>;
 	private var limeCommands:Array<LimeCommand>;
 	private var limeExecutable:String;
+	private var limeVerbose:Bool;
 	private var limeVersion:SemVer = "0.0.0";
+	private var toggleVerboseItem:StatusBarItem;
 
 	public function new(context:ExtensionContext)
 	{
@@ -83,7 +85,14 @@ class Main
 		selectTargetItem.command = "lime.selectTarget";
 		disposables.push(selectTargetItem);
 
+		toggleVerboseItem = window.createStatusBarItem(Left, 8);
+		toggleVerboseItem.tooltip = "Toggle Verbose Mode";
+		toggleVerboseItem.command = "lime.toggleVerbose";
+		toggleVerboseItem.text = "$(three-bars)";
+		disposables.push(toggleVerboseItem);
+
 		disposables.push(commands.registerCommand("lime.selectTarget", selectTargetItem_onCommand));
+		disposables.push(commands.registerCommand("lime.toggleVerbose", toggleVerboseItem_onCommand));
 		disposables.push(tasks.registerTaskProvider("lime", this));
 	}
 
@@ -100,6 +109,7 @@ class Main
 		}
 
 		selectTargetItem = null;
+		toggleVerboseItem = null;
 
 		disposables = null;
 		initialized = false;
@@ -394,6 +404,11 @@ class Main
 		var tasks = [];
 
 		var args = [];
+		if (limeVerbose)
+		{
+			args.push("-verbose");
+		}
+
 		if (vshaxe.enableCompilationServer && displayPort != null /*&& args.indexOf("--connect") == -1*/)
 		{
 			args.push("--connect");
@@ -679,10 +694,25 @@ class Main
 			var targetItem = getTargetItem();
 			selectTargetItem.text = targetItem.label;
 			selectTargetItem.show();
+
+			limeVerbose = context.workspaceState.get("lime.verbose", false);
+
+			if (limeVerbose)
+			{
+				toggleVerboseItem.text = "$(tasklist)";
+				toggleVerboseItem.tooltip = "Disable Verbose";
+			}
+			else
+			{
+				toggleVerboseItem.text = "$(three-bars)";
+				toggleVerboseItem.tooltip = "Enable Verbose";
+			}
+			toggleVerboseItem.show();
 		}
 		else
 		{
 			selectTargetItem.hide();
+			toggleVerboseItem.hide();
 		}
 	}
 
@@ -769,6 +799,14 @@ class Main
 	}
 
 	// Event Handlers
+
+	private function toggleVerboseItem_onCommand():Void
+	{
+		limeVerbose = !limeVerbose;
+		context.workspaceState.update("lime.verbose", limeVerbose);
+		updateStatusBarItems();
+		updateDisplayArguments();
+	}
 
 	private function selectTargetItem_onCommand():Void
 	{

@@ -333,31 +333,7 @@ class Main
 			default:
 		}
 
-		targetItems = [];
-		var types = [null, "Debug", "Final"];
-
-		for (i in 0...targets.length)
-		{
-			var target = targets[i];
-			var targetLabel = targetLabels[i];
-
-			for (type in types)
-			{
-				targetItems.push(
-					{
-						label: targetLabel + (type != null ? " / " + type : ""),
-						description: "– " + target + (type != null ? " -" + type.toLowerCase() : ""),
-						target: target,
-						args: (type != null ? ["-" + type.toLowerCase()] : null)
-					});
-			}
-		}
-
-		targetItems.sort(function(a, b)
-		{
-			if (a.label < b.label) return -1;
-			return 1;
-		});
+		updateTargetItems();
 
 		getVshaxe().haxeExecutable.onDidChangeConfiguration(function(_) updateHaxeEnvironment());
 		updateHaxeEnvironment();
@@ -489,6 +465,7 @@ class Main
 
 		if (initialized)
 		{
+			updateTargetItems();
 			updateStatusBarItems();
 		}
 	}
@@ -708,6 +685,57 @@ class Main
 		{
 			selectTargetItem.hide();
 		}
+	}
+
+	private function updateTargetItems():Void
+	{
+		targetItems = [];
+		var types = [null, "Debug", "Final"];
+
+		for (i in 0...targets.length)
+		{
+			var target = targets[i];
+			var targetLabel = targetLabels[i];
+
+			for (type in types)
+			{
+				targetItems.push(
+					{
+						label: targetLabel + (type != null ? " / " + type : ""),
+						description: "– " + target + (type != null ? " -" + type.toLowerCase() : ""),
+						target: target,
+						args: (type != null ? ["-" + type.toLowerCase()] : null)
+					});
+			}
+		}
+
+		// TODO: Refresh if setting changes?
+		var additionalConfigs = workspace.getConfiguration("lime").get("lime.targetConfigurations", []);
+
+		trace(additionalConfigs);
+		for (config in additionalConfigs)
+		{
+			if (config.target == null) continue;
+
+			var target = config.target;
+			var args:Array<String> = (config.args != null ? config.args : null);
+			var command = target + (args != null ? " " + args.join(" ") : "");
+			var label:String = (config.label != null ? config.label : command);
+
+			targetItems.push(
+				{
+					label: label,
+					description: "– " + command,
+					target: target,
+					args: args
+				});
+		}
+
+		targetItems.sort(function(a, b)
+		{
+			if (a.label < b.label) return -1;
+			return 1;
+		});
 	}
 
 	// Event Handlers

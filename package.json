@@ -46,59 +46,69 @@
 		"configuration": {
 			"title": "Lime",
 			"properties": {
+				"lime.defaultTargetConfiguration": {
+					"description": "The label of the target configuration to select by default for new workspaces.",
+					"type": "string",
+					"default": "HTML5"
+				},
+				"lime.executable": {
+					"description": "The Lime executable to use when running tasks and for display completion. Can be multiple arguments separated by spaces or a path to an executable.",
+					"type": "string",
+					"default": "lime"
+				},
 				"lime.projectFile": {
-					"description": "Custom path to Lime project file",
+					"description": "A custom path for a Lime project file to use for tasks and display completion.",
 					"type": "string",
 					"default": null
 				},
-				"lime.defaultTarget": {
-					"description": "The target to select by default for new workspaces",
-					"type": "string",
-					"default": "HTML5",
-					"enum": [
-						"Android",
-						"Flash",
-						"HTML5",
-						"Neko",
-						"Emscripten",
-						"Windows",
-						"Linux",
-						"macOS",
-						"iOS",
-						"AIR"
-					]
-				},
-				"lime.defaultBuildConfiguration": {
-					"description": "The build configuration to select by default for new workspaces",
-					"type": "string",
-					"default": "Release",
-					"enum": [
-						"Release",
-						"Debug",
-						"Final"
-					]
-				},
-				"lime.executable": {
-					"description": "The Lime executable to call in tasks and for `lime display`. Can be multiple arguments separated by spaces or a path to an executable.",
-					"type": "string",
-					"default": "lime"
+				"lime.targetConfigurations": {
+					"description": "Additional custom target configurations to be used with the editor. A \"target configuration\" is a combination of both a Lime target and any additional build arguments.",
+					"type": "array",
+					"default": [],
+					"items": {
+						"description": "An additional Lime target configuration.",
+						"type": "object",
+						"additionalProperties": false,
+						"required": [
+							"target"
+						],
+						"properties": {
+							"label": {
+								"type": "string",
+								"description": "A name to use for identifying this configuration."
+							},
+							"target": {
+								"type": "string",
+								"description": "A supported Lime target.",
+								"enum": [
+									"android",
+									"air",
+									"flash",
+									"neko",
+									"hl",
+									"windows",
+									"mac",
+									"linux",
+									"emscripten",
+									"electron"
+								]
+							},
+							"args": {
+								"type": "array",
+								"description": "Any additional arguments to be used with any Lime commands.",
+								"items": {
+									"type": "string"
+								}
+							}
+						}
+					}
 				}
 			}
 		},
 		"commands": [
 			{
-				"title": "Select Target",
+				"title": "Select Target Configuration",
 				"command": "lime.selectTarget",
-				"category": "Lime"
-			},
-			{
-				"title": "Select Build Configuration",
-				"command": "lime.selectBuildConfig",
-				"category": "Lime"
-			},
-			{
-				"title": "Edit Target Flags",
-				"command": "lime.editTargetFlags",
 				"category": "Lime"
 			}
 		],

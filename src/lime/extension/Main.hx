@@ -403,6 +403,8 @@ class Main
 			var commandGroup = commandGroups[i];
 
 			var task = createTask(getCommandArguments(command, targetItem), args, presentation, problemMatchers, commandGroup);
+			var definition:LimeTaskDefinition = cast task.definition;
+			definition.command = command;
 			task.name = command + " (current)";
 			tasks.push(task);
 		}

@@ -138,14 +138,6 @@
 					"command": {
 						"type": "string",
 						"description": "The Lime command to execute"
-					},
-					"target": {
-						"type": "string",
-						"description": "The target platform to use"
-					},
-					"args": {
-						"type": "array",
-						"description": "Any additional arguments"
 					}
 				}
 			}

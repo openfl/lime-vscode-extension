@@ -374,7 +374,6 @@ class Main
 
 	public function provideDebugConfigurations(folder:Null<WorkspaceFolder>, ?token:CancellationToken):ProviderResult<Array<DebugConfiguration>>
 	{
-		trace("provideDebugConfigurations");
 		return [
 			{
 				"name": "Lime",

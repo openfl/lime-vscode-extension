@@ -601,7 +601,7 @@ class Main
 					config.sourceMaps = true;
 					config.smartStep = true;
 					config.webRoot = "${workspaceFolder}/" + Path.directory(outputFile);
-					config.preLaunchTask = "lime: test html5 -nolaunch";
+					config.preLaunchTask = "lime: " + getCommandArguments("test", targetItem) + " -nolaunch";
 
 				case "windows", "mac", "linux":
 					config.type = "hxcpp";

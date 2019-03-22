@@ -132,16 +132,10 @@ class Main
 		}
 	}
 
-	private function createTask(command:String, additionalArgs:Array<String>, presentation:vshaxe.TaskPresentationOptions, problemMatchers:Array<String>,
-			group:TaskGroup = null)
+	private function createTask(definition:LimeTaskDefinition, command:String, additionalArgs:Array<String>, presentation:vshaxe.TaskPresentationOptions,
+			problemMatchers:Array<String>, group:TaskGroup = null)
 	{
 		command = StringTools.trim(command);
-
-		var definition:LimeTaskDefinition =
-			{
-				type: "lime",
-				command: command
-			}
 
 		var shellCommand = limeExecutable + " " + command;
 		if (additionalArgs != null) shellCommand += " " + additionalArgs.join(" ");
@@ -183,7 +177,7 @@ class Main
 			args.unshift(projectFile);
 		}
 
-		return command + " " + target + " " + args.join(" ");
+		return StringTools.trim(command + " " + target + " " + args.join(" "));
 	}
 
 	private function getDebugArguments(targetItem:TargetItem, additionalArgs:Array<String> = null):Array<String>
@@ -404,8 +398,33 @@ class Main
 		{
 			for (command in limeCommands)
 			{
-				var task = createTask(getCommandArguments(command, item), getDebugArguments(item, args), presentation, problemMatchers);
+				var definition:LimeTaskDefinition =
+					{
+						"type": "lime",
+						"command": command,
+						"targetConfiguration": item.label
+					};
+				var task = createTask(definition, getCommandArguments(command, item), getDebugArguments(item, args), presentation, problemMatchers);
 				tasks.push(task);
+			}
+
+			if (item.target == "html5")
+			{
+				for (command in ["run", "test"])
+				{
+					var definition:LimeTaskDefinition =
+						{
+							"type": "lime",
+							"command": command,
+							"targetConfiguration": item.label,
+							"args": ["-nolaunch"]
+						};
+					var command = getCommandArguments(command, item);
+					if (command.indexOf("-nolaunch") == -1) command += " -nolaunch";
+					var task = createTask(definition, command, args, presentation, ["$lime-nolaunch"]);
+					task.isBackground = true;
+					tasks.push(task);
+				}
 			}
 		}
 
@@ -414,20 +433,15 @@ class Main
 			var command = limeCommands[i];
 			var commandGroup = commandGroups[i];
 
-			var task = createTask(getCommandArguments(command, targetItem), getDebugArguments(targetItem, args), presentation, problemMatchers, commandGroup);
-			var definition:LimeTaskDefinition = cast task.definition;
-			definition.command = command;
+			var definition:LimeTaskDefinition =
+				{
+					"type": "lime",
+					"command": command
+				};
+			var task = createTask(definition, getCommandArguments(command, targetItem), getDebugArguments(targetItem, args), presentation, problemMatchers, commandGroup);
 			task.name = command + " (active configuration)";
 			tasks.push(task);
 		}
-
-		var task = createTask("run html5 -nolaunch", args, presentation, ["$lime-nolaunch"]);
-		task.isBackground = true;
-		tasks.push(task);
-
-		var task = createTask("test html5 -nolaunch", args, presentation, ["$lime-nolaunch"]);
-		task.isBackground = true;
-		tasks.push(task);
 
 		return tasks;
 	}
@@ -915,7 +929,8 @@ private typedef LimeTaskDefinition =
 {
 	> TaskDefinition,
 	var command:String;
-	@:optional var target:String;
+	@:optional var targetConfiguration:String;
+	@:optional var args:Array<String>;
 }
 
 private typedef TargetItem =

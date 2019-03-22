@@ -196,7 +196,18 @@
 				"properties": {
 					"command": {
 						"type": "string",
-						"description": "The Lime command to execute"
+						"description": "The Lime command to execute."
+					},
+					"targetConfiguration": {
+						"type": "string",
+						"description": "The Lime target configuration to use."
+					},
+					"args": {
+						"type": "array",
+						"description": "Additional arguments.",
+						"items": {
+							"type": "string"
+						}
 					}
 				}
 			}

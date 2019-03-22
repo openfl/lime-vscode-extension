@@ -139,8 +139,8 @@ class Main
 		}
 	}
 
-	private function createTask(description:String, command:String, target:String, additionalArguments:Array<String>,
-			presentation:vshaxe.TaskPresentationOptions, problemMatchers:Array<String>, group:TaskGroup = null)
+	private function createTask(description:String, command:String, target:String, args:Array<String>, presentation:vshaxe.TaskPresentationOptions,
+			problemMatchers:Array<String>, group:TaskGroup = null)
 	{
 		var name = null;
 		var definition:LimeTaskDefinition =
@@ -160,9 +160,9 @@ class Main
 		}
 
 		var commandArgs = getCommandArguments(command, target);
-		if (additionalArguments != null)
+		if (args != null)
 		{
-			commandArgs = commandArgs.concat(additionalArguments);
+			commandArgs = commandArgs.concat(args);
 		}
 
 		var task = new Task(definition, TaskScope.Workspace, name, "lime");
@@ -526,61 +526,65 @@ class Main
 
 		var commands = ["clean", "update", "build", "run", "test"];
 		var commandNames = ["Clean", "Update", "Build", "Run", "Test"];
+		var commandGroups = [TaskGroup.Clean, null, TaskGroup.Build, null, TaskGroup.Test];
 		var tasks = [];
 
-		var additionalArguments = [];
+		var args = [];
 		if (vshaxe.enableCompilationServer && displayPort != null /*&& args.indexOf("--connect") == -1*/)
 		{
-			additionalArguments.push("--connect");
-			additionalArguments.push(Std.string(displayPort));
+			args.push("--connect");
+			args.push(Std.string(displayPort));
 		}
 
-		for (i in 0...targetItems.length)
-		{
-			var item = targetItems[i];
-			var group = null;
-			var args = null;
-
-			for (j in 0...commands.length)
+		/*
+			for (i in 0...targetItems.length)
 			{
-				var command = commands[j];
-				var commandName = commandNames[j];
+				var item = targetItems[i];
+				var group = null;
+				var args = null;
 
-				if (item.target == target)
+				for (j in 0...commands.length)
 				{
-					group = switch (command)
+					var command = commands[j];
+					var commandName = commandNames[j];
+
+					if (item.target == target)
 					{
-						case "clean": TaskGroup.Clean;
-						case "build": TaskGroup.Build;
-						case "test": TaskGroup.Test;
-						default: null;
+						group = switch (command)
+						{
+							case "clean": TaskGroup.Clean;
+							case "build": TaskGroup.Build;
+							case "test": TaskGroup.Test;
+							default: null;
+						}
 					}
-				}
-				else
-				{
-					group = null;
-				}
+					else
+					{
+						group = null;
+					}
 
-				var task = createTask(commandName + " " + item.label, command, item.target, additionalArguments, presentation, problemMatchers, group);
-				tasks.push(task);
+					var task = createTask(commandName + " " + item.label, command, item.target, args, presentation, problemMatchers, group);
+					tasks.push(task);
+				}
 			}
-		}
+		 */
 
-		for (j in 0...commands.length)
+		for (i in 0...commands.length)
 		{
-			var command = commands[j];
-			var commandName = commandNames[j];
+			var command = commands[i];
+			var commandName = commandNames[i];
+			var commandGroup = commandGroups[i];
 
-			var task = createTask(commandName, command, null, additionalArguments, presentation, problemMatchers, null);
+			var task = createTask(commandName, command, null, args, presentation, problemMatchers, commandGroup);
 			tasks.push(task);
 		}
 
-		var task = createTask("Run HTML5 (no launch)", "run", "html5", additionalArguments.concat(["-nolaunch"]), presentation, ["$lime-nolaunch"]);
+		var task = createTask("Run HTML5 (no launch)", "run", "html5", args.concat(["-nolaunch"]), presentation, ["$lime-nolaunch"]);
 		task.name = "run html5 -nolaunch";
 		task.isBackground = true;
 		tasks.push(task);
 
-		var task = createTask("Test HTML5 (no launch)", "test", "html5", additionalArguments.concat(["-nolaunch"]), presentation, ["$lime-nolaunch"]);
+		var task = createTask("Test HTML5 (no launch)", "test", "html5", args.concat(["-nolaunch"]), presentation, ["$lime-nolaunch"]);
 		task.name = "test html5 -nolaunch";
 		task.isBackground = true;
 		tasks.push(task);
@@ -773,11 +777,6 @@ class Main
 		var vshaxe = getVshaxe();
 		var displayPort = vshaxe.displayPort;
 
-		if (definition.additionalArguments != null)
-		{
-			commandArgs = commandArgs.concat(definition.additionalArguments);
-		}
-
 		if (vshaxe.enableCompilationServer && displayPort != null && commandArgs.indexOf("--connect") == -1)
 		{
 			commandArgs.push("--connect");
@@ -945,7 +944,6 @@ private typedef LimeTaskDefinition =
 	> TaskDefinition,
 	var command:String;
 	@:optional var target:String;
-	@:optional var additionalArguments:Array<String>;
 }
 
 private typedef TargetItem =

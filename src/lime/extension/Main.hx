@@ -700,12 +700,12 @@ class Main
 			if (limeVerbose)
 			{
 				toggleVerboseItem.text = "$(tasklist)";
-				toggleVerboseItem.tooltip = "Disable Verbose";
+				toggleVerboseItem.tooltip = "Verbose Output (Enabled)";
 			}
 			else
 			{
-				toggleVerboseItem.text = "$(three-bars)";
-				toggleVerboseItem.tooltip = "Enable Verbose";
+				toggleVerboseItem.text = "$(list-unordered)";
+				toggleVerboseItem.tooltip = "Verbose Output (Disabled)";
 			}
 			toggleVerboseItem.show();
 		}

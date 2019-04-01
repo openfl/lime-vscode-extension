@@ -504,9 +504,9 @@ class Main
 
 		if (!hasProjectFile || !isProviderActive) return config;
 
-		if (limeVersion < new SemVer(8, 0, 0))
+		if (limeVersion < new SemVer(7, 3, 0))
 		{
-			var message = 'Lime debug support requires Lime 8.0.0 (or greater)';
+			var message = 'Lime debug support requires Lime 7.3.0 (or greater)';
 			window.showWarningMessage(message);
 			return config;
 		}
@@ -734,7 +734,7 @@ class Main
 
 		limeTargets = ["android" => "Android", "flash" => "Flash", "html5" => "HTML5", "neko" => "Neko"];
 
-		if (limeVersion >= new SemVer(8, 0, 0))
+		if (limeVersion >= new SemVer(7, 3, 0))
 		{
 			limeTargets.set("hl", "HashLink");
 		}

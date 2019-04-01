@@ -1,6 +1,6 @@
 {
 	"name": "lime-vscode-extension",
-	"version": "1.2.2",
+	"version": "1.3.0",
 	"publisher": "openfl",
 	"engines": {
 		"vscode": "^1.31.0",
@@ -228,5 +228,10 @@
 	},
 	"extensionDependencies": [
 		"nadako.vshaxe"
-	]
+	],
+	"__metadata": {
+		"id": "c1cbdc7a-9c92-422b-87af-d193b3444f23",
+		"publisherDisplayName": "OpenFL",
+		"publisherId": "66a617f2-8aca-41e4-8cfe-f498606c6ab2"
+	}
 }

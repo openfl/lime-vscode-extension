@@ -1,5 +1,19 @@
 # Change Log
 
+1.3.0 (04/01/2019)
+------------------
+
+* Added initial support for compatibility with HXCPP, Flash and HTML5 debuggers (requires Lime 7.3)
+* Added support for "target configurations" (target + build type + optional arguments)
+* Merged the target and build type status bar items into a single target configuration option
+* Replaced the additional arguments status bar item with a toggle for verbose output
+* Added "lime.targets" setting to add or disable Lime targets in the UI
+* Added "lime.buildTypes" setting to disable standard build types (Release, Debug, etc) or add new custom types
+* Added "lime.defaultTargetConfiguration" setting for the default configuration in new workspaces
+* Added "lime.targetConfigurations" setting to disable default configurations or add new custom configurations
+* Added "lime.browser" setting to select the browser used for debugging HTML5
+* Updated the task provider to persist available tasks regardless of the currently selected configuration
+
 1.2.2 (02/07/2019)
 ------------------
 

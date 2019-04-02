@@ -1,5 +1,9 @@
 # Change Log
 
+1.3.1 (to be released)
+------------------
+* Improved the `"lime"` debug adapter to not set `"preLaunchTask"` if already specified
+
 1.3.0 (04/01/2019)
 ------------------
 

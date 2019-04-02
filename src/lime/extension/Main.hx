@@ -589,7 +589,10 @@ class Main
 				trace(e);
 			}
 
-			config.preLaunchTask = "lime: build (active configuration)";
+			if (!Reflect.hasField(config, "preLaunchTask"))
+			{
+				config.preLaunchTask = "lime: build (active configuration)";
+			}
 
 			switch (target)
 			{

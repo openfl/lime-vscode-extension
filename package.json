@@ -112,18 +112,25 @@
 							"target": {
 								"type": "string",
 								"description": "A supported Lime target.",
-								"enum": [
-									"android",
-									"air",
-									"flash",
-									"neko",
-									"hl",
-									"html5",
-									"windows",
-									"mac",
-									"linux",
-									"emscripten",
-									"electron"
+								"anyOf": [
+									{
+										"enum": [
+											"android",
+											"air",
+											"flash",
+											"neko",
+											"hl",
+											"html5",
+											"windows",
+											"mac",
+											"linux",
+											"emscripten",
+											"electron"
+										]
+									},
+									{
+										"type": "string"
+									}
 								]
 							},
 							"args": {

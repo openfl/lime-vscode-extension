@@ -18,6 +18,7 @@ class Main
 	private var context:ExtensionContext;
 	private var displayArgumentsProvider:DisplayArgsProvider;
 	private var disposables:Array<{function dispose():Void;}>;
+	private var editTargetFlagsItem:StatusBarItem;
 	private var hasProjectFile:Bool;
 	private var initialized:Bool;
 	private var isProviderActive:Bool;
@@ -27,9 +28,7 @@ class Main
 	private var limeCommands:Array<LimeCommand>;
 	private var limeExecutable:String;
 	private var limeTargets:Map<String, String>;
-	private var limeVerbose:Bool;
 	private var limeVersion:SemVer = "0.0.0";
-	private var toggleVerboseItem:StatusBarItem;
 
 	public function new(context:ExtensionContext)
 	{
@@ -84,12 +83,12 @@ class Main
 		selectTargetItem.command = "lime.selectTarget";
 		disposables.push(selectTargetItem);
 
-		toggleVerboseItem = window.createStatusBarItem(Left, 8);
-		toggleVerboseItem.command = "lime.toggleVerbose";
-		disposables.push(toggleVerboseItem);
+		editTargetFlagsItem = window.createStatusBarItem(Left, 7);
+		editTargetFlagsItem.command = "lime.editTargetFlags";
+		disposables.push(editTargetFlagsItem);
 
 		disposables.push(commands.registerCommand("lime.selectTarget", selectTargetItem_onCommand));
-		disposables.push(commands.registerCommand("lime.toggleVerbose", toggleVerboseItem_onCommand));
+		disposables.push(commands.registerCommand("lime.editTargetFlags", editTargetFlagsItem_onCommand));
 		disposables.push(tasks.registerTaskProvider("lime", this));
 	}
 
@@ -106,7 +105,7 @@ class Main
 		}
 
 		selectTargetItem = null;
-		toggleVerboseItem = null;
+		editTargetFlagsItem = null;
 
 		disposables = null;
 		initialized = false;
@@ -253,6 +252,11 @@ class Main
 		}
 	}
 
+	public function getTargetFlags():String
+	{
+		return context.workspaceState.get("lime.additionalTargetFlags", "");
+	}
+
 	public function getTargetItem():TargetItem
 	{
 		var defaultTargetConfig = workspace.getConfiguration("lime").get("defaultTargetConfiguration", "HTML5");
@@ -385,9 +389,11 @@ class Main
 		var tasks = [];
 
 		var args = [];
-		if (limeVerbose)
+		var targetFlags = StringTools.trim(getTargetFlags());
+		if (targetFlags != "")
 		{
-			args.push("-verbose");
+			// TODO: Handle argument list better
+			args = args.concat(targetFlags.split(" "));
 		}
 
 		if (vshaxe.enableCompilationServer && displayPort != null /*&& args.indexOf("--connect") == -1*/)
@@ -672,6 +678,13 @@ class Main
 		updateDisplayArguments();
 	}
 
+	public function setTargetFlags(flags:String):Void
+	{
+		context.workspaceState.update("lime.additionalTargetFlags", flags);
+		updateStatusBarItems();
+		updateDisplayArguments();
+	}
+
 	private function updateDisplayArguments():Void
 	{
 		if (!hasProjectFile || !isProviderActive) return;
@@ -712,24 +725,19 @@ class Main
 			selectTargetItem.text = targetItem.label;
 			selectTargetItem.show();
 
-			limeVerbose = context.workspaceState.get("lime.verbose", false);
-
-			if (limeVerbose)
+			editTargetFlagsItem.text = "$(list-unordered)";
+			editTargetFlagsItem.tooltip = "Edit Target Flags";
+			var flags = getTargetFlags();
+			if (flags.length != 0)
 			{
-				toggleVerboseItem.text = "$(tasklist)";
-				toggleVerboseItem.tooltip = "Toggle Lime Verbose Mode (Enabled)";
+				editTargetFlagsItem.tooltip += ' ($flags)';
 			}
-			else
-			{
-				toggleVerboseItem.text = "$(list-unordered)";
-				toggleVerboseItem.tooltip = "Toggle Lime Verbose Mode (Disabled)";
-			}
-			toggleVerboseItem.show();
+			editTargetFlagsItem.show();
 		}
 		else
 		{
 			selectTargetItem.hide();
-			toggleVerboseItem.hide();
+			editTargetFlagsItem.hide();
 		}
 	}
 
@@ -900,11 +908,17 @@ class Main
 
 	// Event Handlers
 
-	private function toggleVerboseItem_onCommand():Void
+	private function editTargetFlagsItem_onCommand():Void
 	{
-		limeVerbose = !limeVerbose;
-		context.workspaceState.update("lime.verbose", limeVerbose);
-		updateStatusBarItems();
+		var flags = getTargetFlags();
+		var value = if (flags.length == 0) "" else flags + " ";
+		window.showInputBox({prompt: "Target Flags", value: value, valueSelection: [flags.length + 1, flags.length + 1]}).then(function(newValue:String)
+		{
+			if (newValue != null)
+			{
+				setTargetFlags(StringTools.trim(newValue));
+			}
+		});
 	}
 
 	private function selectTargetItem_onCommand():Void

@@ -131,15 +131,15 @@ class Main
 		}
 	}
 
-	private function createTask(definition:LimeTaskDefinition, command:String, additionalArgs:Array<String>, presentation:vshaxe.TaskPresentationOptions,
-			problemMatchers:Array<String>, group:TaskGroup = null)
+	private function createTask(definition:LimeTaskDefinition, name:String, command:String, additionalArgs:Array<String>,
+			presentation:vshaxe.TaskPresentationOptions, problemMatchers:Array<String>, group:TaskGroup = null)
 	{
 		command = StringTools.trim(command);
 
 		var shellCommand = limeExecutable + " " + command;
 		if (additionalArgs != null) shellCommand += " " + additionalArgs.join(" ");
 
-		var task = new Task(definition, TaskScope.Workspace, command, "lime");
+		var task = new Task(definition, TaskScope.Workspace, name, "lime");
 		task.execution = new ShellExecution(shellCommand,
 			{
 				cwd: workspace.workspaceFolders[0].uri.fsPath,
@@ -179,6 +179,14 @@ class Main
 		{
 			return StringTools.trim(command + " " + target + " " + args.join(" "));
 		}
+	}
+
+	private function getCommandName(command:String, targetItem:TargetItem):String
+	{
+		var target = targetItem.target;
+		var args = (targetItem.args != null ? targetItem.args.copy() : []);
+
+		return StringTools.trim(command + " " + target + " " + args.join(" "));
 	}
 
 	private function getDebugArguments(targetItem:TargetItem, additionalArgs:Array<String> = null):Array<String>
@@ -412,7 +420,7 @@ class Main
 						"command": command,
 						"targetConfiguration": item.label
 					};
-				var task = createTask(definition, getCommandArguments(command, item), getDebugArguments(item, args), presentation, problemMatchers);
+				var task = createTask(definition, getCommandName(command, item), getCommandArguments(command, item), getDebugArguments(item, args), presentation, problemMatchers);
 				tasks.push(task);
 			}
 
@@ -427,9 +435,14 @@ class Main
 							"targetConfiguration": item.label,
 							"args": ["-nolaunch"]
 						};
+					var name = getCommandName(command, item);
 					var command = getCommandArguments(command, item);
-					if (command.indexOf("-nolaunch") == -1) command += " -nolaunch";
-					var task = createTask(definition, command, args, presentation, ["$lime-nolaunch"]);
+					if (command.indexOf("-nolaunch") == -1)
+					{
+						name += " -nolaunch";
+						command += " -nolaunch";
+					}
+					var task = createTask(definition, name, command, args, presentation, ["$lime-nolaunch"]);
 					task.isBackground = true;
 					tasks.push(task);
 				}
@@ -446,7 +459,8 @@ class Main
 					"type": "lime",
 					"command": command
 				};
-			var task = createTask(definition, getCommandArguments(command, targetItem), getDebugArguments(targetItem, args), presentation, problemMatchers, commandGroup);
+			var task = createTask(definition, getCommandName(command, targetItem), getCommandArguments(command, targetItem),
+				getDebugArguments(targetItem, args), presentation, problemMatchers, commandGroup);
 			task.name = command + " (active configuration)";
 			tasks.push(task);
 		}

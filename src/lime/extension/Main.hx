@@ -174,10 +174,12 @@ class Main
 		var projectFile = getProjectFile();
 		if (projectFile != "")
 		{
-			args.unshift(projectFile);
+			return StringTools.trim(command + " " + projectFile + " " + target + " " + args.join(" "));
 		}
-
-		return StringTools.trim(command + " " + target + " " + args.join(" "));
+		else
+		{
+			return StringTools.trim(command + " " + target + " " + args.join(" "));
+		}
 	}
 
 	private function getDebugArguments(targetItem:TargetItem, additionalArgs:Array<String> = null):Array<String>

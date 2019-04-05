@@ -308,17 +308,24 @@ class Main
 		{
 			if (shouldInstall)
 			{
-				// TODO: workbench.extensions.installExtension not available?
-				// var installNowLabel = "Install Now";
-				// window.showErrorMessage(message, installNowLabel).then(function(selection)
-				// {
-				// 	trace(selection);
-				// 	if (selection == installNowLabel)
-				// 	{
-				// 		commands.executeCommand("workbench.extensions.installExtension", id);
-				// 	}
-				// });
-				window.showWarningMessage(message);
+				commands.getCommands().then(function(commandList)
+				{
+					if (commandList.indexOf("workbench.extensions.installExtension") > -1)
+					{
+						var installNowLabel = "Install Now";
+						window.showErrorMessage(message, installNowLabel).then(function(selection)
+						{
+							if (selection == installNowLabel)
+							{
+								commands.executeCommand("workbench.extensions.installExtension", id);
+							}
+						});
+					}
+					else
+					{
+						window.showWarningMessage(message);
+					}
+				});
 			}
 			return false;
 		}

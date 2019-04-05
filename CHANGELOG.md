@@ -1,8 +1,13 @@
 # Change Log
 
-1.3.1 (to be released)
+1.3.1 (04/04/2019)
 ------------------
+
+* Added support for installing missing debugger extensions (VSCode 1.33)
 * Improved the `"lime"` debug adapter to not set `"preLaunchTask"` if already specified
+* Restored the target flag status bar item instead of the verbose toggle
+* Fixed incorrect shell command when using the "lime.projectFile" setting
+
 
 1.3.0 (04/01/2019)
 ------------------

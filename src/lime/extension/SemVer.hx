@@ -38,12 +38,11 @@ abstract SemVer(Version) from Version
 
 	inline public function new(major, minor, patch)
 	{
-		this =
-			{
-				major: major,
-				minor: minor,
-				patch: patch
-			};
+		this = {
+			major: major,
+			minor: minor,
+			patch: patch
+		};
 	}
 
 	@:op(a >= b) function isEqualOrGreaterThan(other:SemVer):Bool

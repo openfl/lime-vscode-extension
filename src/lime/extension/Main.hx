@@ -140,11 +140,10 @@ class Main
 		if (additionalArgs != null) shellCommand += " " + additionalArgs.join(" ");
 
 		var task = new Task(definition, TaskScope.Workspace, name, "lime");
-		task.execution = new ShellExecution(shellCommand,
-			{
-				cwd: workspace.workspaceFolders[0].uri.fsPath,
-				env: haxeEnvironment
-			});
+		task.execution = new ShellExecution(shellCommand, {
+			cwd: workspace.workspaceFolders[0].uri.fsPath,
+			env: haxeEnvironment
+		});
 
 		if (group != null)
 		{
@@ -152,15 +151,14 @@ class Main
 		}
 
 		task.problemMatchers = problemMatchers;
-		task.presentationOptions =
-			{
-				reveal: presentation.reveal,
-				echo: presentation.echo,
-				focus: presentation.focus,
-				panel: presentation.panel,
-				showReuseMessage: presentation.showReuseMessage,
-				clear: presentation.clear
-			};
+		task.presentationOptions = {
+			reveal: presentation.reveal,
+			echo: presentation.echo,
+			focus: presentation.focus,
+			panel: presentation.panel,
+			showReuseMessage: presentation.showReuseMessage,
+			clear: presentation.clear
+		};
 
 		return task;
 	}
@@ -426,12 +424,11 @@ class Main
 		{
 			for (command in limeCommands)
 			{
-				var definition:LimeTaskDefinition =
-					{
-						"type": "lime",
-						"command": command,
-						"targetConfiguration": item.label
-					};
+				var definition:LimeTaskDefinition = {
+					"type": "lime",
+					"command": command,
+					"targetConfiguration": item.label
+				};
 				var task = createTask(definition, getCommandName(command, item), getCommandArguments(command, item), getDebugArguments(item, args),
 					presentation, problemMatchers);
 				tasks.push(task);
@@ -441,13 +438,12 @@ class Main
 			{
 				for (command in ["run", "test"])
 				{
-					var definition:LimeTaskDefinition =
-						{
-							"type": "lime",
-							"command": command,
-							"targetConfiguration": item.label,
-							"args": ["-nolaunch"]
-						};
+					var definition:LimeTaskDefinition = {
+						"type": "lime",
+						"command": command,
+						"targetConfiguration": item.label,
+						"args": ["-nolaunch"]
+					};
 					var name = getCommandName(command, item);
 					var command = getCommandArguments(command, item);
 					if (command.indexOf("-nolaunch") == -1)
@@ -467,11 +463,10 @@ class Main
 			var command = limeCommands[i];
 			var commandGroup = commandGroups[i];
 
-			var definition:LimeTaskDefinition =
-				{
-					"type": "lime",
-					"command": command
-				};
+			var definition:LimeTaskDefinition = {
+				"type": "lime",
+				"command": command
+			};
 			var task = createTask(definition, getCommandName(command, targetItem), getCommandArguments(command, targetItem),
 				getDebugArguments(targetItem, args), presentation, problemMatchers, commandGroup);
 			task.name = command + " (active configuration)";
@@ -863,13 +858,12 @@ class Main
 
 			for (type in buildTypes.keys())
 			{
-				targetItems.push(
-					{
-						label: targetLabel + ((type != null && type != "Release") ? " / " + type : ""),
-						// description: "– " + target + (type != null ? " -" + type.toLowerCase() : ""),
-						target: target,
-						args: (type != null ? buildTypes.get(type) : null)
-					});
+				targetItems.push({
+					label: targetLabel + ((type != null && type != "Release") ? " / " + type : ""),
+					// description: "– " + target + (type != null ? " -" + type.toLowerCase() : ""),
+					target: target,
+					args: (type != null ? buildTypes.get(type) : null)
+				});
 			}
 		}
 
@@ -903,13 +897,12 @@ class Main
 				}
 			}
 
-			targetItems.push(
-				{
-					label: label,
-					detail: command,
-					target: target,
-					args: args
-				});
+			targetItems.push({
+				label: label,
+				detail: command,
+				target: target,
+				args: args
+			});
 		}
 
 		var i = 0;

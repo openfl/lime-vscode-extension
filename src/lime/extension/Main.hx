@@ -28,7 +28,7 @@ class Main
 	private var limeCommands:Array<LimeCommand>;
 	private var limeExecutable:String;
 	private var limeTargets:Map<String, String>;
-	private var limeVersion:SemVer = "0.0.0";
+	private var limeVersion = new SemVer(0, 0, 0);
 
 	public function new(context:ExtensionContext)
 	{
@@ -235,11 +235,15 @@ class Main
 		try
 		{
 			var output = ChildProcess.execSync(limeExecutable + " -version", {cwd: workspace.workspaceFolders[0].uri.fsPath});
-			limeVersion = StringTools.trim(Std.string(output));
+			var version = SemVer.parse(StringTools.trim(Std.string(output)));
+			if (version != null)
+			{
+				limeVersion = version;
+			}
 		}
 		catch (e:Dynamic)
 		{
-			limeVersion = "0.0.0";
+			limeVersion = new SemVer(0, 0, 0);
 			trace(e);
 		}
 	}
@@ -389,7 +393,8 @@ class Main
 				"name": "Lime",
 				"type": "lime",
 				"request": "launch"
-			}];
+			}
+		];
 	}
 
 	public function provideTasks(?token:CancellationToken):ProviderResult<Array<Task>>
@@ -427,7 +432,8 @@ class Main
 						"command": command,
 						"targetConfiguration": item.label
 					};
-				var task = createTask(definition, getCommandName(command, item), getCommandArguments(command, item), getDebugArguments(item, args), presentation, problemMatchers);
+				var task = createTask(definition, getCommandName(command, item), getCommandArguments(command, item), getDebugArguments(item, args),
+					presentation, problemMatchers);
 				tasks.push(task);
 			}
 

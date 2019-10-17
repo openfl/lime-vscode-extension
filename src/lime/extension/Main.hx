@@ -646,7 +646,24 @@ class Main
 					config.sourceMaps = true;
 					config.smartStep = true;
 					config.webRoot = "${workspaceFolder}/" + Path.directory(outputFile);
-					config.preLaunchTask = "lime: " + getCommandArguments("test", targetItem) + " -nolaunch";
+
+					// search for an existing "lime test" task
+					var testTaskName = getCommandArguments("test", targetItem) + " -nolaunch";
+					var existingTask = Vscode.tasks.taskExecutions.get().find((item) ->
+						{
+							return item.task.definition.type == "lime" && item.task.name == testTaskName;
+						});
+					if (existingTask == null)
+					{
+						// if the "test" task doesn't exist yet, run it first
+						config.preLaunchTask = "lime: " + testTaskName;
+					}
+					else
+					{
+						// if the "test" task is already active, run the "build" task instead
+						// this will reuse the existing server
+						config.preLaunchTask = "lime: " + getCommandArguments("build", targetItem);
+					}
 
 				case "windows", "mac", "linux":
 					config.type = "hxcpp";

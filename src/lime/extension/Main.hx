@@ -581,7 +581,7 @@ class Main
 
 				case "html5":
 					if (browserType == "firefox"
-						&& !hasExtension("hbenl.vscode-firefox-debug", true, "Debugging HTML5 with Firefox requires the \"Debugger for Firefox\" extension"))
+						&& !hasExtension("firefox-devtools.vscode-firefox-debug", true, "Debugging HTML5 with Firefox requires the \"Debugger for Firefox\" extension"))
 					{
 						return js.Lib.undefined;
 					}

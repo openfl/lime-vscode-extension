@@ -1,9 +1,8 @@
--cp node_modules/vshaxe/vscode-extern/src
--cp node_modules/vshaxe/src-api
 -cp src
 -D hxnodejs-no-version-warning
 -D analyzer-optimize
 -lib hxnodejs
+-lib vshaxe
 -js bin/lime-vscode.js
 -dce full
 -main lime.extension.Main

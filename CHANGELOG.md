@@ -1,5 +1,14 @@
 # Change Log
 
+1.3.2 (03/02/2020)
+------------------
+
+* Improved switching from `"lime test"` task to debug session
+* Fixed backward compatibility with some older Lime versions
+* Fixed support for newer VSCode plugin interface
+* Updated ID for Firefox debugger extension
+
+
 1.3.1 (04/04/2019)
 ------------------
 

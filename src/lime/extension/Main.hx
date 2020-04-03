@@ -400,7 +400,7 @@ class Main
 		var targetItem = getTargetItem();
 		var vshaxe = getVshaxe();
 		var displayPort = vshaxe.displayPort;
-		var problemMatchers = vshaxe.problemMatchers.get();
+		var problemMatchers = vshaxe.problemMatchers.copy();
 		var presentation = vshaxe.taskPresentation;
 
 		var commandGroups = [TaskGroup.Clean, null, TaskGroup.Build, null, TaskGroup.Test];
@@ -553,10 +553,7 @@ class Main
 				targetLabel = limeTargets.get(target);
 			}
 
-			var supportedTargets = ["flash", "windows", "mac", "linux", "html5"];
-			#if debug
-			supportedTargets.push("hl");
-			#end
+			var supportedTargets = ["flash", "windows", "mac", "linux", "html5", "hl"];
 			if (supportedTargets.indexOf(target) == -1)
 			{
 				window.showWarningMessage("Debugging " + targetLabel + " is not supported");
@@ -632,10 +629,61 @@ class Main
 					config.program = "${workspaceFolder}/" + outputFile;
 
 				case "hl":
-					// TODO: Waiting for HL debugger to have a way to use a custom exec
+					if (Sys.systemName() == "Mac")
+					{
+						// copied from https://github.com/vshaxe/hashlink-debugger/blob/master/src/Extension.hx
+						final visitButton = "Visit GitHub Issue";
+						Vscode.window.showErrorMessage("HashLink debugging on macOS is not supported yet.", visitButton).then(function(choice)
+						{
+							if (choice == visitButton)
+							{
+								Vscode.env.openExternal(Uri.parse("https://github.com/vshaxe/hashlink-debugger/issues/28"));
+							}
+						});
+						return null;
+					}
+
 					config.type = "hl";
-					config.program = "${workspaceFolder}/" + Path.directory(outputFile) + "/hlboot.dat";
-					config.exec = "${workspaceFolder}/" + outputFile;
+					config.cwd = "${workspaceFolder}/" + Path.directory(outputFile);
+					config.program = config.cwd + "/hlboot.dat";
+					var classPaths = [];
+					var prev = null;
+					var limePath = null;
+					for (arg in displayArgumentsProvider.parsedArguments)
+					{
+						if (prev == "-cp" || prev == "-p" || prev == "--class-path")
+						{
+							var cp = if (Path.isAbsolute(arg)) arg else Path.join([workspace.workspaceFolders[0].uri.fsPath, arg]);
+							classPaths.push(cp);
+							// TODO: figure out a nicer way to do this
+							if (~/[\/\\]/g.split(cp).indexOf("lime") != -1)
+							{
+								limePath = Path.directory(cp);
+							}
+						}
+						prev = arg;
+					}
+					config.classPaths = classPaths;
+					// TODO: figure out a nicer way to do this
+					config.hl = Path.join([
+						limePath,
+						"templates/bin/hl",
+						switch (Sys.systemName())
+						{
+							case "Windows":
+								"windows/hl.exe";
+							case "Linux":
+								"linux/hl";
+							case "Mac":
+								"mac/hl";
+							case other:
+								throw 'unsupported OS $other';
+						}
+					]);
+					if (!FileSystem.exists(config.hl))
+					{
+						throw "Unable to locate HL binary - maybe your Lime version is too old.";
+					}
 
 				case "html5", "electron":
 					// TODO: Get webRoot path from Lime
@@ -650,7 +698,7 @@ class Main
 
 					// search for an existing "lime test" task
 					var testTaskName = getCommandArguments("test", targetItem) + " -nolaunch";
-					var existingTask = Vscode.tasks.taskExecutions.get().find((item) ->
+					var existingTask = Vscode.tasks.taskExecutions.copy().find((item) ->
 						{
 							return item.task.definition.type == "lime" && item.task.name == testTaskName;
 						});

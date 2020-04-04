@@ -1,5 +1,6 @@
 package lime.extension;
 
+import js.lib.Promise;
 import haxe.ds.ReadOnlyArray;
 import js.node.Buffer;
 import js.node.ChildProcess;
@@ -421,9 +422,15 @@ class Main
 
 	private function refreshCodeCompletion()
 	{
-		var commandLine = limeExecutable + " " + getCommandArguments("update", getTargetItem());
-		ChildProcess.execSync(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath});
-		updateDisplayArguments();
+		window.withProgress({title: "Lime: Refreshing Code Completion...", location: Window}, function(_, _)
+		{
+			return new Promise(function(resolve, _)
+			{
+				var commandLine = limeExecutable + " " + getCommandArguments("update", getTargetItem());
+				ChildProcess.execSync(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath});
+				updateDisplayArguments(() -> resolve(null));
+			});
+		});
 	}
 
 	@:keep @:expose("activate") public static function activate(context:ExtensionContext)
@@ -785,9 +792,13 @@ class Main
 		updateDisplayArguments();
 	}
 
-	private function updateDisplayArguments():Void
+	private function updateDisplayArguments(?callback:() -> Void):Void
 	{
-		if (!hasProjectFile || !isProviderActive) return;
+		if (!hasProjectFile || !isProviderActive)
+		{
+			if (callback != null) callback();
+			return;
+		}
 
 		var targetItem = getTargetItem();
 		var commandLine = limeExecutable + " " + getCommandArguments("display", targetItem);
@@ -814,6 +825,8 @@ class Main
 			{
 				displayArgumentsProvider.update(stdout.toString());
 			}
+
+			if (callback != null) callback();
 		});
 	}
 

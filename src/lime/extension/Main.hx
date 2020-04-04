@@ -87,6 +87,7 @@ class Main
 
 		disposables.push(commands.registerCommand("lime.selectTarget", selectTargetItem_onCommand));
 		disposables.push(commands.registerCommand("lime.editTargetFlags", editTargetFlagsItem_onCommand));
+		disposables.push(commands.registerCommand("lime.refreshCodeCompletion", refreshCodeCompletion));
 		disposables.push(tasks.registerTaskProvider("lime", this));
 	}
 
@@ -412,12 +413,17 @@ class Main
 		{
 			if (choice == "Yes")
 			{
-				var commandLine = limeExecutable + " " + getCommandArguments("update", getTargetItem());
-				ChildProcess.execSync(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath});
-				updateDisplayArguments();
+				refreshCodeCompletion();
 			}
 		});
 		isProjectFileDirty = false;
+	}
+
+	private function refreshCodeCompletion()
+	{
+		var commandLine = limeExecutable + " " + getCommandArguments("update", getTargetItem());
+		ChildProcess.execSync(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath});
+		updateDisplayArguments();
 	}
 
 	@:keep @:expose("activate") public static function activate(context:ExtensionContext)

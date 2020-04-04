@@ -179,6 +179,11 @@
 				"title": "Select Target Configuration",
 				"command": "lime.selectTarget",
 				"category": "Lime"
+			},
+			{
+				"title": "Refresh Code Completion",
+				"command": "lime.refreshCodeCompletion",
+				"category": "Lime"
 			}
 		],
 		"debuggers": [

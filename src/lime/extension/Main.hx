@@ -1,5 +1,6 @@
 package lime.extension;
 
+import haxe.ds.ReadOnlyArray;
 import js.node.Buffer;
 import js.node.ChildProcess;
 import sys.FileSystem;
@@ -10,14 +11,16 @@ import vscode.*;
 
 using lime.extension.ArrayHelper;
 using Lambda;
+using StringTools;
 
 class Main
 {
+	private static final DefaultProjectFiles:ReadOnlyArray<String> = ["project.xml", "Project.xml", "project.hxp", "project.lime"];
 	private static var instance:Main;
 
 	private var context:ExtensionContext;
 	private var displayArgumentsProvider:DisplayArgsProvider;
-	private var disposables:Array<{function dispose():Void;}>;
+	private var disposables:Array<{function dispose():Void;}> = [];
 	private var editTargetFlagsItem:StatusBarItem;
 	private var hasProjectFile:Bool;
 	private var initialized:Bool;
@@ -58,11 +61,7 @@ class Main
 
 			if (rootPath != null)
 			{
-				// TODO: support custom project file references
-
-				var files = ["project.xml", "Project.xml", "project.hxp", "project.lime"];
-
-				for (file in files)
+				for (file in DefaultProjectFiles)
 				{
 					if (FileSystem.exists(rootPath + "/" + file))
 					{
@@ -76,8 +75,6 @@ class Main
 
 	private function construct():Void
 	{
-		disposables = [];
-
 		selectTargetItem = window.createStatusBarItem(Left, 9);
 		selectTargetItem.tooltip = "Select Lime Target Configuration";
 		selectTargetItem.command = "lime.selectTarget";
@@ -94,11 +91,6 @@ class Main
 
 	private function deconstruct():Void
 	{
-		if (disposables == null)
-		{
-			return;
-		}
-
 		for (disposable in disposables)
 		{
 			disposable.dispose();
@@ -106,8 +98,9 @@ class Main
 
 		selectTargetItem = null;
 		editTargetFlagsItem = null;
+		displayArgumentsProvider = null;
 
-		disposables = null;
+		disposables = [];
 		initialized = false;
 	}
 
@@ -127,7 +120,7 @@ class Main
 		}
 		else
 		{
-			api.registerDisplayArgumentsProvider("Lime", displayArgumentsProvider);
+			disposables.push(api.registerDisplayArgumentsProvider("Lime", displayArgumentsProvider));
 		}
 	}
 
@@ -350,6 +343,12 @@ class Main
 		getVshaxe().haxeExecutable.onDidChangeConfiguration(function(_) updateHaxeEnvironment());
 		updateHaxeEnvironment();
 
+		var watcher = workspace.createFileSystemWatcher("**/*.{xml,hxp,lime}", false, false, false);
+		context.subscriptions.push(watcher.onDidCreate(projectFileWatcher_onDidCreateOrDelete));
+		context.subscriptions.push(watcher.onDidChange(projectFileWatcher_onDidChange));
+		context.subscriptions.push(watcher.onDidDelete(projectFileWatcher_onDidCreateOrDelete));
+		context.subscriptions.push(watcher);
+
 		initialized = true;
 	}
 
@@ -370,6 +369,35 @@ class Main
 		}
 
 		haxeEnvironment = env;
+	}
+
+	private function isProjectFile(uri:Uri)
+	{
+		var filePath = uri.fsPath;
+		var rootPath = workspace.workspaceFolders[0].uri.fsPath;
+		if (filePath.startsWith(rootPath))
+		{
+			filePath = filePath.substr(rootPath.length + 1); // relative path
+		}
+		return DefaultProjectFiles.indexOf(filePath) != -1 || Path.normalize(filePath) == Path.normalize(getProjectFile());
+	}
+
+	private function projectFileWatcher_onDidCreateOrDelete(uri:Uri)
+	{
+		if (isProjectFile(uri))
+		{
+			refresh();
+		}
+	}
+
+	private function projectFileWatcher_onDidChange(uri:Uri)
+	{
+		if (!isProjectFile(uri))
+		{
+			return;
+		}
+
+		trace("project file changed");
 	}
 
 	@:keep @:expose("activate") public static function activate(context:ExtensionContext)
@@ -400,7 +428,7 @@ class Main
 		var targetItem = getTargetItem();
 		var vshaxe = getVshaxe();
 		var displayPort = vshaxe.displayPort;
-		var problemMatchers = vshaxe.problemMatchers.get();
+		var problemMatchers = vshaxe.problemMatchers.copy();
 		var presentation = vshaxe.taskPresentation;
 
 		var commandGroups = [TaskGroup.Clean, null, TaskGroup.Build, null, TaskGroup.Test];
@@ -650,7 +678,7 @@ class Main
 
 					// search for an existing "lime test" task
 					var testTaskName = getCommandArguments("test", targetItem) + " -nolaunch";
-					var existingTask = Vscode.tasks.taskExecutions.get().find((item) ->
+					var existingTask = Vscode.tasks.taskExecutions.copy().find((item) ->
 						{
 							return item.task.definition.type == "lime" && item.task.name == testTaskName;
 						});

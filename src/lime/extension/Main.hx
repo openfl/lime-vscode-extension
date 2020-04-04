@@ -23,6 +23,7 @@ class Main
 	private var disposables:Array<{function dispose():Void;}> = [];
 	private var editTargetFlagsItem:StatusBarItem;
 	private var hasProjectFile:Bool;
+	private var isProjectFileDirty:Bool = false;
 	private var initialized:Bool;
 	private var isProviderActive:Bool;
 	private var selectTargetItem:StatusBarItem;
@@ -99,6 +100,7 @@ class Main
 		selectTargetItem = null;
 		editTargetFlagsItem = null;
 		displayArgumentsProvider = null;
+		isProjectFileDirty = false;
 
 		disposables = [];
 		initialized = false;
@@ -349,6 +351,8 @@ class Main
 		context.subscriptions.push(watcher.onDidDelete(projectFileWatcher_onDidCreateOrDelete));
 		context.subscriptions.push(watcher);
 
+		context.subscriptions.push(window.onDidChangeActiveTextEditor(window_onDidChangeActiveTextEditor));
+
 		initialized = true;
 	}
 
@@ -392,12 +396,28 @@ class Main
 
 	private function projectFileWatcher_onDidChange(uri:Uri)
 	{
-		if (!isProjectFile(uri))
+		if (isProjectFile(uri))
 		{
-			return;
+			isProjectFileDirty = true;
 		}
+	}
 
-		trace("project file changed");
+	private function window_onDidChangeActiveTextEditor(editor:Null<TextEditor>)
+	{
+		if (!hasProjectFile || !isProviderActive || !isProjectFileDirty) return;
+		if (editor == null || editor.document.languageId != "haxe") return;
+
+		// show a prompt once when we switch to a Haxe file and project file is dirty
+		window.showInformationMessage("Project file changes detected, run `lime update` to refresh code completion?", "Yes", "No").then(function(choice)
+		{
+			if (choice == "Yes")
+			{
+				var commandLine = limeExecutable + " " + getCommandArguments("update", getTargetItem());
+				ChildProcess.execSync(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath});
+				updateDisplayArguments();
+			}
+		});
+		isProjectFileDirty = false;
 	}
 
 	@:keep @:expose("activate") public static function activate(context:ExtensionContext)

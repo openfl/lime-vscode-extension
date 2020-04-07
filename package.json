@@ -171,6 +171,11 @@
 							}
 						}
 					}
+				},
+				"lime.promptToRefreshCompletion": {
+					"markdownDescription": "Whether to ask before running `lime update` to refresh completion after the project file has changed.",
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},

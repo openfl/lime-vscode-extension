@@ -409,14 +409,21 @@ class Main
 		if (!hasProjectFile || !isProviderActive || !isProjectFileDirty) return;
 		if (editor == null || editor.document.languageId != "haxe") return;
 
-		// show a prompt once when we switch to a Haxe file and project file is dirty
-		window.showInformationMessage("Project file changes detected, run `lime update` to refresh code completion?", "Yes", "No").then(function(choice)
+		if (workspace.getConfiguration("lime").get("promptToRefreshCompletion", false))
 		{
-			if (choice == "Yes")
+			// show a prompt once when we switch to a Haxe file and project file is dirty
+			window.showInformationMessage("Project file changes detected, run `lime update` to refresh code completion?", "Yes", "No").then(function(choice)
 			{
-				refreshCodeCompletion();
-			}
-		});
+				if (choice == "Yes")
+				{
+					refreshCodeCompletion();
+				}
+			});
+		}
+		else
+		{
+			refreshCodeCompletion();
+		}
 		isProjectFileDirty = false;
 	}
 

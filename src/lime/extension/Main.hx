@@ -1,5 +1,6 @@
 package lime.extension;
 
+import js.lib.Promise;
 import js.node.Buffer;
 import js.node.ChildProcess;
 import sys.FileSystem;
@@ -642,44 +643,52 @@ class Main
 					config.type = "hl";
 					config.cwd = "${workspaceFolder}/" + Path.directory(outputFile);
 					config.program = config.cwd + "/hlboot.dat";
-					var classPaths = [];
-					var prev = null;
-					var limePath = null;
-					for (arg in displayArgumentsProvider.parsedArguments)
+
+					return new Promise(function(resolve:DebugConfiguration->Void, reject)
 					{
-						if (prev == "-cp" || prev == "-p" || prev == "--class-path")
+						getVshaxe().getActiveConfiguration().then(function(haxeConfig)
 						{
-							var cp = if (Path.isAbsolute(arg)) arg else Path.join([workspace.workspaceFolders[0].uri.fsPath, arg]);
-							classPaths.push(cp);
-							// TODO: figure out a nicer way to do this
-							if (~/[\/\\]/g.split(cp).indexOf("lime") != -1)
+							var classPaths = haxeConfig.classPaths.map(cp -> cp.path);
+
+							var limePath = null;
+							for (path in classPaths)
 							{
-								limePath = Path.directory(cp);
+								// TODO: figure out a nicer way to do this
+								if (~/[\/\\]/g.split(path).indexOf("lime") != -1)
+								{
+									limePath = Path.directory(path);
+								}
 							}
-						}
-						prev = arg;
-					}
-					config.classPaths = classPaths;
-					// TODO: figure out a nicer way to do this
-					config.hl = Path.join([
-						limePath,
-						"templates/bin/hl",
-						switch (Sys.systemName())
+
+							// TODO: figure out a nicer way to do this
+							config.hl = Path.join([
+								limePath,
+								"templates/bin/hl",
+								switch (Sys.systemName())
+								{
+									case "Windows":
+										"windows/hl.exe";
+									case "Linux":
+										"linux/hl";
+									case "Mac":
+										"mac/hl";
+									case other:
+										throw 'unsupported OS $other';
+								}
+							]);
+							if (!FileSystem.exists(config.hl))
+							{
+								throw "Unable to locate HL binary - maybe your Lime version is too old.";
+							}
+
+							config.classPaths = classPaths;
+							resolve(config);
+							trace(config);
+						}, function(error)
 						{
-							case "Windows":
-								"windows/hl.exe";
-							case "Linux":
-								"linux/hl";
-							case "Mac":
-								"mac/hl";
-							case other:
-								throw 'unsupported OS $other';
-						}
-					]);
-					if (!FileSystem.exists(config.hl))
-					{
-						throw "Unable to locate HL binary - maybe your Lime version is too old.";
-					}
+							reject("Unable to retrieve active Haxe configuration: " + error);
+						});
+					});
 
 				case "html5", "electron":
 					// TODO: Get webRoot path from Lime

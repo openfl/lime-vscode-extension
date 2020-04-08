@@ -517,10 +517,6 @@ class Main
 
 	private function registerDebugConfigurationProviders():Void
 	{
-		debug.registerDebugConfigurationProvider("chrome", this);
-		debug.registerDebugConfigurationProvider("fdb", this);
-		debug.registerDebugConfigurationProvider("hl", this);
-		debug.registerDebugConfigurationProvider("hxcpp", this);
 		debug.registerDebugConfigurationProvider("lime", this);
 	}
 

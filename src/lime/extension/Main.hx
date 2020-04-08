@@ -626,69 +626,7 @@ class Main
 					config.program = "${workspaceFolder}/" + outputFile;
 
 				case "hl":
-					if (Sys.systemName() == "Mac")
-					{
-						// copied from https://github.com/vshaxe/hashlink-debugger/blob/master/src/Extension.hx
-						final visitButton = "Visit GitHub Issue";
-						Vscode.window.showErrorMessage("HashLink debugging on macOS is not supported yet.", visitButton).then(function(choice)
-						{
-							if (choice == visitButton)
-							{
-								Vscode.env.openExternal(Uri.parse("https://github.com/vshaxe/hashlink-debugger/issues/28"));
-							}
-						});
-						return null;
-					}
-
-					config.type = "hl";
-					config.cwd = "${workspaceFolder}/" + Path.directory(outputFile);
-					config.program = config.cwd + "/hlboot.dat";
-
-					return new Promise(function(resolve:DebugConfiguration->Void, reject)
-					{
-						getVshaxe().getActiveConfiguration().then(function(haxeConfig)
-						{
-							var classPaths = haxeConfig.classPaths.map(cp -> cp.path);
-
-							var limePath = null;
-							for (path in classPaths)
-							{
-								// TODO: figure out a nicer way to do this
-								if (~/[\/\\]/g.split(path).indexOf("lime") != -1)
-								{
-									limePath = Path.directory(path);
-								}
-							}
-
-							// TODO: figure out a nicer way to do this
-							config.hl = Path.join([
-								limePath,
-								"templates/bin/hl",
-								switch (Sys.systemName())
-								{
-									case "Windows":
-										"windows/hl.exe";
-									case "Linux":
-										"linux/hl";
-									case "Mac":
-										"mac/hl";
-									case other:
-										throw 'unsupported OS $other';
-								}
-							]);
-							if (!FileSystem.exists(config.hl))
-							{
-								throw "Unable to locate HL binary - maybe your Lime version is too old.";
-							}
-
-							config.classPaths = classPaths;
-							resolve(config);
-							trace(config);
-						}, function(error)
-						{
-							reject("Unable to retrieve active Haxe configuration: " + error);
-						});
-					});
+					return resolveHLDebugConfiguration(config, outputFile);
 
 				case "html5", "electron":
 					// TODO: Get webRoot path from Lime
@@ -728,6 +666,72 @@ class Main
 			}
 		}
 		return config;
+	}
+
+	private function resolveHLDebugConfiguration(config:Dynamic, outputFile:String):ProviderResult<DebugConfiguration>
+	{
+		if (Sys.systemName() == "Mac")
+		{
+			// copied from https://github.com/vshaxe/hashlink-debugger/blob/master/src/Extension.hx
+			final visitButton = "Visit GitHub Issue";
+			Vscode.window.showErrorMessage("HashLink debugging on macOS is not supported yet.", visitButton).then(function(choice)
+			{
+				if (choice == visitButton)
+				{
+					Vscode.env.openExternal(Uri.parse("https://github.com/vshaxe/hashlink-debugger/issues/28"));
+				}
+			});
+			return null;
+		}
+
+		config.type = "hl";
+		config.cwd = "${workspaceFolder}/" + Path.directory(outputFile);
+		config.program = config.cwd + "/hlboot.dat";
+
+		return new Promise(function(resolve:DebugConfiguration->Void, reject)
+		{
+			getVshaxe().getActiveConfiguration().then(function(haxeConfig)
+			{
+				var classPaths = haxeConfig.classPaths.map(cp -> cp.path);
+
+				var limePath = null;
+				for (path in classPaths)
+				{
+					// TODO: figure out a nicer way to do this
+					if (~/[\/\\]/g.split(path).indexOf("lime") != -1)
+					{
+						limePath = Path.directory(path);
+					}
+				}
+
+				// TODO: figure out a nicer way to do this
+				config.hl = Path.join([
+					limePath,
+					"templates/bin/hl",
+					switch (Sys.systemName())
+					{
+						case "Windows":
+							"windows/hl.exe";
+						case "Linux":
+							"linux/hl";
+						case "Mac":
+							"mac/hl";
+						case other:
+							throw 'unsupported OS $other';
+					}
+				]);
+				if (!FileSystem.exists(config.hl))
+				{
+					throw "Unable to locate HL binary - maybe your Lime version is too old.";
+				}
+
+				config.classPaths = classPaths;
+				resolve(config);
+			}, function(error)
+			{
+				reject("Unable to retrieve active Haxe configuration: " + error);
+			});
+		});
 	}
 
 	public function resolveDebugConfigurationWithSubstitutedVariables(folder:Null<WorkspaceFolder>, debugConfiguration:DebugConfiguration,

@@ -171,6 +171,11 @@
 							}
 						}
 					}
+				},
+				"lime.promptToRefreshCompletion": {
+					"markdownDescription": "Whether to ask before running `lime update` to refresh completion after the project file has changed.",
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},
@@ -178,6 +183,11 @@
 			{
 				"title": "Select Target Configuration",
 				"command": "lime.selectTarget",
+				"category": "Lime"
+			},
+			{
+				"title": "Refresh Code Completion",
+				"command": "lime.refreshCodeCompletion",
 				"category": "Lime"
 			}
 		],

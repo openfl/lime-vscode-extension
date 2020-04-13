@@ -1,6 +1,7 @@
 package lime.extension;
 
 import js.lib.Promise;
+import haxe.ds.ReadOnlyArray;
 import js.node.Buffer;
 import js.node.ChildProcess;
 import sys.FileSystem;
@@ -11,16 +12,19 @@ import vscode.*;
 
 using lime.extension.ArrayHelper;
 using Lambda;
+using StringTools;
 
 class Main
 {
+	private static final DefaultProjectFiles:ReadOnlyArray<String> = ["project.xml", "Project.xml", "project.hxp", "project.lime"];
 	private static var instance:Main;
 
 	private var context:ExtensionContext;
 	private var displayArgumentsProvider:DisplayArgsProvider;
-	private var disposables:Array<{function dispose():Void;}>;
+	private var disposables:Array<{function dispose():Void;}> = [];
 	private var editTargetFlagsItem:StatusBarItem;
 	private var hasProjectFile:Bool;
+	private var isProjectFileDirty:Bool = false;
 	private var initialized:Bool;
 	private var isProviderActive:Bool;
 	private var selectTargetItem:StatusBarItem;
@@ -59,11 +63,7 @@ class Main
 
 			if (rootPath != null)
 			{
-				// TODO: support custom project file references
-
-				var files = ["project.xml", "Project.xml", "project.hxp", "project.lime"];
-
-				for (file in files)
+				for (file in DefaultProjectFiles)
 				{
 					if (FileSystem.exists(rootPath + "/" + file))
 					{
@@ -77,8 +77,6 @@ class Main
 
 	private function construct():Void
 	{
-		disposables = [];
-
 		selectTargetItem = window.createStatusBarItem(Left, 9);
 		selectTargetItem.tooltip = "Select Lime Target Configuration";
 		selectTargetItem.command = "lime.selectTarget";
@@ -90,16 +88,12 @@ class Main
 
 		disposables.push(commands.registerCommand("lime.selectTarget", selectTargetItem_onCommand));
 		disposables.push(commands.registerCommand("lime.editTargetFlags", editTargetFlagsItem_onCommand));
+		disposables.push(commands.registerCommand("lime.refreshCodeCompletion", refreshCodeCompletion));
 		disposables.push(tasks.registerTaskProvider("lime", this));
 	}
 
 	private function deconstruct():Void
 	{
-		if (disposables == null)
-		{
-			return;
-		}
-
 		for (disposable in disposables)
 		{
 			disposable.dispose();
@@ -107,8 +101,10 @@ class Main
 
 		selectTargetItem = null;
 		editTargetFlagsItem = null;
+		displayArgumentsProvider = null;
+		isProjectFileDirty = false;
 
-		disposables = null;
+		disposables = [];
 		initialized = false;
 	}
 
@@ -128,7 +124,7 @@ class Main
 		}
 		else
 		{
-			api.registerDisplayArgumentsProvider("Lime", displayArgumentsProvider);
+			disposables.push(api.registerDisplayArgumentsProvider("Lime", displayArgumentsProvider));
 		}
 	}
 
@@ -351,6 +347,14 @@ class Main
 		getVshaxe().haxeExecutable.onDidChangeConfiguration(function(_) updateHaxeEnvironment());
 		updateHaxeEnvironment();
 
+		var watcher = workspace.createFileSystemWatcher("**/*.{xml,hxp,lime}", false, false, false);
+		context.subscriptions.push(watcher.onDidCreate(projectFileWatcher_onDidCreateOrDelete));
+		context.subscriptions.push(watcher.onDidChange(projectFileWatcher_onDidChange));
+		context.subscriptions.push(watcher.onDidDelete(projectFileWatcher_onDidCreateOrDelete));
+		context.subscriptions.push(watcher);
+
+		context.subscriptions.push(window.onDidChangeActiveTextEditor(window_onDidChangeActiveTextEditor));
+
 		initialized = true;
 	}
 
@@ -371,6 +375,69 @@ class Main
 		}
 
 		haxeEnvironment = env;
+	}
+
+	private function isProjectFile(uri:Uri)
+	{
+		var filePath = uri.fsPath;
+		var rootPath = workspace.workspaceFolders[0].uri.fsPath;
+		if (filePath.startsWith(rootPath))
+		{
+			filePath = filePath.substr(rootPath.length + 1); // relative path
+		}
+		return DefaultProjectFiles.indexOf(filePath) != -1 || Path.normalize(filePath) == Path.normalize(getProjectFile());
+	}
+
+	private function projectFileWatcher_onDidCreateOrDelete(uri:Uri)
+	{
+		if (isProjectFile(uri))
+		{
+			refresh();
+		}
+	}
+
+	private function projectFileWatcher_onDidChange(uri:Uri)
+	{
+		if (isProjectFile(uri))
+		{
+			isProjectFileDirty = true;
+		}
+	}
+
+	private function window_onDidChangeActiveTextEditor(editor:Null<TextEditor>)
+	{
+		if (!hasProjectFile || !isProviderActive || !isProjectFileDirty) return;
+		if (editor == null || editor.document.languageId != "haxe") return;
+
+		if (workspace.getConfiguration("lime").get("promptToRefreshCompletion", false))
+		{
+			// show a prompt once when we switch to a Haxe file and project file is dirty
+			window.showInformationMessage("Project file changes detected, run `lime update` to refresh code completion?", "Yes", "No").then(function(choice)
+			{
+				if (choice == "Yes")
+				{
+					refreshCodeCompletion();
+				}
+			});
+		}
+		else
+		{
+			refreshCodeCompletion();
+		}
+		isProjectFileDirty = false;
+	}
+
+	private function refreshCodeCompletion()
+	{
+		window.withProgress({title: "Lime: Refreshing Code Completion...", location: Window}, function(_, _)
+		{
+			return new Promise(function(resolve, _)
+			{
+				var commandLine = limeExecutable + " " + getCommandArguments("update", getTargetItem());
+				ChildProcess.execSync(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath});
+				updateDisplayArguments(() -> resolve(null));
+			});
+		});
 	}
 
 	@:keep @:expose("activate") public static function activate(context:ExtensionContext)
@@ -788,9 +855,13 @@ class Main
 		updateDisplayArguments();
 	}
 
-	private function updateDisplayArguments():Void
+	private function updateDisplayArguments(?callback:() -> Void):Void
 	{
-		if (!hasProjectFile || !isProviderActive) return;
+		if (!hasProjectFile || !isProviderActive)
+		{
+			if (callback != null) callback();
+			return;
+		}
 
 		var targetItem = getTargetItem();
 		var commandLine = limeExecutable + " " + getCommandArguments("display", targetItem);
@@ -817,6 +888,8 @@ class Main
 			{
 				displayArgumentsProvider.update(stdout.toString());
 			}
+
+			if (callback != null) callback();
 		});
 	}
 

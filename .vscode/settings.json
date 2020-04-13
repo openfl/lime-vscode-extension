@@ -1,7 +1,7 @@
 {
     "editor.insertSpaces": false,
     "files.trimTrailingWhitespace": false,
-    "haxe.displayConfigurations": [
+    "haxe.configurations": [
         ["build.hxml"]
     ],
     "haxe.diagnosticsPathFilter": "${workspaceRoot}/(?!syntaxes/cases)",

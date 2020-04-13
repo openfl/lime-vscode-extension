@@ -3,11 +3,12 @@ package lime.extension;
 class DisplayArgsProvider
 {
 	public var description(default, never):String = "Project using Lime/OpenFL command-line tools";
+	public var parsedArguments(default, null):Array<String>;
 
 	private var activationChangedCallback:Bool->Void;
 	private var api:Vshaxe;
 	private var arguments:String;
-	private var parsedArguments:Array<String>;
+
 	private var updateArgumentsCallback:Array<String>->Void;
 
 	public function new(api:Vshaxe, activationChangedCallback:Bool->Void)

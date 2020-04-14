@@ -1,5 +1,12 @@
 # Change Log
 
+1.4.0 (04/14/2020)
+------------------
+
+* Added support for running `lime update` on project changes
+* Added `lime.promptToRefreshCompletion` to disable automatic updating
+* Added initial support for HashLink debugging
+
 1.3.2 (03/02/2020)
 ------------------
 

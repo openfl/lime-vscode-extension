@@ -4,16 +4,21 @@
 		{
 			"type": "hxml",
 			"file": "build-debug.hxml",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
+			"group": "build"
 		},
 		{
 			"type": "hxml",
 			"file": "build.hxml",
 			"group": {
 				"kind": "test",
+				"isDefault": true
+			}
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"group": {
+				"kind": "build",
 				"isDefault": true
 			}
 		}

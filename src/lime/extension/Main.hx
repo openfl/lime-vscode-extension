@@ -429,7 +429,7 @@ class Main
 
 	private function refreshCodeCompletion()
 	{
-		window.withProgress({title: "Lime: Refreshing Code Completion...", location: Window}, function(_, _)
+		window.withProgress({title: "Lime: Refreshing Code Completion...", location: ProgressLocation.Window}, function(_, _)
 		{
 			return new Promise(function(resolve, _)
 			{

@@ -21,6 +21,7 @@ class Main
 
 	private var context:ExtensionContext;
 	private var displayArgumentsProvider:DisplayArgsProvider;
+	private var displayArgumentsProviderDisposable:Disposable;
 	private var disposables:Array<{function dispose():Void;}> = [];
 	private var editTargetFlagsItem:StatusBarItem;
 	private var hasProjectFile:Bool;
@@ -102,7 +103,6 @@ class Main
 
 		selectTargetItem = null;
 		editTargetFlagsItem = null;
-		displayArgumentsProvider = null;
 		isProjectFileDirty = false;
 
 		disposables = [];
@@ -125,7 +125,7 @@ class Main
 		}
 		else
 		{
-			disposables.push(api.registerDisplayArgumentsProvider("Lime", displayArgumentsProvider));
+			displayArgumentsProviderDisposable = api.registerDisplayArgumentsProvider("Lime", displayArgumentsProvider);
 		}
 	}
 
@@ -581,6 +581,13 @@ class Main
 			deconstruct();
 		}
 
+		if (!hasProjectFile && displayArgumentsProviderDisposable != null)
+		{
+			displayArgumentsProviderDisposable.dispose();
+			displayArgumentsProviderDisposable = null;
+			displayArgumentsProvider = null;
+		}
+
 		if (initialized)
 		{
 			updateTargetItems();
@@ -795,9 +802,9 @@ class Main
 					// search for an existing "lime test" task
 					var testTaskName = getCommandArguments("test", targetItem) + " -nolaunch";
 					var existingTask = Vscode.tasks.taskExecutions.copy().find((item) ->
-						{
-							return item.task.definition.type == "lime" && item.task.name == testTaskName;
-						});
+					{
+						return item.task.definition.type == "lime" && item.task.name == testTaskName;
+					});
 					if (existingTask == null)
 					{
 						// if the "test" task doesn't exist yet, run it first

@@ -21,9 +21,9 @@ class DisplayArgsProvider
 	{
 		updateArgumentsCallback = provideArguments;
 
-		if (arguments != null)
+		if (parsedArguments != null)
 		{
-			update(arguments);
+			updateArguments();
 		}
 
 		activationChangedCallback(true);

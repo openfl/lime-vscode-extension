@@ -243,6 +243,9 @@
 			}
 		]
 	},
+	"dependencies": {
+		"hasbin": "^1.2.3"
+	},
 	"devDependencies": {
 		"haxe": "^5.2.1"
 	},

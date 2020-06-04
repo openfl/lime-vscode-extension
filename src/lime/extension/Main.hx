@@ -222,6 +222,10 @@ class Main
 		{
 			executable = '"' + executable + '"';
 		}
+		if (executable == "lime" && !Hasbin.sync(executable))
+		{
+			executable = "haxelib run lime";
+		}
 		return executable;
 	}
 

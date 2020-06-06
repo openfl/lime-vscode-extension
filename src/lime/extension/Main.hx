@@ -34,6 +34,7 @@ class Main
 	private var limeExecutable:String;
 	private var limeTargets:Map<String, String>;
 	private var limeVersion = new SemVer(0, 0, 0);
+	private var limeReadyProcess:js.node.child_process.ChildProcess;
 
 	public function new(context:ExtensionContext)
 	{
@@ -221,6 +222,10 @@ class Main
 		if (FileSystem.exists(executable))
 		{
 			executable = '"' + executable + '"';
+		}
+		if (executable == "lime" && !Hasbin.sync(executable))
+		{
+			executable = "haxelib run lime";
 		}
 		return executable;
 	}
@@ -559,7 +564,7 @@ class Main
 			limeExecutable = getExecutable();
 			var limeExecutableChanged = oldLimeExecutable != limeExecutable;
 
-			if (isProviderActive && (!initialized || limeExecutableChanged))
+			if (isProviderActive && (!initialized || limeExecutableChanged) && isLimeReady())
 			{
 				if (!initialized)
 				{
@@ -581,6 +586,87 @@ class Main
 			updateTargetItems();
 			updateStatusBarItems();
 		}
+	}
+
+	private function isLimeReady():Bool
+	{
+		if (limeReadyProcess != null)
+		{
+			return false;
+		}
+		var pathResult = ChildProcess.spawnSync("haxelib path lime", {shell: true});
+		if (pathResult.status != null && pathResult.status != 0)
+		{
+			var installNowLabel = "Install Now";
+			Vscode.window.showWarningMessage("Haxelib \"lime\" is required for this workspace. Would you like to install it?", installNowLabel)
+				.then((buttonLabel) ->
+				{
+					if (buttonLabel == installNowLabel)
+					{
+						Vscode.window.withProgress({location: ProgressLocation.Window}, (progress, token) ->
+						{
+							progress.report({message: "Installing Lime…"});
+							return new Promise((resolve, reject) ->
+							{
+								limeReadyProcess = ChildProcess.exec("haxelib install lime --quiet", (error, stdout, stderr) ->
+								{
+									limeReadyProcess = null;
+									if (error == null)
+									{
+										progress.report({message: "Setting up Lime…"});
+										limeReadyProcess = ChildProcess.exec("haxelib run lime setup", (error, stdout, stderr) ->
+										{
+											limeReadyProcess = null;
+											resolve(null);
+											if (error == null)
+											{
+												refresh();
+											}
+											else
+											{
+												Vscode.window.showErrorMessage("Lime setup failed.");
+											}
+										});
+										return;
+									}
+									else
+									{
+										resolve(null);
+										Vscode.window.showErrorMessage("Lime installation failed.");
+									}
+								});
+							});
+						});
+					}
+				});
+			return false;
+		}
+		if (!Hasbin.sync("lime"))
+		{
+			// if lime was installed already, set up the alias, if needed
+			Vscode.window.withProgress({location: ProgressLocation.Window}, (progress, token) ->
+			{
+				progress.report({message: "Setting up Lime alias…"});
+				return new Promise((resolve, reject) ->
+				{
+					limeReadyProcess = ChildProcess.exec("haxelib run lime setup -alias", (error, stdout, stderr) ->
+					{
+						limeReadyProcess = null;
+						resolve(null);
+						if (error == null)
+						{
+							refresh();
+						}
+						else
+						{
+							Vscode.window.showErrorMessage("Lime setup alias failed.");
+						}
+					});
+				});
+			});
+			return false;
+		}
+		return true;
 	}
 
 	private function registerDebugConfigurationProviders():Void

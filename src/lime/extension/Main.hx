@@ -620,20 +620,30 @@ class Main
 									limeReadyProcess = null;
 									if (error == null)
 									{
-										progress.report({message: "Setting up Lime…"});
-										limeReadyProcess = ChildProcess.exec("haxelib run lime setup", (error, stdout, stderr) ->
+										// other platforms may require sudo, so
+										// we can't setup automatically
+										if (Sys.systemName() == "Windows")
 										{
-											limeReadyProcess = null;
+											progress.report({message: "Setting up Lime…"});
+											limeReadyProcess = ChildProcess.exec("haxelib run lime setup", (error, stdout, stderr) ->
+											{
+												limeReadyProcess = null;
+												resolve(null);
+												if (error == null)
+												{
+													refresh();
+												}
+												else
+												{
+													Vscode.window.showErrorMessage("Lime setup failed.");
+												}
+											});
+										}
+										else
+										{
 											resolve(null);
-											if (error == null)
-											{
-												refresh();
-											}
-											else
-											{
-												Vscode.window.showErrorMessage("Lime setup failed.");
-											}
-										});
+											refresh();
+										}
 										return;
 									}
 									else
@@ -648,9 +658,12 @@ class Main
 				});
 			return false;
 		}
-		if (!Hasbin.sync("lime"))
+		if (!Hasbin.sync("lime") && Sys.systemName() == "Windows")
 		{
-			// if lime was installed already, set up the alias, if needed
+			// if lime was installed already, set up the alias, if needed.
+			// this works on windows automatically. however, for mac and linux,
+			// lime requires sudo to create the alias. in that case, the
+			// extension will fall back to `haxelib run lime` instead
 			Vscode.window.withProgress({location: ProgressLocation.Window}, (progress, token) ->
 			{
 				progress.report({message: "Setting up Lime alias…"});

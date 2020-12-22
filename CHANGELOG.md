@@ -1,5 +1,12 @@
 # Change Log
 
+1.4.1 (12/21/2020)
+------------------
+
+* Improved display arguments to update when `lime.projectFile` changes
+* Fixed the current working directory when using `lime.projectFile` in a sub-directory
+
+
 1.4.0 (04/14/2020)
 ------------------
 

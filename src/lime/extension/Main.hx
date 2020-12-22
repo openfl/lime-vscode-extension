@@ -802,9 +802,13 @@ class Main
 			{
 				var output = ChildProcess.execSync(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath});
 				outputFile = StringTools.trim(Std.string(output));
-				var hxml:String = Fs.readFileSync(outputFile, "UTF-8");
-				hxml += "\n--cwd \"" + getProjectDirectory() + "\"";
-				Fs.writeFileSync(outputFile, hxml);
+				var projectDirectory = getProjectDirectory();
+				if (projectDirectory != "")
+				{
+					var hxml:String = Fs.readFileSync(outputFile, "UTF-8");
+					hxml += "\n--cwd \"" + projectDirectory + "\"";
+					Fs.writeFileSync(outputFile, hxml);
+				}
 			}
 			catch (e:Dynamic)
 			{
@@ -1017,7 +1021,11 @@ class Main
 			else
 			{
 				var hxml = stdout.toString();
-				hxml += "\n--cwd \"" + getProjectDirectory() + "\"";
+				var projectDirectory = getProjectDirectory();
+				if (projectDirectory != "")
+				{
+					hxml += "\n--cwd \"" + projectDirectory + "\"";
+				}
 				displayArgumentsProvider.update(hxml);
 			}
 

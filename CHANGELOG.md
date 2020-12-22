@@ -1,5 +1,11 @@
 # Change Log
 
+1.4.2 (12/21/2020)
+------------------
+
+* Fixed support for `lime.projectFile` at the top-level of the workspace
+
+
 1.4.1 (12/21/2020)
 ------------------
 

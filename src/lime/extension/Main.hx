@@ -4,6 +4,7 @@ import js.lib.Promise;
 import haxe.ds.ReadOnlyArray;
 import js.node.Buffer;
 import js.node.ChildProcess;
+import js.node.Fs;
 import sys.FileSystem;
 import haxe.io.Path;
 import haxe.DynamicAccess;
@@ -33,6 +34,7 @@ class Main
 	private var haxeEnvironment:DynamicAccess<String>;
 	private var limeCommands:Array<LimeCommand>;
 	private var limeExecutable:String;
+	private var limeProjectFile:String;
 	private var limeTargets:Map<String, String>;
 	private var limeVersion = new SemVer(0, 0, 0);
 	private var limeReadyProcess:js.node.child_process.ChildProcess;
@@ -248,20 +250,37 @@ class Main
 		}
 	}
 
+	private function getProjectDirectory():String
+	{
+		var projectFile = getProjectFile();
+		if (projectFile != "")
+		{
+			var path = Path.normalize(StringTools.trim(projectFile)).split("/");
+			path.pop();
+			// path.unshift(workspace.workspaceFolders[0].uri.fsPath);
+			return path.join("/");
+		}
+		else
+		{
+			return workspace.workspaceFolders[0].uri.fsPath;
+		}
+	}
+
 	public function getProjectFile():String
 	{
 		var config = workspace.getConfiguration("lime");
 
 		if (config.has("projectFile"))
 		{
-			var projectFile = Std.string(config.get("projectFile"));
-			if (projectFile == "null") projectFile = "";
-			return projectFile;
+			limeProjectFile = Std.string(config.get("projectFile"));
+			if (limeProjectFile == "null") limeProjectFile = "";
 		}
 		else
 		{
-			return "";
+			limeProjectFile = "";
 		}
+
+		return limeProjectFile;
 	}
 
 	public function getTargetFlags():String
@@ -551,7 +570,9 @@ class Main
 
 	private function refresh():Void
 	{
+		var oldLimeProjectFile = limeProjectFile;
 		checkHasProjectFile();
+		var limeProjectFileChanged = oldLimeProjectFile != limeProjectFile;
 
 		if (hasProjectFile)
 		{
@@ -564,7 +585,7 @@ class Main
 			limeExecutable = getExecutable();
 			var limeExecutableChanged = oldLimeExecutable != limeExecutable;
 
-			if (isProviderActive && (!initialized || limeExecutableChanged) && isLimeReady())
+			if (isProviderActive && (!initialized || limeExecutableChanged || limeProjectFileChanged) && isLimeReady())
 			{
 				if (!initialized)
 				{
@@ -781,6 +802,9 @@ class Main
 			{
 				var output = ChildProcess.execSync(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath});
 				outputFile = StringTools.trim(Std.string(output));
+				var hxml:String = Fs.readFileSync(outputFile, "UTF-8");
+				hxml += "\n--cwd \"" + getProjectDirectory() + "\"";
+				Fs.writeFileSync(outputFile, hxml);
 			}
 			catch (e:Dynamic)
 			{
@@ -992,7 +1016,9 @@ class Main
 			}
 			else
 			{
-				displayArgumentsProvider.update(stdout.toString());
+				var hxml = stdout.toString();
+				hxml += "\n--cwd \"" + getProjectDirectory() + "\"";
+				displayArgumentsProvider.update(hxml);
 			}
 
 			if (callback != null) callback();

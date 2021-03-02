@@ -227,7 +227,21 @@ class Main
 		}
 		if (executable == "lime" && !Hasbin.sync(executable))
 		{
-			executable = "haxelib run lime";
+			executable = getHaxelibExecutable() + " run lime";
+		}
+		return executable;
+	}
+
+	private function getHaxelibExecutable():String
+	{
+		var executable = workspace.getConfiguration("haxelib").get("executable");
+		if (executable == null)
+		{
+			executable = "haxelib";
+		}
+		else if (FileSystem.exists(executable)) // check if it is a path
+		{
+			executable = '"' + executable + '"';
 		}
 		return executable;
 	}
@@ -622,7 +636,8 @@ class Main
 		{
 			return false;
 		}
-		var pathResult = ChildProcess.spawnSync("haxelib path lime", {shell: true});
+		var haxelibExe = getHaxelibExecutable();
+		var pathResult = ChildProcess.spawnSync(haxelibExe + " path lime", {shell: true});
 		if (pathResult.status != null && pathResult.status != 0)
 		{
 			var installNowLabel = "Install Now";
@@ -636,7 +651,7 @@ class Main
 							progress.report({message: "Installing Lime…"});
 							return new Promise((resolve, reject) ->
 							{
-								limeReadyProcess = ChildProcess.exec("haxelib install lime --quiet", (error, stdout, stderr) ->
+								limeReadyProcess = ChildProcess.exec(haxelibExe + " install lime --quiet", (error, stdout, stderr) ->
 								{
 									limeReadyProcess = null;
 									if (error == null)
@@ -646,7 +661,7 @@ class Main
 										if (Sys.systemName() == "Windows")
 										{
 											progress.report({message: "Setting up Lime…"});
-											limeReadyProcess = ChildProcess.exec("haxelib run lime setup", (error, stdout, stderr) ->
+											limeReadyProcess = ChildProcess.exec(haxelibExe + " run lime setup", (error, stdout, stderr) ->
 											{
 												limeReadyProcess = null;
 												resolve(null);
@@ -690,7 +705,7 @@ class Main
 				progress.report({message: "Setting up Lime alias…"});
 				return new Promise((resolve, reject) ->
 				{
-					limeReadyProcess = ChildProcess.exec("haxelib run lime setup -alias", (error, stdout, stderr) ->
+					limeReadyProcess = ChildProcess.exec(haxelibExe + " run lime setup -alias", (error, stdout, stderr) ->
 					{
 						limeReadyProcess = null;
 						resolve(null);

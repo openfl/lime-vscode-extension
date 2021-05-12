@@ -768,20 +768,27 @@ class Main
 					}
 
 				case "html5":
-					if (browserType == "firefox"
-						&& !hasExtension("firefox-devtools.vscode-firefox-debug", true,
+					if (browserType == "firefox")
+					{
+						if (!hasExtension("firefox-devtools.vscode-firefox-debug", true,
 							"Debugging HTML5 with Firefox requires the \"Debugger for Firefox\" extension"))
-					{
-						return js.Lib.undefined;
+						{
+							return js.Lib.undefined;
+						}
 					}
-					else if (browserType == "edge"
-						&& !hasExtension("msjsdiag.debugger-for-edge", true, "Debugging HTML5 with Edge requires the \"Debugger for Edge\" extension"))
+					else if (browserType == "edge")
 					{
-						return js.Lib.undefined;
+						if (!hasExtension("msjsdiag.debugger-for-edge", true, "Debugging HTML5 with Edge requires the \"Debugger for Edge\" extension"))
+						{
+							return js.Lib.undefined;
+						}
 					}
-					else if (!hasExtension("msjsdiag.debugger-for-chrome", true, "Debugging HTML5 requires the \"Debugger for Chrome\" extension"))
+					else
 					{
-						return js.Lib.undefined;
+						if (!hasExtension("msjsdiag.debugger-for-chrome", true, "Debugging HTML5 requires the \"Debugger for Chrome\" extension"))
+						{
+							return js.Lib.undefined;
+						}
 					}
 
 				default:

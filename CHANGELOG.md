@@ -1,5 +1,11 @@
 # Change Log
 
+1.4.3 (09/28/2021)
+------------------
+
+* Updated HTML5 debugging to use built-in Edge and Chrome debuggers
+ 
+
 1.4.2 (12/21/2020)
 ------------------
 

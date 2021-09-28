@@ -751,7 +751,7 @@ class Main
 				return js.Lib.undefined;
 			}
 
-			var browserType = workspace.getConfiguration("lime").get("browser", "chrome");
+			var browserName = workspace.getConfiguration("lime").get("browser", "chrome");
 
 			switch (target)
 			{
@@ -768,18 +768,9 @@ class Main
 					}
 
 				case "html5":
-					if (browserType == "firefox"
+					if (browserName == "firefox"
 						&& !hasExtension("firefox-devtools.vscode-firefox-debug", true,
 							"Debugging HTML5 with Firefox requires the \"Debugger for Firefox\" extension"))
-					{
-						return js.Lib.undefined;
-					}
-					else if (browserType == "edge"
-						&& !hasExtension("msjsdiag.debugger-for-edge", true, "Debugging HTML5 with Edge requires the \"Debugger for Edge\" extension"))
-					{
-						return js.Lib.undefined;
-					}
-					else if (!hasExtension("msjsdiag.debugger-for-chrome", true, "Debugging HTML5 requires the \"Debugger for Chrome\" extension"))
 					{
 						return js.Lib.undefined;
 					}
@@ -834,7 +825,14 @@ class Main
 					// TODO: Get source maps working
 					// TODO: Let Lime tell us what server and port
 					// TODO: Support other debuggers? Firefox debugger?
-					config.type = browserType;
+					var debuggerType = switch (browserName)
+					{
+						case "firefox": "firefox";
+						case "edge": "pwa-msedge";
+						default: "pwa-chrome";
+					}
+
+					config.type = debuggerType;
 					config.url = "http://127.0.0.1:3000";
 					config.sourceMaps = true;
 					config.smartStep = true;

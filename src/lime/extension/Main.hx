@@ -903,22 +903,28 @@ class Main
 					}
 				}
 
-				// TODO: figure out a nicer way to do this
-				config.hl = Path.join([
-					limePath,
-					"templates/bin/hl",
-					switch (Sys.systemName())
-					{
-						case "Windows":
-							"windows/hl.exe";
-						case "Linux":
-							"linux/hl";
-						case "Mac":
-							"mac/hl";
-						case other:
-							throw 'unsupported OS $other';
-					}
-				]);
+				if (limeVersion >= new SemVer(8, 0, 0))
+				{
+					config.hl = Path.join([getProjectDirectory(), outputFile]);
+				}
+				else
+				{
+					config.hl = Path.join([
+						limePath,
+						"templates/bin/hl",
+						switch (Sys.systemName())
+						{
+							case "Windows":
+								"windows/hl.exe";
+							case "Linux":
+								"linux/hl";
+							case "Mac":
+								"mac/hl";
+							case other:
+								throw 'unsupported OS $other';
+						}
+					]);
+				}
 				if (!FileSystem.exists(config.hl))
 				{
 					throw "Unable to locate HL binary - maybe your Lime version is too old.";

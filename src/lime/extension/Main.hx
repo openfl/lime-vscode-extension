@@ -753,6 +753,7 @@ class Main
 
 			var browserName = workspace.getConfiguration("lime").get("browser", "chrome");
 			var airAdlPath:String = null;
+			var flashDebugFDB = true;
 
 			switch (target)
 			{
@@ -786,9 +787,22 @@ class Main
 					}
 
 				case "flash":
-					if (!hasExtension("vshaxe.haxe-debug", true, "Debugging Flash requires the \"Flash Debugger\" extension"))
+					// first check if either "Flash Debugger" or
+					// "Debugger for SWF" exists, but don't ask to install
+					// anything yet
+					if (!hasExtension("vshaxe.haxe-debug", false))
 					{
-						return js.Lib.undefined;
+						flashDebugFDB = false;
+						if (!hasExtension("bowlerhatllc.vscode-swf-debug", false))
+						{
+							flashDebugFDB = true;
+							// if neither is installed, ask to install
+							// "Flash Debugger" for backwards compatibilty
+							if (!hasExtension("vshaxe.haxe-debug", true, "Debugging Flash requires the \"Flash Debugger\" extension"))
+							{
+								return js.Lib.undefined;
+							}
+						}
 					}
 
 				case "html5":
@@ -845,7 +859,7 @@ class Main
 					config.runtimeExecutable = airAdlPath;
 
 				case "flash":
-					config.type = "fdb";
+					config.type = flashDebugFDB ? "fdb" : "swf";
 					config.program = "${workspaceFolder}/" + outputFile;
 
 				case "hl":

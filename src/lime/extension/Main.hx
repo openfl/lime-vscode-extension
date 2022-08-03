@@ -744,7 +744,7 @@ class Main
 				targetLabel = limeTargets.get(target);
 			}
 
-			var supportedTargets = ["flash", "windows", "mac", "linux", "html5", "hl"];
+			var supportedTargets = ["air", "flash", "windows", "mac", "linux", "html5", "hl"];
 			if (supportedTargets.indexOf(target) == -1)
 			{
 				window.showWarningMessage("Debugging " + targetLabel + " is not supported");
@@ -752,12 +752,36 @@ class Main
 			}
 
 			var browserName = workspace.getConfiguration("lime").get("browser", "chrome");
+			var airAdlPath:String = null;
 
 			switch (target)
 			{
 				case "hl":
 					if (!hasExtension("HaxeFoundation.haxe-hl", true, "Debugging HashLink requires the \"HashLink Debugger\" extension"))
 					{
+						return js.Lib.undefined;
+					}
+
+				case "air":
+					if (!hasExtension("bowlerhatllc.vscode-swf-debug", true, "Debugging AIR requires the \"Debugger for SWF\" extension"))
+					{
+						return js.Lib.undefined;
+					}
+					var airSDKPath = Std.string(ChildProcess.execSync("lime config AIR_SDK", {cwd: workspace.workspaceFolders[0].uri.fsPath})).trim();
+					if (!FileSystem.isDirectory(airSDKPath))
+					{
+						window.showWarningMessage("Debugging AIR requires the path to the AIR SDK to be configured with the \"lime config AIR_SDK\" command");
+						return js.Lib.undefined;
+					}
+					var adlFileName = "adl";
+					if (Sys.systemName() == "Windows")
+					{
+						adlFileName += ".exe";
+					}
+					airAdlPath = Path.join([airSDKPath, "bin", adlFileName]);
+					if (!FileSystem.exists(airAdlPath))
+					{
+						window.showWarningMessage("Debugging AIR requires an AIR SDK that contains bin/adl");
 						return js.Lib.undefined;
 					}
 
@@ -813,6 +837,13 @@ class Main
 
 			switch (target)
 			{
+				case "air":
+					config.type = "swf";
+					config.program = "${workspaceFolder}/bin/air/application.xml";
+					config.profile = "desktop";
+					config.rootDirectory = "${workspaceFolder}/bin/air/bin";
+					config.runtimeExecutable = airAdlPath;
+
 				case "flash":
 					config.type = "fdb";
 					config.program = "${workspaceFolder}/" + outputFile;

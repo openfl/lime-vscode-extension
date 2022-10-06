@@ -38,6 +38,7 @@ class Main
 	private var limeTargets:Map<String, String>;
 	private var limeVersion = new SemVer(0, 0, 0);
 	private var limeReadyProcess:js.node.child_process.ChildProcess;
+	private var limeOutputChannel:OutputChannel;
 
 	public function new(context:ExtensionContext)
 	{
@@ -225,6 +226,9 @@ class Main
 		{
 			executable = '"' + executable + '"';
 		}
+		// try to fall back to "haxelib run lime" if lime alias is missing
+		// while the user should setup the alias, we should still try to provide
+		// a halfway decent user experience, even if they didn't
 		if (executable == "lime" && !Hasbin.sync(executable))
 		{
 			executable = "haxelib run lime";
@@ -1056,13 +1060,40 @@ class Main
 		{
 			if (err != null && err.code != 0)
 			{
-				var message = 'Lime completion setup failed. Is the lime command available? Try running "lime setup" or changing the "lime.executable" setting.';
+				// the `lime display` command can fail for a number of reasons.
+				// 1. The lime library is not actually installed
+				// 2. The user did not finish setting up lime with `haxelib run lime setup`
+				// 3. One or more libraries are not installed
+				// 4. Other project configuration issues
+				// we can customize the error message based on what we know
+				var limeExists = false;
+				if (limeExecutable == "lime")
+				{
+					limeExists = Hasbin.sync(limeExecutable);
+				}
+				else if (limeExecutable != "haxelib run lime")
+				{
+					limeExists = Fs.existsSync(limeExecutable);
+				}
+				var message = 'Failed to initialize Haxe code intelligence for Lime project.';
+				if (!limeExists)
+				{
+					// in older versions, this part was always displayed, even
+					// if the error was caused by other issues. now, it's only
+					// appended when lime is not on the system path
+					message += ' Is the lime command available? Try running "haxelib run lime setup" or changing the "lime.executable" setting.';
+				}
 				var showFullErrorLabel = "Show Full Error";
 				window.showErrorMessage(message, showFullErrorLabel).then(function(selection)
 				{
 					if (selection == showFullErrorLabel)
 					{
-						commands.executeCommand("workbench.action.toggleDevTools");
+						if (limeOutputChannel == null)
+						{
+							limeOutputChannel = window.createOutputChannel("Lime");
+						}
+						limeOutputChannel.appendLine(Std.string(err));
+						limeOutputChannel.show();
 					}
 				});
 				trace(err);

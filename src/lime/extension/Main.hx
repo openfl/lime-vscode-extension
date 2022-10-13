@@ -1051,7 +1051,7 @@ class Main
 		}
 
 		var targetItem = getTargetItem();
-		var commandLine = limeExecutable + " " + getCommandArguments("display", targetItem) + " -Ddisable-version-check";
+		var commandLine = limeExecutable + " " + getCommandArguments("display", targetItem) + " -nocolor -Ddisable-version-check";
 		var additionalArgs = getDebugArguments(targetItem, null);
 		if (additionalArgs != null) commandLine += " " + additionalArgs.join(" ");
 		commandLine = StringTools.replace(commandLine, "-verbose", "");

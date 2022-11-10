@@ -856,9 +856,16 @@ class Main
 			switch (target)
 			{
 				case "air":
+					var profile = "desktop";
+					var findProfile = ~/-(android|ios)?/;
+					if (findProfile.match(getTargetFlags()))
+					{
+						profile = "mobileDevice";
+					}
+
 					config.type = "swf";
 					config.program = "${workspaceFolder}/bin/air/application.xml";
-					config.profile = "desktop";
+					config.profile = profile;
 					config.rootDirectory = "${workspaceFolder}/bin/air/bin";
 					config.runtimeExecutable = airAdlPath;
 

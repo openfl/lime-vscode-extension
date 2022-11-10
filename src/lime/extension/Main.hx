@@ -881,8 +881,15 @@ class Main
 						default: "pwa-chrome";
 					}
 
+					var port = "3000";
+					var findPort = ~/--port=(\d+)/;
+					if (findPort.match(getTargetFlags()))
+					{
+						port = findPort.matched(1);
+					}
+
 					config.type = debuggerType;
-					config.url = "http://127.0.0.1:3000";
+					config.url = 'http://127.0.0.1:$port';
 					config.sourceMaps = true;
 					config.smartStep = true;
 					config.webRoot = "${workspaceFolder}/" + Path.directory(outputFile);

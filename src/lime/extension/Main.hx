@@ -66,16 +66,18 @@ class Main
 			// TODO: multi-folder support
 
 			var wsFolder = if (workspace.workspaceFolders == null) null else workspace.workspaceFolders[0];
-			var rootPath = wsFolder.uri.fsPath;
-
-			if (rootPath != null)
+			if (wsFolder != null)
 			{
-				for (file in DefaultProjectFiles)
+				var rootPath = wsFolder.uri.fsPath;
+				if (rootPath != null)
 				{
-					if (FileSystem.exists(rootPath + "/" + file))
+					for (file in DefaultProjectFiles)
 					{
-						hasProjectFile = true;
-						break;
+						if (FileSystem.exists(rootPath + "/" + file))
+						{
+							hasProjectFile = true;
+							break;
+						}
 					}
 				}
 			}

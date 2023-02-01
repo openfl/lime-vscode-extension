@@ -42,7 +42,9 @@
 		"workspaceContains:**/*.lime",
 		"workspaceContains:**/project.xml",
 		"workspaceContains:**/Project.xml",
-		"onLanguage:haxe"
+		"onLanguage:haxe",
+		"onCommand:lime.createLimeProject",
+		"onCommand:lime.createOpenFLProject"
 	],
 	"contributes": {
 		"configuration": {
@@ -189,6 +191,16 @@
 				"title": "Refresh Code Completion",
 				"command": "lime.refreshCodeCompletion",
 				"category": "Lime"
+			},
+			{
+				"title": "Create New Project",
+				"command": "lime.createLimeProject",
+				"category": "Lime"
+			},
+			{
+				"title": "Create New Project",
+				"command": "lime.createOpenFLProject",
+				"category": "OpenFL"
 			}
 		],
 		"debuggers": [

@@ -47,6 +47,8 @@ class Main
 		registerDebugConfigurationProviders();
 
 		context.subscriptions.push(workspace.onDidChangeConfiguration(workspace_onDidChangeConfiguration));
+		context.subscriptions.push(commands.registerCommand("lime.createLimeProject", createLimeProject_onCommand));
+		context.subscriptions.push(commands.registerCommand("lime.createOpenFLProject", createOpenFLProject_onCommand));
 		refresh();
 	}
 
@@ -1345,6 +1347,96 @@ class Main
 	{
 		refresh();
 	}
+
+	private function createLimeProject_onCommand():Void
+	{
+		createNewProject(false);
+	}
+
+	private function createOpenFLProject_onCommand():Void
+	{
+		createNewProject(true);
+	}
+
+	private static function openEmptyFolderAndCreateProject(openfl:Bool):Void
+	{
+		window.showOpenDialog({
+			title: "Open empty folder for new project",
+			canSelectFiles: false,
+			canSelectMany: false,
+			canSelectFolders: true
+		}).then((uris) ->
+			{
+				if (uris == null || uris.length == 0)
+				{
+					return;
+				}
+				var uri = uris[0];
+				if (workspace.updateWorkspaceFolders(0, 0, {uri: uri}))
+				{
+					createNewProjectAtUri(uri, openfl);
+				}
+				return;
+			}, (reason) -> {});
+	}
+
+	private static function createNewProject(openfl:Bool):Void
+	{
+		var workspaceFolders = Vscode.workspace.workspaceFolders;
+		if (workspaceFolders == null)
+		{
+			openEmptyFolderAndCreateProject(openfl);
+			return;
+		}
+
+		var items:Array<WorkspaceFolderItem> = [];
+		for (workspaceFolder in workspaceFolders)
+		{
+			items.push({label: workspaceFolder.name, detail: workspaceFolder.uri.fsPath, workspaceFolder: workspaceFolder});
+		}
+		items.push({label: "Open Folder..."});
+		window.showQuickPick(items, {title: "Create new project in folder..."}).then(result ->
+		{
+			if (result == null)
+			{
+				// nothing was chosen
+				return;
+			}
+			if (result.workspaceFolder == null)
+			{
+				openEmptyFolderAndCreateProject(openfl);
+				return;
+			}
+			createNewProjectAtUri(result.workspaceFolder.uri, openfl);
+			return;
+		}, (reason) -> {});
+	}
+
+	private static function createNewProjectAtUri(uri:Uri, openfl:Bool):Void
+	{
+		var folderName = js.node.Path.basename(uri.fsPath);
+		workspace.fs.readDirectory(uri).then(files ->
+		{
+			if (files.length == 0)
+			{
+				var command = 'haxelib run lime create project \"$folderName\" \"${uri.fsPath}\"';
+				if (openfl)
+				{
+					command += " -openfl";
+				}
+				var message = 'Creating New ${openfl ? "OpenFL" : "Lime"} Project...';
+				var terminal = Vscode.window.createTerminal({message: message});
+				terminal.sendText(command, true);
+				terminal.show();
+				return;
+			}
+			else
+			{
+				window.showErrorMessage('Failed to create new project. Workspace folder $folderName is not empty.');
+				return;
+			}
+		}, (reason) -> {});
+	}
 }
 
 @:enum private abstract LimeCommand(String) from String to String
@@ -1377,4 +1469,10 @@ private typedef TargetItem =
 	> QuickPickItem,
 	var target:String;
 	var args:Array<String>;
+}
+
+private typedef WorkspaceFolderItem =
+{
+	> QuickPickItem,
+	@:optional var workspaceFolder:WorkspaceFolder;
 }

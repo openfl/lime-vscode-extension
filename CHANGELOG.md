@@ -1,5 +1,14 @@
 # Change Log
 
+1.5.0 (02/??/2023)
+------------------
+
+* Improved messaging when `lime display` command fails. Does not suggest `lime setup` as frequently, and displays the full error text in an output channel instead of devtools.
+* Fixed HashLink debugging for Lime 8.0.0
+* Fixed web browser launching with wrong port if HTML5 target flags includes a customized `--port` option
+* Debugging in Flash Player defaults to "Flash Debugger" extension, but may also use "Debugger for SWF" extension
+* Added support for Adobe AIR debugging if "Debugger for SWF" extension is installed
+
 1.4.3 (09/28/2021)
 ------------------
 

@@ -630,6 +630,11 @@ class Main
 		{
 			return false;
 		}
+		if (limeExecutable != "lime" && limeExecutable != "haxelib run lime")
+		{
+			// it's a custom executable, so don't install lime or set up the alias
+			return true;
+		}
 		var pathResult = ChildProcess.spawnSync("haxelib path lime", {shell: true});
 		if (pathResult.status != null && pathResult.status != 0)
 		{

@@ -703,7 +703,7 @@ class Main
 				progress.report({message: "Setting up Lime alias…"});
 				return new Promise((resolve, reject) ->
 				{
-					limeReadyProcess = ChildProcess.exec("haxelib run lime setup -alias", (error, stdout, stderr) ->
+					limeReadyProcess = ChildProcess.exec("haxelib run lime setup -alias -y", (error, stdout, stderr) ->
 					{
 						limeReadyProcess = null;
 						resolve(null);

@@ -174,7 +174,7 @@ class Main
 		var args = (targetItem.args != null ? targetItem.args.copy() : []);
 
 		var projectFile = getProjectFile();
-		if (projectFile != "")
+		if (projectFile != "" && projectFile != "project.xml")
 		{
 			return StringTools.trim(command + " " + projectFile + " " + target + " " + args.join(" "));
 		}

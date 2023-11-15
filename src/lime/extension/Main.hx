@@ -635,6 +635,12 @@ class Main
 			// it's a custom executable, so don't install lime or set up the alias
 			return true;
 		}
+		var haxelibConfigResult = ChildProcess.spawnSync("haxelib config", {shell: true});
+		if (haxelibConfigResult.status != null && haxelibConfigResult.status != 0)
+		{
+			// don't ask to install Lime if `haxelib setup` hasn't been run yet
+			return false;
+		}
 		var pathResult = ChildProcess.spawnSync("haxelib path lime", {shell: true});
 		if (pathResult.status != null && pathResult.status != 0)
 		{

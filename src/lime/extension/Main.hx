@@ -176,6 +176,17 @@ class Main
 		var projectFile = getProjectFile();
 		if (projectFile != "" && projectFile != "project.xml")
 		{
+			if (Sys.systemName() == "Windows")
+			{
+				// on windows, paths may be wrapped in quotes to include spaces
+				projectFile = "\"" + projectFile + "\"";
+			}
+			else
+			{
+				// on other platforms, a backslash preceding a string will
+				// include the space in the path
+				projectFile = ~/[ ]/g.replace(projectFile, "\\ ");
+			}
 			return StringTools.trim(command + " " + projectFile + " " + target + " " + args.join(" "));
 		}
 		else

@@ -19,11 +19,11 @@ Lime is a flexible, cross-platform framework for native desktop, mobile and cons
 and Flash, HTML5 and WebAssembly.
 
 OpenFL is a productive 2D library built on Lime. More information about Lime and OpenFL are 
-available at [http://www.openfl.org](http://www.openfl.org)
+available at [https://www.openfl.org](https://www.openfl.org)
 
 # Feedback
 
-For questions, comments or concerns, please visit the forums at [http://community.openfl.org](http://community.openfl.org)
+For questions, comments or concerns, please visit the forums at [https://community.openfl.org](https://community.openfl.org)
 
 # Using Development Builds
 

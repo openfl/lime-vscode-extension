@@ -25,7 +25,7 @@
 	"author": "Joshua Granick",
 	"license": "MIT",
 	"bugs": "https://github.com/openfl/lime-vscode-extension/issues",
-	"homepage": "http://www.openfl.org",
+	"homepage": "https://www.openfl.org",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/openfl/lime-vscode-extension"

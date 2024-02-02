@@ -1,5 +1,14 @@
 # Change Log
 
+1.5.1 (02/01/2024)
+------------------
+
+* Fixed "Error: Incorrect number of arguments for command 'display'" when `lime.projectFile` path contains spaces.
+* Fixed incorrect request to install Lime if `haxelib config` returns a non-zero exit code because the user probably hasn't run `haxelib setup` yet. The Haxe extension will provide an appropriate error message and resolution options.
+* Fixed generated `lime` command arguments when `lime.projectFile` is explicitly set to _project.xml_.
+* Fixed `lime setup -alias` issue where it froze asking for input. Now passes the `-y` option.
+* Fixed incorrect attempt to install Lime when `lime.executable` points to a custom command.
+
 1.5.0 (02/02/2023)
 ------------------
 

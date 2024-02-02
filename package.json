@@ -6,7 +6,7 @@
 		"vscode": "^1.42.0",
 		"nadako.vshaxe": "^2.19.1"
 	},
-	"displayName": "Lime",
+	"displayName": "Lime and OpenFL",
 	"description": "Lime and OpenFL project support",
 	"categories": [
 		"Other"

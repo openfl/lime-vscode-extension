@@ -39,6 +39,7 @@ class Main
 	private var limeVersion = new SemVer(0, 0, 0);
 	private var limeReadyProcess:js.node.child_process.ChildProcess;
 	private var limeOutputChannel:OutputChannel;
+	private var limeSetupAliasComplete = false;
 
 	public function new(context:ExtensionContext)
 	{
@@ -678,6 +679,7 @@ class Main
 											progress.report({message: "Setting up Lime…"});
 											limeReadyProcess = ChildProcess.exec("haxelib run lime setup", (error, stdout, stderr) ->
 											{
+												limeSetupAliasComplete = true;
 												limeReadyProcess = null;
 												resolve(null);
 												if (error == null)
@@ -709,7 +711,7 @@ class Main
 				});
 			return false;
 		}
-		if (!Hasbin.sync("lime") && Sys.systemName() == "Windows")
+		if (!limeSetupAliasComplete && !Hasbin.sync("lime") && Sys.systemName() == "Windows")
 		{
 			// if lime was installed already, set up the alias, if needed.
 			// this works on windows automatically. however, for mac and linux,
@@ -722,6 +724,13 @@ class Main
 				{
 					limeReadyProcess = ChildProcess.exec("haxelib run lime setup -alias -y", (error, stdout, stderr) ->
 					{
+						// set the alias complete flag to true whether it was
+						// successful or not because we don't want to get into
+						// a state where we try to install the alias repeatedly,
+						// in a sort of infinite loop.
+						// sometimes, the alias cannot be copied, but we can use
+						// the "haxelib run lime" command as a fallback.
+						limeSetupAliasComplete = true;
 						limeReadyProcess = null;
 						resolve(null);
 						if (error == null)
@@ -1367,8 +1376,14 @@ class Main
 		});
 	}
 
-	private function workspace_onDidChangeConfiguration(_):Void
+	private function workspace_onDidChangeConfiguration(e:ConfigurationChangeEvent):Void
 	{
+		if (e.affectsConfiguration("lime.executable"))
+		{
+			// if the lime executable is cleared, we can attempt to install the
+			// alias again, if it is missing.
+			limeSetupAliasComplete = false;
+		}
 		refresh();
 	}
 

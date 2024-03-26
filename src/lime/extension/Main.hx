@@ -764,9 +764,15 @@ class Main
 
 		if (!hasProjectFile || !isProviderActive) return config;
 
-		if (limeVersion < new SemVer(7, 3, 0))
+		if (limeVersion == new SemVer(0, 0, 0))
 		{
-			var message = 'Lime debug support requires Lime 7.3.0 (or greater)';
+			var message = 'Lime debug support requires Lime 7.3.0 (or greater) to be installed, but Lime not found.';
+			window.showWarningMessage(message);
+			return config;
+		}
+		else if (limeVersion < new SemVer(7, 3, 0))
+		{
+			var message = 'Lime debug support requires Lime 7.3.0 (or greater). Found Lime ${limeVersion.major}.${limeVersion.minor}.${limeVersion.patch} instead.';
 			window.showWarningMessage(message);
 			return config;
 		}

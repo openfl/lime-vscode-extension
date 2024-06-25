@@ -973,20 +973,6 @@ class Main
 
 	private function resolveHLDebugConfiguration(config:Dynamic, outputFile:String):ProviderResult<DebugConfiguration>
 	{
-		if (Sys.systemName() == "Mac")
-		{
-			// copied from https://github.com/vshaxe/hashlink-debugger/blob/master/src/Extension.hx
-			final visitButton = "Visit GitHub Issue";
-			Vscode.window.showErrorMessage("HashLink debugging on macOS is not supported yet.", visitButton).then(function(choice)
-			{
-				if (choice == visitButton)
-				{
-					Vscode.env.openExternal(Uri.parse("https://github.com/vshaxe/hashlink-debugger/issues/28"));
-				}
-			});
-			return null;
-		}
-
 		config.type = "hl";
 		config.cwd = "${workspaceFolder}/" + Path.directory(outputFile);
 		config.program = config.cwd + "/hlboot.dat";

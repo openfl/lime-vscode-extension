@@ -1470,7 +1470,7 @@ class Main
 	}
 }
 
-@:enum private abstract LimeCommand(String) from String to String
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract LimeCommand(String) from String to String
 {
 	var CLEAN = "clean";
 	var UPDATE = "update";

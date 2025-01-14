@@ -999,25 +999,25 @@ class Main
 				}
 				else
 				{
-					config.hl = Path.join([
-						limePath,
-						"templates/bin/hl",
-						switch (Sys.systemName())
-						{
-							case "Windows":
-								"windows/hl.exe";
-							case "Linux":
-								"linux/hl";
-							case "Mac":
-								"mac/hl";
-							case other:
-								throw 'unsupported OS $other';
-						}
-					]);
+					var exeRelativePath:String = null;
+					switch (Sys.systemName())
+					{
+						case "Windows":
+							exeRelativePath = "windows/hl.exe";
+						case "Linux":
+							exeRelativePath = "linux/hl";
+						case "Mac":
+							exeRelativePath = "mac/hl";
+						case other:
+							reject('unsupported OS for HashLink debugging $other');
+							return;
+					}
+					config.hl = Path.join([limePath, "templates/bin/hl", exeRelativePath]);
 				}
 				if (!FileSystem.exists(config.hl))
 				{
-					throw "Unable to locate HL binary - maybe your Lime version is too old.";
+					reject("Unable to locate HashLink binary for Lime " + limeVersion + " at path " + config.hl);
+					return;
 				}
 
 				config.classPaths = classPaths;

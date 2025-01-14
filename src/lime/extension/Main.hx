@@ -1013,11 +1013,11 @@ class Main
 							return;
 					}
 					config.hl = Path.join([limePath, "templates/bin/hl", exeRelativePath]);
-				}
-				if (!FileSystem.exists(config.hl))
-				{
-					reject("Unable to locate HashLink binary for Lime " + limeVersion + " at path " + config.hl);
-					return;
+					if (!FileSystem.exists(config.hl))
+					{
+						reject("Unable to locate HashLink binary for Lime " + limeVersion + " at path " + config.hl);
+						return;
+					}
 				}
 
 				config.classPaths = classPaths;

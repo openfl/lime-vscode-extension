@@ -265,8 +265,8 @@
 		"nadako.vshaxe"
 	],
 	"haxeDependencies": {
-		"haxe": "4.0.5",
-		"haxelib": "4.0.2"
+		"haxe": "4.3.6",
+		"haxelib": "4.1.0"
 	},
 	"__metadata": {
 		"id": "c1cbdc7a-9c92-422b-87af-d193b3444f23",

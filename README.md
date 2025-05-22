@@ -8,8 +8,8 @@ and [OpenFL](https://openfl.org/) libraries. You'll get code completion and
 inline documentation, a fully populated Haxe dependency tree, and the ability to
 run tasks to build, clean, and test your projects.
 
-You can also use this extension to develop projects that depend on popula
- OpenFL libraries, including [HaxeFlixel](https://haxeflixel.com/),
+You can also use this extension to develop projects that depend on popular
+OpenFL libraries, including [HaxeFlixel](https://haxeflixel.com/),
 [Starling](https://github.com/openfl/starling) and
 [Away3D](https://github.com/openfl/away3d).
 

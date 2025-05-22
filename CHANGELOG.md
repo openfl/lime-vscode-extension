@@ -1,5 +1,14 @@
 # Change Log
 
+1.5.1 (05/22/2025)
+------------------
+
+* Fixed infinite re-attempts to create `lime` alias when executing Lime setup command after alias creation fails.
+* Fixed misleading error messages when debugging fails, but Lime is not installed.
+* Improved error message when Lime is too old by mentioning the version number that is installed.
+* Fixed outdated error message when trying to debug HashLink on macOS, and allow it.
+* Improved location of error message when HashLink is not found by making it more prominent instead of hidden in developer logs.
+
 1.5.1 (02/01/2024)
 ------------------
 

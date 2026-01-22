@@ -866,6 +866,21 @@ class Main
 			}
 
 			var targetItem = getTargetItem();
+			var commandLine = limeExecutable + " " + getCommandArguments("display", targetItem);
+			var additionalArgs = getDebugArguments(targetItem, null);
+			if (additionalArgs != null) commandLine += " " + additionalArgs.join(" ");
+			commandLine += " --output-file";
+			commandLine = StringTools.replace(commandLine, "-verbose", "");
+
+			try
+			{
+				var output = ChildProcess.execSync(commandLine, {cwd: workspace.workspaceFolders[0].uri.fsPath});
+				outputFile = StringTools.trim(Std.string(output));
+			}
+			catch (e:Dynamic)
+			{
+				trace(e);
+			}
 
 			if (!Reflect.hasField(config, "preLaunchTask"))
 			{

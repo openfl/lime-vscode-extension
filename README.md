@@ -66,6 +66,33 @@ shortcut. One option would be to set "Run Test Task" in keyboard shortcuts to
 <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>Cmd</kbd>+<kbd>Enter</kbd>) for accessing
 `lime test` quickly.
 
+### Debugging
+
+Lime supports many different build targets, and correctly configuring the
+debugger for each of these various targets can be tricky. To make things easier,
+the extension includes a special "lime" launch configuration type that will
+detect the current Lime build target selected in the status bar, and it will
+populate the resolved launch configuration with appropriate file system paths
+for executables, working directories, and other important things that the
+debugger expects.
+
+```json
+{
+    "name": "Lime",
+    "type": "lime",
+    "request": "launch"
+}
+```
+
+In addition to VSCode's built-in support for debugging JavaScript in Chromium
+based browsers, the following debugger extensions are supported for Lime
+projects:
+
+- [Debugger for Firefox](https://marketplace.visualstudio.com/items?itemName=firefox-devtools.vscode-firefox-debug)
+- [HXCPP debugger](https://marketplace.visualstudio.com/items?itemName=vshaxe.hxcpp-debugger)
+- [HashLink debugger](https://marketplace.visualstudio.com/items?itemName=HaxeFoundation.haxe-hl)
+- [Debugger for SWF](https://marketplace.visualstudio.com/items?itemName=bowlerhatllc.vscode-swf-debug) or [Flash Debugger](https://marketplace.visualstudio.com/items?itemName=vshaxe.haxe-debug)
+
 
 ## Using Development Builds
 

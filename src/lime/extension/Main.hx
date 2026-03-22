@@ -1135,6 +1135,7 @@ class Main
 			else
 			{
 				var hxml = stdout.toString();
+				hxml += getTargetFlags().split(" ").join("\n");
 				var projectDirectory = getProjectDirectory();
 				if (projectDirectory != "")
 				{

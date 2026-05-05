@@ -1,6 +1,13 @@
 # Change Log
 
-1.5.1 (05/22/2025)
+1.5.3 (??/??/2026)
+------------------
+
+* Fixed missing target flags when generating HXML.
+* Fixed HashLink debugging on Intel macOS.
+* Fixed incorrectly corrupting output file by appending current working directory.
+
+1.5.2 (05/22/2025)
 ------------------
 
 * Fixed infinite re-attempts to create `lime` alias when executing Lime setup command after alias creation fails.

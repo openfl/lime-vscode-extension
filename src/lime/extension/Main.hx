@@ -988,7 +988,17 @@ class Main
 
 				if (limeVersion >= new SemVer(8, 0, 0))
 				{
-					config.hl = Path.join([getProjectDirectory(), outputFile]);
+					switch (Sys.systemName())
+					{
+						case "Mac":
+							// on macOS only, Lime's output file is a shell
+							// script that calls the hl executable.
+							// for debugging, we should bypass the shell script
+							// and launch the hl executable directly.
+							config.hl = Path.join([getProjectDirectory(), Path.directory(outputFile), "hl"]);
+						default:
+							config.hl = Path.join([getProjectDirectory(), outputFile]);
+					}
 				}
 				else
 				{

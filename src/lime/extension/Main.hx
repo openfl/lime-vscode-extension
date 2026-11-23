@@ -1202,6 +1202,7 @@ class Main
 
 			case "Linux":
 				limeTargets.set("linux", "Linux");
+				limeTargets.set("air", "AIR");
 
 			case "Mac":
 				limeTargets.set("mac", "macOS");
